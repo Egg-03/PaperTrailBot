@@ -18,9 +18,14 @@ class MessagePass extends ListenerAdapter{
 		
 		Message msg = event.getMessage();
 		String content = msg.getContentRaw();
-		if(content.matches("^.img ([^\n]+)")) {
+		
+		if(content.equals("!ping")){
+			MessageChannel channel = event.getChannel();
+			channel.getJDA().getRestPing().queue(time ->
+		     channel.sendMessageFormat("``%d ms``", time).queue());
+		}
+		else if(content.matches("^.img ([^\n]+)")) {
 			String searchTerm = content.substring(content.indexOf(".img")+5).strip();
-			System.out.println(searchTerm);
 			String searchTermURL = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
 		    String imageUrl = "https://www.google.com/search?q=images+" + searchTermURL;
 		    
