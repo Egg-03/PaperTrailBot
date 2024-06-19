@@ -2,6 +2,7 @@ package starter;
 
 import listeners.MessageListener;
 import listeners.ReactionListener;
+import listeners.RecoverDeletedMessages;
 import listeners.SimpleImageProvider;
 
 public class FireRun {
@@ -11,6 +12,7 @@ public class FireRun {
 		ci.getManager().addEventListener(new ReactionListener());
 		ci.getManager().addEventListener(new MessageListener());
 		ci.getManager().addEventListener(new SimpleImageProvider());
+		ci.getManager().addEventListener(new RecoverDeletedMessages());
 	}
 
 }
