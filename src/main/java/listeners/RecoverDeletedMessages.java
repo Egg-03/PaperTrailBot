@@ -24,7 +24,7 @@ public class RecoverDeletedMessages extends ListenerAdapter {
 		String messageContent = messageCache.get(key);
 		
 		if(messageContent!=null && !messageContent.isEmpty()) {
-			event.getGuild().getDefaultChannel().asTextChannel().sendMessage("``Deleted Text: "+messageContent+"``").queue();
+			event.getGuild().getDefaultChannel().asTextChannel().sendMessage("``Recovered Text: "+messageContent+"``").queue();
 			messageCache.remove(key);
 		}
 	}
