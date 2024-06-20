@@ -21,6 +21,7 @@ public class MessageListener extends ListenerAdapter {
 		//ping command
 		else if(message.equals("!ping")){
 			MessageChannel channel = event.getChannel();
+			//rest callback
 			channel.getJDA().getRestPing().queue(time ->
 		     channel.sendMessageFormat("``%d ms``", time).queue());
 		}

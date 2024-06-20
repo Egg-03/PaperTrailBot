@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class ReactionListener extends ListenerAdapter {
 	@Override
 	public void onMessageReactionAdd(MessageReactionAddEvent event) {
+		//callback for REST Action
+		//does not require cache
+		//Since cache is enabled, retrieveUser() returns getUser() instead and skips the REST Action
 		event.retrieveUser().queue(user->{
 			if(!user.isBot()) {
 				String emoji = event.getReaction().getEmoji().getAsReactionCode();

@@ -1,5 +1,6 @@
 package starter;
 
+import listeners.MemberList;
 import listeners.MessageListener;
 import listeners.ReactionListener;
 import listeners.RecoverDeletedMessages;
@@ -15,6 +16,7 @@ public class FireRun {
 		ci.getManager().addEventListener(new SimpleImageProvider());
 		ci.getManager().addEventListener(new RecoverDeletedMessages());
 		ci.getManager().addEventListener(new UserUpdateListener());
+		ci.getManager().addEventListener(new MemberList());
 	}
 
 }
