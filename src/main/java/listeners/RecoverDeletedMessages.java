@@ -13,7 +13,7 @@ public class RecoverDeletedMessages extends ListenerAdapter {
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 		if(!event.getAuthor().isBot()) {
-			messageCache.put(event.getMessageId(), event.getMessage().getContentRaw());
+			messageCache.put(event.getMessageId(), event.getAuthor().getName()+": "+event.getMessage().getContentRaw()+", in channel: "+event.getChannel().getName());
 		}
 			
 	}
@@ -24,7 +24,7 @@ public class RecoverDeletedMessages extends ListenerAdapter {
 		String messageContent = messageCache.get(key);
 		
 		if(messageContent!=null && !messageContent.isEmpty()) {
-			event.getGuild().getDefaultChannel().asTextChannel().sendMessage("``Recovered Text: "+messageContent+"``").queue();
+			event.getGuild().getTextChannelById(1263139186110627892L).sendMessage("``Recovered Text: "+messageContent+"``").queue();
 			messageCache.remove(key);
 		}
 	}
