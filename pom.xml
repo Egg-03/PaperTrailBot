@@ -1,63 +1,43 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.egg.imagebot</groupId>
-  <artifactId>imgbot</artifactId>
+  <groupId>org.egg.simplelogger</groupId>
+  <artifactId>simple-logger</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>ImageBot</name>
-  <description>Discord image bot</description>
+  <name>Simple Logger</name>
+  <description>Discord Activity Logging Bot</description>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
   
-  <dependencies>
-   <dependency>
-   <groupId>net.dv8tion</groupId>
-   <artifactId>JDA</artifactId>
-   <version>5.0.0-beta.24</version>
-  </dependency>
+ <dependencies>
+	<dependency>
+    	<groupId>net.dv8tion</groupId>
+    	<artifactId>JDA</artifactId>
+    	<version>5.6.1</version>
+	</dependency>
   
-  <dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.5.6</version>
-  </dependency>
+  	<dependency>
+    	<groupId>ch.qos.logback</groupId>
+    	<artifactId>logback-classic</artifactId>
+    	<version>1.5.18</version>
+  	</dependency>
   
-  <dependency>
-    <groupId>io.github.cdimascio</groupId>
-    <artifactId>dotenv-java</artifactId>
-    <version>3.0.0</version>
-  </dependency>
+  	<dependency>
+    	<groupId>io.github.cdimascio</groupId>
+    	<artifactId>dotenv-java</artifactId>
+    	<version>3.2.0</version>
+ 	</dependency>
 </dependencies>
 <build>
     <plugins>
         <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.8.1</version>
+            <version>3.14.0</version>
             <configuration>
                 <source>21</source>
                 <target>21</target>
             </configuration>
-        </plugin>
-        <plugin>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.2.4</version>
-            <configuration>
-                <transformers>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>YourMainClass</mainClass> <!--  -->
-                    </transformer>
-                </transformers>
-                <createDependencyReducedPom>false</createDependencyReducedPom>
-            </configuration>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>shade</goal>
-                    </goals>
-                </execution>
-            </executions>
         </plugin>
     </plugins>
 </build>
