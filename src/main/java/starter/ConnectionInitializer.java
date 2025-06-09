@@ -21,7 +21,8 @@ public class ConnectionInitializer {
 		DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token);
 		builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MODERATION);
 		builder.setStatus(OnlineStatus.ONLINE);
-		builder.setActivity(Activity.watching("Text Messages"));
+		builder.setActivity(Activity.watching("Logs"));
+		
 		//cache all users of the bot
 		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 		builder.setChunkingFilter(ChunkingFilter.ALL);
