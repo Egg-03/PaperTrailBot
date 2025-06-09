@@ -1,0 +1,17 @@
+# Importing JDK and copying required files
+FROM openjdk:21-jdk AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src src
+
+# Build the JAR file using Maven.
+RUN mvn clean package -DskipTests
+
+# Stage 2: Create the final Docker image using OpenJDK 21
+FROM openjdk:21-jdk
+VOLUME /tmp
+
+# Copy the JAR from the build stage
+COPY --from=build /app/target/simple-logger.jar simple-logger.jar
+ENTRYPOINT ["java","-jar","simple-logger.jar", " --trace"]
+EXPOSE 8080

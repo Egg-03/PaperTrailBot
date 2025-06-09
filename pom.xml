@@ -50,6 +50,10 @@
     			</execution>
   			</executions>
   			<configuration>
+  				<!-- Set the final name for the assembly plugin's output -->
+                <finalName>${project.artifactId}</finalName>
+                <!-- Do not append the assembly ID (e.g., -jar-with-dependencies) -->
+                <appendAssemblyId>false</appendAssemblyId>
     			<archive>
       				<manifest>
         				<addClasspath>true</addClasspath>
