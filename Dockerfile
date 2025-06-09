@@ -4,8 +4,13 @@ WORKDIR /app
 COPY pom.xml .
 COPY src src
 
-# Build the JAR file using Maven.
-RUN mvn clean package -DskipTests
+# Copy Maven wrapper
+COPY mvnw .
+COPY .mvn .mvn
+
+# Set execution permission for the Maven wrapper
+RUN chmod +x ./mvnw
+RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Create the final Docker image using OpenJDK 21
 FROM openjdk:21-jdk
