@@ -16,9 +16,9 @@ public class AuditLogListener extends ListenerAdapter{
 	private String textChannel;
 	 @Override
 	 public void onMessageReceived(MessageReceivedEvent event) {
-		 if(event.getMessage().getContentRaw().equals("!register")) {
+		 if(event.getMessage().getContentRaw().equals("!a")) {
 			 textChannel=event.getChannel().asTextChannel().getId();
-			 event.getGuild().getTextChannelById(textChannel).sendMessage("All info will be logged here").queue();
+			 event.getGuild().getTextChannelById(textChannel).sendMessage("All audit log info will be logged here").queue();
 		 }	 
 	 }
 	 
