@@ -45,7 +45,7 @@ public class AuditLogListener extends ListenerAdapter{
 			 Object newValue = changes.getValue().getNewValue();
 			 
 			 if(oldValue==null) {
-				 eb.addField(change, "to "+newValue.toString(), false);
+				 eb.addField(change, newValue.toString(), false);
 			 } else if(newValue==null){
 				 eb.addField(change, "from "+oldValue.toString()+" to null", false);
 			 } else {
