@@ -2,19 +2,27 @@ package starter;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.SQLException;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import listeners.AuditLogListener;
 import listeners.ReactionListener;
+import listeners.auditloglistener.AuditLogCommandListener;
+import listeners.auditloglistener.AuditLogListener;
+import utilities.DatabaseConnector;
 
 public class FireRun {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, SQLException {
+		
+		DatabaseConnector dc = new DatabaseConnector();
+		
 		ConnectionInitializer ci = new ConnectionInitializer();
-		ci.getManager().addEventListener(new AuditLogListener());
+		ci.getManager().addEventListener(new AuditLogCommandListener(dc));
+		ci.getManager().addEventListener(new AuditLogListener(dc));
+		
 		ci.getManager().addEventListener(new ReactionListener());
 		
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);

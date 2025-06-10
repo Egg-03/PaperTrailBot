@@ -1,4 +1,4 @@
-package listeners;
+package listeners.auditloglistener;
 
 import java.awt.Color;
 import java.util.Map.Entry;
@@ -8,23 +8,25 @@ import net.dv8tion.jda.api.audit.AuditLogChange;
 import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import utilities.DatabaseConnector;
+import utilities.TableNames;
 
 public class AuditLogListener extends ListenerAdapter{
 	
-	private String textChannel;
-	 @Override
-	 public void onMessageReceived(MessageReceivedEvent event) {
-		 if(event.getMessage().getContentRaw().equals("!a")) {
-			 textChannel=event.getChannel().asTextChannel().getId();
-			 event.getGuild().getTextChannelById(textChannel).sendMessage("All audit log info will be logged here").queue();
-		 }	 
-	 }
-	 
+	private DatabaseConnector dc;
+	
+	 public AuditLogListener(DatabaseConnector dc) {
+		this.dc=dc;
+	}
+ 
 	 @Override
 	 public void onGuildAuditLogEntryCreate(GuildAuditLogEntryCreateEvent event) {
-		 if(textChannel==null ||textChannel.isBlank()) {
+		 
+		 // this will return a non-null text id if a channel was previously registered in the database
+		 String textChannelId=dc.retrieveChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		 
+		 if(textChannelId==null ||textChannelId.isBlank()) {
 			 return;
 		 }
 		 
@@ -57,6 +59,6 @@ public class AuditLogListener extends ListenerAdapter{
 		 
 		 MessageEmbed mb = eb.build();
 		 
-		 event.getGuild().getTextChannelById(textChannel).sendMessageEmbeds(mb).queue();
+		 event.getGuild().getTextChannelById(textChannelId).sendMessageEmbeds(mb).queue();
 	 }
 }

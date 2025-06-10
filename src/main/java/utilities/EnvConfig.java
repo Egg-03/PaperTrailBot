@@ -1,4 +1,4 @@
-package starter;
+package utilities;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
