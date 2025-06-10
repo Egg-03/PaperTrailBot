@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import utilities.DatabaseConnector;
@@ -96,7 +97,14 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				
 				eb.clearFields();
 			} else {
-				eb.addField("Audit Log Registration Check", event.getJDA().getTextChannelById(textChannelId).getAsMention()+ " has been registered as the audit log channel", false);
+				// check if the channelId actually exists in the guild
+				// this is particularly useful when a channel that was set for logging may have been deleted
+				TextChannel registeredChannel =  event.getJDA().getTextChannelById(textChannelId);
+				if(registeredChannel==null) {
+					eb.addField("Audit Log Registration Check", textChannelId+" does not exist. Please remove it using `!ualc` and re-register using `!alc`", false);
+				} else {
+					eb.addField("Audit Log Registration Check", registeredChannel.getAsMention()+ " has been registered as the audit log channel", false);
+				}
 				
 				MessageEmbed mb = eb.build();
 				event.getGuild()
