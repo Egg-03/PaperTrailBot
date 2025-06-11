@@ -49,7 +49,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case AUTO_MODERATION_RULE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case BAN -> formatBan(event, ale, channelIdToSendTo);
-		case BOT_ADD -> formatGeneric(event, ale, channelIdToSendTo);
+		case BOT_ADD -> formatBotAdd(event, ale, channelIdToSendTo);
 		case CHANNEL_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case CHANNEL_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -390,6 +390,29 @@ public class AuditLogListener extends ListenerAdapter{
 			}
 		}
 
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatBotAdd(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		User target = ale.getJDA().getUserById(ale.getTargetIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.CYAN);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Added a bot: ", (target!=null ? target.getAsMention() : ale.getTargetId()), false);
+		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
