@@ -8,9 +8,8 @@ import java.sql.SQLException;
 
 public class DatabaseConnector {
 
-	private static final String DB_URL = "jdbc:postgresql://" + EnvConfig.get("PGHOST") + "/neondb?user="
-			+ EnvConfig.get("PGUSER") + "&password=" + EnvConfig.get("PGPASSWORD") + "&sslmode=require";
-	
+	private static final String DB_URL = "jdbc:postgresql://" + EnvConfig.get("PGHOST") + "/defaultdb?ssl=require&user="
+			+ EnvConfig.get("PGUSER") + "&password=" + EnvConfig.get("PGPASSWORD");
 	
 	private Connection connect;
 	
