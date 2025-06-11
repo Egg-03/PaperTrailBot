@@ -120,14 +120,8 @@ public class AuditLogListener extends ListenerAdapter{
 			String change = changes.getKey();
 			Object oldValue = changes.getValue().getOldValue();
 			Object newValue = changes.getValue().getNewValue();
-
-			if(oldValue==null && newValue!=null) {
-				eb.addField(change, newValue.toString(), false);
-			} else if(oldValue!=null && newValue==null ){
-				eb.addField(change, "from "+oldValue.toString()+" to null", false);
-			} else if(oldValue!=null && newValue!=null) {
-				eb.addField(change, "from "+oldValue.toString()+" to "+newValue.toString(), false);
-			}
+			
+			eb.addField(change, "from "+oldValue+" to "+newValue, false);		
 		}
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
@@ -197,13 +191,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+newValue.toString()+"`"), false);
 				break;
 			default:
-				if(oldValue==null && newValue!=null) {
-					eb.addField(change, newValue.toString(), false);
-				} else if(oldValue!=null && newValue==null ){
-					eb.addField(change, "from "+oldValue.toString()+" to null", false);
-				} else if(oldValue!=null && newValue!=null) {
-					eb.addField(change, "from "+oldValue.toString()+" to "+newValue.toString(), false);
-				}
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
 			}
 		}
 
@@ -257,13 +245,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+oldValue.toString()+"`"), false);
 				break;
 			default:
-				if(oldValue==null && newValue!=null) {
-					eb.addField(change, newValue.toString(), false);
-				} else if(oldValue!=null && newValue==null ){
-					eb.addField(change, "from "+oldValue.toString()+" to null", false);
-				} else if(oldValue!=null && newValue!=null) {
-					eb.addField(change, "from "+oldValue.toString()+" to "+newValue.toString(), false);
-				}
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
 			}
 		}
 
@@ -399,18 +381,12 @@ public class AuditLogListener extends ListenerAdapter{
 				} else if(oldValue!=null && newValue!=null) { // changing from one nickname to another
 					eb.addField("Nickname Update", "Updated "+targetMention+"'s name from "+oldValue.toString()+ " to "+ newValue.toString(), false);
 				} else if(oldValue==null && newValue!=null) { // changing from default nickname to a new nickname
-					eb.addField("Nickname Update", "Set "+targetMention+" name as "+ newValue.toString(), false);
+					eb.addField("Nickname Update", "Set "+targetMention+"'s name as "+ newValue.toString(), false);
 				}
 				break;
 
 			default:
-				if(oldValue==null && newValue!=null) {
-					eb.addField(change, newValue.toString(), false);
-				} else if(oldValue!=null && newValue==null ){
-					eb.addField(change, "from "+oldValue.toString()+" to null", false);
-				} else if(oldValue!=null && newValue!=null) {
-					eb.addField(change, "from "+oldValue.toString()+" to "+newValue.toString(), false);
-				}	
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
 			}
 		}
 
@@ -421,7 +397,4 @@ public class AuditLogListener extends ListenerAdapter{
 
 		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
 	}
-
-
-
 }
