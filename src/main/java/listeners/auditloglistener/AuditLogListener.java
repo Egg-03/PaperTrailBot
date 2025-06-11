@@ -350,7 +350,7 @@ public class AuditLogListener extends ListenerAdapter{
 				if(newValue==null) {
 					eb.setColor(Color.GREEN);
 					eb.addField("Timeout Lifted", "Timeout for "+(target !=null ? target.getAsMention() : ale.getTargetId())+ " has been removed", false);
-				} else if(oldValue==null) {
+				} else {
 					eb.setColor(Color.YELLOW);
 					eb.addField("Timeout Received", (target !=null ? target.getAsMention() : ale.getTargetId())+ " has received a timeout", false);
 					eb.addField("Till", DurationFormatter.isoToLocalTimeCounter(String.valueOf(newValue)), false);
