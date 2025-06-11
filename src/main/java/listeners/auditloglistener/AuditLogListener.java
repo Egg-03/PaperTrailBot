@@ -1,7 +1,6 @@
 package listeners.auditloglistener;
 
 import java.awt.Color;
-import java.time.Duration;
 import java.util.Map.Entry;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -14,6 +13,7 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import utilities.DatabaseConnector;
+import utilities.DurationFormatter;
 import utilities.TableNames;
 
 public class AuditLogListener extends ListenerAdapter{
@@ -131,20 +131,6 @@ public class AuditLogListener extends ListenerAdapter{
 		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
 	}
 
-	private String formatDuration(int seconds) {
-		if (seconds == 0) return "Never";
-		Duration d = Duration.ofSeconds(seconds);
-		long days = d.toDays();
-		long hours = d.toHoursPart();
-		long minutes = d.toMinutesPart();
-
-		StringBuilder sb = new StringBuilder();
-		if (days > 0) sb.append(days).append("d ");
-		if (hours > 0) sb.append(hours).append("h ");
-		if (minutes > 0) sb.append(minutes).append("m");
-		return sb.toString().trim();
-	}
-
 	private void formatInviteCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale , String channelIdToSendTo) {
 
 		EmbedBuilder eb = new EmbedBuilder(); 
@@ -184,7 +170,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 
 			case "max_age":
-				eb.addField("Expires After", formatDuration((Integer) newValue), false);
+				eb.addField("Expires After", DurationFormatter.formatInviteDuration((Integer) newValue), false);
 				break;
 			case "channel_id":
 				Channel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
@@ -367,7 +353,7 @@ public class AuditLogListener extends ListenerAdapter{
 				} else if(oldValue==null) {
 					eb.setColor(Color.YELLOW);
 					eb.addField("Timeout Received", (target !=null ? target.getAsMention() : ale.getTargetId())+ " has received a timeout", false);
-					eb.addField("Till", newValue.toString(), false);
+					eb.addField("Till", DurationFormatter.isoToLocalTimeCounter(String.valueOf(newValue)), false);
 					eb.addField("Reason", (ale.getReason()!=null ? ale.getReason() : "No Reason Provided"), false);
 				}
 					
