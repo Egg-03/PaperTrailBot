@@ -60,8 +60,8 @@ public class AuditLogListener extends ListenerAdapter{
 		case EMOJI_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case EMOJI_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case GUILD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case INTEGRATION_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case INTEGRATION_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
+		case INTEGRATION_CREATE -> formatIntegrationCreate(event, ale, channelIdToSendTo);
+		case INTEGRATION_DELETE -> formatIntegrationDelete(event, ale, channelIdToSendTo);
 		case INTEGRATION_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case INVITE_CREATE -> formatInviteCreate(event, ale, channelIdToSendTo);
 		case INVITE_DELETE -> formatInviteDelete(event, ale, channelIdToSendTo);
@@ -413,6 +413,88 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.addField("Target Type", ale.getTargetType().toString(), true);
 		eb.addField("Added a bot: ", (target!=null ? target.getAsMention() : ale.getTargetId()), false);
 		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatIntegrationCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.PINK);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "type":
+				eb.addField("Integration Type", String.valueOf(newValue), false);
+				break;
+			
+			case "name":
+				eb.addField("Integration Name", String.valueOf(newValue), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatIntegrationDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "type":
+				eb.addField("Integration Type", String.valueOf(oldValue), false);
+				break;
+			
+			case "name":
+				eb.addField("Integration Name", String.valueOf(oldValue), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+			
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
