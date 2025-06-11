@@ -175,7 +175,11 @@ public class AuditLogListener extends ListenerAdapter{
 				 eb.addField("Temporary Invite", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
 				 break;
 				 
-			 case "max_uses", "uses", "flags":
+			 case "max_uses":
+				 int maxUses = Integer.parseInt(newValue.toString());
+				 eb.addField("Max Uses", (maxUses == 0 ? "Unlimited" : String.valueOf(maxUses)), false);
+				 break;
+			 case "uses", "flags":
 				 break;
 			 
 			 case "max_age":
@@ -215,9 +219,11 @@ public class AuditLogListener extends ListenerAdapter{
 				 eb.addField("Temporary Invite", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
 				 break;
 				 
-			 case "max_uses", "uses", "flags", "max_age":
+			 case "max_uses", "flags", "max_age":
 				 break;
-			 
+			 case "uses":
+				 eb.addField("Number of times the invite was used", oldValue.toString(), false);
+				 break;
 			 case "channel_id":
 				 Channel channel = ale.getGuild().getGuildChannelById(String.valueOf(oldValue));
 				 eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+oldValue.toString()+"`"), false);
