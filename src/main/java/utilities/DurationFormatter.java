@@ -10,8 +10,8 @@ public class DurationFormatter {
 		throw new IllegalStateException("Utility Class");
 	}
 	
-	public static String formatInviteDuration(int seconds) {
-		if (seconds == 0) return "Never";
+	public static String formatSeconds(int seconds) {
+		if (seconds == 0) return "No Limits";
 		Duration d = Duration.ofSeconds(seconds);
 		long days = d.toDays();
 		long hours = d.toHoursPart();
@@ -21,6 +21,18 @@ public class DurationFormatter {
 		if (days > 0) sb.append(days).append("d ");
 		if (hours > 0) sb.append(hours).append("h ");
 		if (minutes > 0) sb.append(minutes).append("m");
+		return sb.toString().trim();
+	}
+	
+	public static String formatMinutes(int minutes) {
+		if (minutes == 0) return "No Limits";
+		Duration d = Duration.ofMinutes(minutes);
+		long days = d.toDays();
+		long hours = d.toHoursPart();
+		
+		StringBuilder sb = new StringBuilder();
+		if (days > 0) sb.append(days).append("d ");
+		if (hours > 0) sb.append(hours).append("h ");
 		return sb.toString().trim();
 	}
 	

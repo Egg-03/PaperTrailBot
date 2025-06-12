@@ -10,11 +10,13 @@ import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import utilities.DatabaseConnector;
 import utilities.DurationFormatter;
 import utilities.TableNames;
+import utilities.TypeResolver;
 
 public class AuditLogListener extends ListenerAdapter{
 
@@ -50,12 +52,12 @@ public class AuditLogListener extends ListenerAdapter{
 		case AUTO_MODERATION_RULE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case BAN -> formatBan(event, ale, channelIdToSendTo);
 		case BOT_ADD -> formatBotAdd(event, ale, channelIdToSendTo);
-		case CHANNEL_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case CHANNEL_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
+		case CHANNEL_CREATE -> formatChannelCreate(event, ale, channelIdToSendTo);
+		case CHANNEL_DELETE -> formatChannelDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case CHANNEL_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
 		case EMOJI_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case EMOJI_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case EMOJI_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -170,10 +172,10 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 
 			case "max_age":
-				eb.addField("Expires After", DurationFormatter.formatInviteDuration((Integer) newValue), false);
+				eb.addField("Expires After", DurationFormatter.formatSeconds((Integer) newValue), false);
 				break;
 			case "channel_id":
-				Channel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
+				GuildChannel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
 				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+newValue.toString()+"`"), false);
 				break;
 			default:
@@ -474,6 +476,202 @@ public class AuditLogListener extends ListenerAdapter{
 			
 			case "name":
 				eb.addField("Integration Name", String.valueOf(oldValue), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatChannelCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "user_limit":
+				eb.addField("User Limit", TypeResolver.formatNumberOrUnlimited((Integer) newValue), false);
+				break;
+				
+			case "rate_limit_per_user":
+				eb.addField("Slowmode", DurationFormatter.formatSeconds((Integer) newValue), false);
+				break;
+				
+			case "type":
+				eb.addField("Channel Type", TypeResolver.channelTypeResolver((Integer) newValue), false);
+				break;
+				
+			case "nsfw":
+				eb.addField("NSFW", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				break;
+			
+			case "permission_overwrites", "flags":
+				break;
+				
+			case "name":
+				eb.addField("Channel Name", String.valueOf(newValue), false);
+				// provide a channel link next to its name
+				GuildChannel targetChannel = ale.getGuild().getGuildChannelById(ale.getTargetId());
+				eb.addField("Channel Link", (targetChannel!=null ? targetChannel.getAsMention() : ale.getTargetId()), true);
+				break;
+				
+			case "bitrate":
+				eb.addField("Voice Channel Bitrate", TypeResolver.voiceChannelBitrate((Integer) newValue), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatChannelUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addBlankField(true);
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "user_limit":
+				eb.addField("Old User Limit", TypeResolver.formatNumberOrUnlimited((Integer) oldValue), true);
+				eb.addField("New User Limit", TypeResolver.formatNumberOrUnlimited((Integer) newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "rate_limit_per_user":
+				eb.addField("Old Slowmode Value", DurationFormatter.formatSeconds((Integer) oldValue), true);
+				eb.addField("New Slowmode Value", DurationFormatter.formatSeconds((Integer) newValue), true);
+				eb.addBlankField(true);
+				break;
+					
+			case "nsfw":
+				eb.addField("Old NSFW Settings", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), true);
+				eb.addField("New NSFW Settings", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), true);
+				eb.addBlankField(true);
+				break;
+			
+			case "video_quality_mode":
+				eb.addField("Old Quality Mode", (oldValue == null ? "Unknown" : TypeResolver.videoQualityMode((Integer) oldValue)), true);
+				eb.addField("New Quality Mode", (newValue == null ? "Unknown" : TypeResolver.videoQualityMode((Integer) newValue)), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "name":
+				eb.addField("Old Channel Name", String.valueOf(oldValue), true);
+				eb.addField("New Channel Name", String.valueOf(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "bitrate":
+				eb.addField("Old Voice Channel Bitrate", TypeResolver.voiceChannelBitrate((Integer) oldValue), true);
+				eb.addField("New Voice Channel Bitrate", TypeResolver.voiceChannelBitrate((Integer) newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "rtc_region":
+				eb.addField("Old Region", String.valueOf(oldValue), true);
+				eb.addField("New Region", String.valueOf(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "topic":
+				eb.addField("Old Topic", String.valueOf(oldValue), true);
+				eb.addField("New topic", String.valueOf(newValue), true);
+				eb.addBlankField(true);
+				break;
+
+			case "default_auto_archive_duration":
+				eb.addField("Old Hide After Inactivity Timer", (oldValue==null ? "N/A" : DurationFormatter.formatMinutes((Integer) oldValue)), true);
+				eb.addField("New Hide After Inactivity Timer", (newValue==null ? "N/A" : DurationFormatter.formatMinutes((Integer) newValue)), true);
+				eb.addBlankField(true);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatChannelDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+			case "name":
+				eb.addField("Name", String.valueOf(oldValue), false);
+				break;
+				
+			case "type":
+				eb.addField("Type", TypeResolver.channelTypeResolver((Integer) oldValue), false);				
+				break;
+				
+			case "user_limit", "rate_limit_per_user", "nsfw", "permission_overwrites", "video_quality_mode", "flags", "bitrate":
 				break;
 				
 			default:
