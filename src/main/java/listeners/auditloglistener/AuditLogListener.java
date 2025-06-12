@@ -61,7 +61,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case CHANNEL_DELETE -> formatChannelDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_CREATE -> formatChannelOverrideCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case CHANNEL_OVERRIDE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case CHANNEL_OVERRIDE_UPDATE -> formatChannelOverrideUpdate(event, ale, channelIdToSendTo);
 		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
 		case EMOJI_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case EMOJI_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -719,6 +719,9 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 			
 			case "deny":
+				// in case the newValue returns null, return an empty list having no permissions
+				// usually newValue in deny/allow cases return 0 instead of null in case no overrides are created, but for null safety, this check is placed
+				// the oldValue will return null if a new channel is over-riden for the first time but we're not concerned with oldValue
 				List<String> deniedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
 				StringBuilder sbDenied = new StringBuilder();
 				for(String permission: deniedPermissions) {
@@ -728,6 +731,9 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "allow":
+				// in case the newValue returns null, return an empty list having no permissions
+				// usually newValue in deny/allow cases return 0 instead of null in case no overrides are created, but for null safety, this check is placed
+				// the oldValue will return null if a new channel is over-riden for the first time but we're not concerned with oldValue
 				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
 				StringBuilder sbAllowed = new StringBuilder();
 				for(String permission: allowedPermissions) {
@@ -754,6 +760,68 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
+		// add the target channel whose permissions were over-riden
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
+		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatChannelOverrideUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.PINK);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "deny":
+				List<String> deniedPermissions = (newValue==null ? Collections.list(null) : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				StringBuilder sbDenied = new StringBuilder();
+				for(String permission: deniedPermissions) {
+					sbDenied.append("❌").append(permission).append(System.lineSeparator());
+				}
+				// if a channel is synchronized with it's category, the permission list will be blank and the StringBuilder will return a blank string
+				eb.addField("Denied Permissions", (sbDenied.toString().isBlank() ? "Permissions Synced With Category" : sbDenied.toString()), false);
+				break;
+				
+			case "allow":
+				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				StringBuilder sbAllowed = new StringBuilder();
+				for(String permission: allowedPermissions) {
+					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
+				}
+				// if a channel is synchronized with it's category, the permission list will be blank and the StringBuilder will return a blank string
+				eb.addField("Allowed Permissions", (sbAllowed.toString().isBlank() ? "Permissions Synced With Category" : sbAllowed.toString()), false);
+				break;
+			
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+		
+		// add the target channel whose permissions were over-riden
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
+		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
 			
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
