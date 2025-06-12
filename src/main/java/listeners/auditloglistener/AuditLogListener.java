@@ -1,6 +1,8 @@
 package listeners.auditloglistener;
 
 import java.awt.Color;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
 
 import database.DatabaseConnector;
@@ -9,13 +11,16 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogChange;
 import net.dv8tion.jda.api.audit.AuditLogEntry;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import utilities.DurationFormatter;
+import utilities.PermissionResolver;
 import utilities.TypeResolver;
 
 public class AuditLogListener extends ListenerAdapter{
@@ -54,7 +59,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case BOT_ADD -> formatBotAdd(event, ale, channelIdToSendTo);
 		case CHANNEL_CREATE -> formatChannelCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_DELETE -> formatChannelDelete(event, ale, channelIdToSendTo);
-		case CHANNEL_OVERRIDE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case CHANNEL_OVERRIDE_CREATE -> formatChannelOverrideCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
@@ -672,6 +677,77 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "user_limit", "rate_limit_per_user", "nsfw", "permission_overwrites", "video_quality_mode", "flags", "bitrate", "rtc_region":
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatChannelOverrideCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.PINK);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+						
+			case "type":
+				eb.addField("Override Type", TypeResolver.channelOverrideTypeResolver((Integer) newValue), false);				
+				break;
+			
+			case "deny":
+				List<String> deniedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				StringBuilder sbDenied = new StringBuilder();
+				for(String permission: deniedPermissions) {
+					sbDenied.append("❌").append(permission).append(System.lineSeparator());
+				}
+				eb.addField("Denied Permissions", sbDenied.toString(), false);
+				break;
+				
+			case "allow":
+				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				StringBuilder sbAllowed = new StringBuilder();
+				for(String permission: allowedPermissions) {
+					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
+				}
+				eb.addField("Allowed Permissions", sbAllowed.toString(), false);
+				break;
+				
+			case "id":
+				
+				Member mb = event.getGuild().getMemberById(String.valueOf(newValue));
+				Role r = event.getGuild().getRoleById(String.valueOf(newValue));
+				
+				String mentionableRoleOrMember = "";
+				if(mb!=null) {
+					mentionableRoleOrMember = mb.getAsMention();
+				} else if (r!=null) {
+					mentionableRoleOrMember = r.getAsMention();
+				}
+				eb.addField("Target", mentionableRoleOrMember, false);
 				break;
 				
 			default:

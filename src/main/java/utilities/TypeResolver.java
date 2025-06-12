@@ -40,9 +40,9 @@ public class TypeResolver {
 
 	public static String videoQualityModeResolver(int qualityValue) {
 		return switch (qualityValue) {
-		case 1 -> "Auto";
-		case 2 -> "720p/full";
-		default -> String.valueOf(qualityValue);
+			case 1 -> "Auto";
+			case 2 -> "720p/full";
+			default -> String.valueOf(qualityValue);
 		};
 	}
 	
@@ -55,4 +55,11 @@ public class TypeResolver {
         return kbps + " kbps";
     }
 	
+	public static String channelOverrideTypeResolver (int type) {
+		return switch (type) {
+			case 0 -> "Role";
+			case 1 -> "Member/Application";
+			default -> "Unknown";
+		};
+	}
 }
