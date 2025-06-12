@@ -671,7 +671,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField("Type", TypeResolver.channelTypeResolver((Integer) oldValue), false);				
 				break;
 				
-			case "user_limit", "rate_limit_per_user", "nsfw", "permission_overwrites", "video_quality_mode", "flags", "bitrate":
+			case "user_limit", "rate_limit_per_user", "nsfw", "permission_overwrites", "video_quality_mode", "flags", "bitrate", "rtc_region":
 				break;
 				
 			default:
