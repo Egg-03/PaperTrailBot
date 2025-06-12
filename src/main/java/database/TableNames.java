@@ -1,4 +1,4 @@
-package utilities;
+package database;
 
 public class TableNames {
 	

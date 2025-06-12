@@ -38,7 +38,7 @@ public class TypeResolver {
 		}
 	}
 
-	public static String videoQualityMode(int qualityValue) {
+	public static String videoQualityModeResolver(int qualityValue) {
 		return switch (qualityValue) {
 		case 1 -> "Auto";
 		case 2 -> "720p/full";
@@ -46,7 +46,7 @@ public class TypeResolver {
 		};
 	}
 	
-	public static String voiceChannelBitrate(int bitrate) {
+	public static String voiceChannelBitrateResolver(int bitrate) {
         if (bitrate <= 0) {
             return "Unknown";
         }
@@ -54,4 +54,5 @@ public class TypeResolver {
         int kbps = bitrate / 1000;
         return kbps + " kbps";
     }
+	
 }

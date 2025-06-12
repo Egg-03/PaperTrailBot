@@ -3,6 +3,8 @@ package listeners.auditloglistener;
 import java.awt.Color;
 import java.util.Map.Entry;
 
+import database.DatabaseConnector;
+import database.TableNames;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogChange;
@@ -13,9 +15,7 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import utilities.DatabaseConnector;
 import utilities.DurationFormatter;
-import utilities.TableNames;
 import utilities.TypeResolver;
 
 public class AuditLogListener extends ListenerAdapter{
@@ -538,7 +538,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "bitrate":
-				eb.addField("Voice Channel Bitrate", TypeResolver.voiceChannelBitrate((Integer) newValue), false);
+				eb.addField("Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver((Integer) newValue), false);
 				break;
 				
 			default:
@@ -594,8 +594,8 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 			
 			case "video_quality_mode":
-				eb.addField("Old Quality Mode", (oldValue == null ? "Unknown" : TypeResolver.videoQualityMode((Integer) oldValue)), true);
-				eb.addField("New Quality Mode", (newValue == null ? "Unknown" : TypeResolver.videoQualityMode((Integer) newValue)), true);
+				eb.addField("Old Quality Mode", (oldValue == null ? "Unknown" : TypeResolver.videoQualityModeResolver((Integer) oldValue)), true);
+				eb.addField("New Quality Mode", (newValue == null ? "Unknown" : TypeResolver.videoQualityModeResolver((Integer) newValue)), true);
 				eb.addBlankField(true);
 				break;
 				
@@ -606,8 +606,8 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "bitrate":
-				eb.addField("Old Voice Channel Bitrate", TypeResolver.voiceChannelBitrate((Integer) oldValue), true);
-				eb.addField("New Voice Channel Bitrate", TypeResolver.voiceChannelBitrate((Integer) newValue), true);
+				eb.addField("Old Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver((Integer) oldValue), true);
+				eb.addField("New Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver((Integer) newValue), true);
 				eb.addBlankField(true);
 				break;
 				

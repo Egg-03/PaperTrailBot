@@ -8,10 +8,10 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import database.DatabaseConnector;
 import listeners.ReactionListener;
 import listeners.auditloglistener.AuditLogCommandListener;
 import listeners.auditloglistener.AuditLogListener;
-import utilities.DatabaseConnector;
 
 public class FireRun {
 
