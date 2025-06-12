@@ -60,7 +60,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case CHANNEL_CREATE -> formatChannelCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_DELETE -> formatChannelDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_CREATE -> formatChannelOverrideCreate(event, ale, channelIdToSendTo);
-		case CHANNEL_OVERRIDE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
+		case CHANNEL_OVERRIDE_DELETE -> formatChannelOverrideDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatChannelOverrideUpdate(event, ale, channelIdToSendTo);
 		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
 		case EMOJI_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -700,7 +700,7 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
-		eb.setColor(Color.PINK);
+		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", ale.getType().toString(), true);
 		eb.addField("Target Type", ale.getTargetType().toString(), true);
@@ -743,7 +743,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "id":
-				
+				// id exposes the member/role id which for which the channel permissions are over-riden
 				Member mb = event.getGuild().getMemberById(String.valueOf(newValue));
 				Role r = event.getGuild().getRoleById(String.valueOf(newValue));
 				
@@ -780,7 +780,7 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
-		eb.setColor(Color.PINK);
+		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", ale.getType().toString(), true);
 		eb.addField("Target Type", ale.getTargetType().toString(), true);
@@ -823,6 +823,86 @@ public class AuditLogListener extends ListenerAdapter{
 		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
 		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
 			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatChannelOverrideDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", ale.getType().toString(), true);
+		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+						
+			case "type":
+				eb.addField("Override Type", TypeResolver.channelOverrideTypeResolver((Integer) oldValue), false);				
+				break;
+			
+			case "deny":
+				// in case the oldValue returns null, return an empty list having no permissions
+				// usually oldValue in deny/allow cases return a defined number instead of null in case no overrides are deleted, but for null safety, this check is placed
+				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
+				List<String> deniedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(oldValue.toString())));
+				StringBuilder sbDenied = new StringBuilder();
+				for(String permission: deniedPermissions) {
+					sbDenied.append("❌").append(permission).append(System.lineSeparator());
+				}
+				eb.addField("Previously Denied Permissions", sbDenied.toString(), false);
+				break;
+				
+			case "allow":
+				// in case the oldValue returns null, return an empty list having no permissions
+				// usually oldValue in deny/allow cases return a defined number instead of null in case no overrides are deleted, but for null safety, this check is placed
+				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
+				List<String> allowedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(oldValue.toString())));
+				StringBuilder sbAllowed = new StringBuilder();
+				for(String permission: allowedPermissions) {
+					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
+				}
+				eb.addField("Previously Allowed Permissions", sbAllowed.toString(), false);
+				break;
+				
+			case "id":
+				// id exposes the member/role id which for which the channel permissions are over-riden
+				Member mb = event.getGuild().getMemberById(String.valueOf(oldValue));
+				Role r = event.getGuild().getRoleById(String.valueOf(oldValue));
+				
+				String mentionableRoleOrMember = "";
+				if(mb!=null) {
+					mentionableRoleOrMember = mb.getAsMention();
+				} else if (r!=null) {
+					mentionableRoleOrMember = r.getAsMention();
+				}
+				eb.addField("Deleted Target", mentionableRoleOrMember, false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+		// add the target channel whose permissions were over-riden
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
+		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
