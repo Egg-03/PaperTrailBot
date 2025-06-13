@@ -267,7 +267,8 @@ public class AuditLogListener extends ListenerAdapter{
 		String moderatorId = ale.getUserId();
 		String targetId = ale.getTargetId();
 		String reason = ale.getReason();
-
+		
+		// A REST Action is required here because kicked members are not cached
 		event.getJDA().retrieveUserById(moderatorId).queue(moderator->{
 			event.getJDA().retrieveUserById(targetId).queue(target->{
 				// if user objects are null we cannot use their mention so we instead use their IDs instead since they will never be null
