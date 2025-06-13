@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.automod.AutoModRule;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
@@ -57,7 +58,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case AUTO_MODERATION_RULE_BLOCK_MESSAGE -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_CREATE -> formatAutoModRuleCreate(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_DELETE -> formatAutoModRuleDelete(event, ale, channelIdToSendTo);
-		case AUTO_MODERATION_RULE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case AUTO_MODERATION_RULE_UPDATE -> formatAutoModRuleUpdate(event, ale, channelIdToSendTo);
 		case BAN -> formatBan(event, ale, channelIdToSendTo);
 		case BOT_ADD -> formatBotAdd(event, ale, channelIdToSendTo);
 		case CHANNEL_CREATE -> formatChannelCreate(event, ale, channelIdToSendTo);
@@ -1028,6 +1029,78 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatAutoModRuleUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+				
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+						
+			case "exempt_roles":
+				String roleIds = String.valueOf(newValue);
+				String cleanedRoleIds = StringUtils.strip(roleIds, "[]");			
+				List<String> roleIdList = Arrays.asList(StringUtils.split(cleanedRoleIds, ","));
+				StringBuilder mentionableRoles = new StringBuilder();
+				for(String roleId : roleIdList) {
+					Role r = ale.getGuild().getRoleById(roleId.strip());
+					mentionableRoles.append(r!=null ? r.getAsMention() : roleId.strip()).append(", ");
+				}
+				eb.addField("New Exempt Roles: ", mentionableRoles.toString(), false);
+				break;
+				
+						
+			case "actions":
+				eb.addField("New Actions", String.valueOf(newValue), false);
+				break;
+				
+			case "exempt_channels":
+				String channelIds = String.valueOf(newValue);
+				String cleanedChannelIds = StringUtils.strip(channelIds, "[]");			
+				List<String> channelIdList = Arrays.asList(StringUtils.split(cleanedChannelIds, ","));
+				StringBuilder mentionableChannels = new StringBuilder();
+				for(String channelId : channelIdList) {
+					GuildChannel r = ale.getGuild().getGuildChannelById(channelId.strip());
+					mentionableChannels.append(r!=null ? r.getAsMention() : channelId.strip()).append(", ");
+				}
+				eb.addField("New Exempt Channels: ", mentionableChannels.toString(), false);
+				break;
+				
+				
+			case "trigger_metadata":
+				eb.addField("New Trigger Metadata", String.valueOf(newValue), false);
+				break;
+													
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+		
+		// add name of the rule which got updated
+		AutoModRule rule = ale.getGuild().retrieveAutoModRuleById(ale.getTargetId()).complete();
+		eb.addField("AutoMod Rule Name ", rule.getName(), false);
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
