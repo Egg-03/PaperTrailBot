@@ -185,7 +185,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 			case "channel_id":
 				GuildChannel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
-				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+String.valueOf(newValue)+"`"), false);
+				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+newValue+"`"), false);
 				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
@@ -239,7 +239,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 			case "channel_id":
 				Channel channel = ale.getGuild().getGuildChannelById(String.valueOf(oldValue));
-				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+String.valueOf(oldValue)+"`"), false);
+				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+oldValue+"`"), false);
 				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
@@ -377,9 +377,9 @@ public class AuditLogListener extends ListenerAdapter{
 				if(oldValue!=null && newValue==null) { // resetting to default nickname
 					eb.addField("Nickname Update", "Reset "+targetMention+"'s name", false);
 				} else if(oldValue!=null && newValue!=null) { // changing from one nickname to another
-					eb.addField("Nickname Update", "Updated "+targetMention+"'s name from "+String.valueOf(oldValue)+ " to "+ String.valueOf(newValue), false);
+					eb.addField("Nickname Update", "Updated "+targetMention+"'s name from "+oldValue+ " to "+ newValue, false);
 				} else if(oldValue==null && newValue!=null) { // changing from default nickname to a new nickname
-					eb.addField("Nickname Update", "Set "+targetMention+"'s name as "+ String.valueOf(newValue), false);
+					eb.addField("Nickname Update", "Set "+targetMention+"'s name as "+ newValue, false);
 				}
 				break;
 
