@@ -31,9 +31,12 @@ public class ConnectionInitializer {
 		builder.enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.ONLINE_STATUS);
 		
 		manager = builder.build();
+		// manager.addEventListener(new SlashCommandRegistrar()); 
+		// re-enable it only when adding/updating/deleting commands
 	}
 
 	public ShardManager getManager() {
 		return manager;
 	}
+	
 }

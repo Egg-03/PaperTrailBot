@@ -8,7 +8,7 @@ import database.TableNames;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class AuditLogCommandListener extends ListenerAdapter {
@@ -23,10 +23,10 @@ public class AuditLogCommandListener extends ListenerAdapter {
 	}
 
 	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
+	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
 		// Command for binding the listener to a channel
-		if (event.getMessage().getContentRaw().equals("!alc")) {
+		if (event.getName().equals("ralc")) {
 			
 			String guildId = event.getGuild().getId();
 			// retrieve the previously registered channel_id associated with the given
@@ -43,9 +43,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				eb.setColor(Color.YELLOW);
 				
 				MessageEmbed mb = eb.build();
-				event.getGuild()
-					 .getTextChannelById(event.getChannel().asTextChannel().getId()).sendMessageEmbeds(mb) // this will give the id of the channel where the command has been called, and not where the audit log entries were registered
-					 .queue();
+				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
 				return;
@@ -62,7 +60,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				eb.setColor(Color.GREEN);
 				MessageEmbed mb = eb.build();
 				
-				event.getGuild().getTextChannelById(channelIdToRegister).sendMessageEmbeds(mb).queue();
+				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
 				
@@ -72,7 +70,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				eb.setColor(Color.BLACK);
 				MessageEmbed mb = eb.build();
 				
-				event.getGuild().getTextChannelById(channelIdToRegister).sendMessageEmbeds(mb).queue();
+				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
 				
@@ -82,7 +80,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 		}
 
 		// Command for getting the channel where audit logs are posted
-		if (event.getMessage().getContentRaw().equals("!galc")) {
+		if (event.getName().equals("galc")) {
 
 			String guildId = event.getGuild().getId();
 
@@ -95,9 +93,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				eb.addField("Audit Log Registration Check", "No channel has been registered for audit logs", false);
 				eb.setColor(Color.RED);
 				MessageEmbed mb = eb.build();
-				event.getGuild()
-					 .getTextChannelById(event.getChannel().asTextChannel().getId()).sendMessageEmbeds(mb)
-					 .queue();
+				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
 			} else {
@@ -105,23 +101,20 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				// this is particularly useful when a channel that was set for logging may have been deleted
 				GuildChannel registeredChannel =  event.getJDA().getGuildChannelById(registeredChannelId);
 				if(registeredChannel==null) {
-					eb.addField("Audit Log Registration Check", registeredChannelId+" does not exist. Please remove it using `!ualc` and re-register using `!alc`", false);
+					eb.addField("Audit Log Registration Check", registeredChannelId+" does not exist. Please remove it using `//ualc` and re-register using `//ralc`", false);
 				} else {
 					eb.addField("Audit Log Registration Check", registeredChannel.getAsMention()+ " has been registered as the audit log channel", false);
 				}
 				
 				MessageEmbed mb = eb.build();
-				event.getGuild()
-					 .getTextChannelById(event.getChannel().asTextChannel().getId())
-					 .sendMessageEmbeds(mb)
-					 .queue();
+				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
 			}
 		}
 
 		// Command for un-setting a previously bound listener from a channel
-		if (event.getMessage().getContentRaw().equals("!ualc")) {
+		if (event.getName().equals("ualc")) {
 
 			String guildId = event.getGuild().getId();
 			String registeredChannelId = dc.retrieveChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
@@ -131,10 +124,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				eb.setColor(Color.RED);
 				MessageEmbed mb = eb.build();
 				
-				event.getGuild()
-					 .getTextChannelById(event.getChannel().asTextChannel().getId())
-					 .sendMessageEmbeds(mb)
-					 .queue();
+				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
 				
@@ -147,10 +137,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 					eb.setColor(Color.GREEN);
 					MessageEmbed mb = eb.build();
 					
-					event.getGuild()
-						 .getTextChannelById(event.getChannel().asTextChannel().getId())
-						 .sendMessageEmbeds(mb)
-						 .queue();
+					event.replyEmbeds(mb).setEphemeral(false).queue();
 					
 					eb.clearFields();
 				} catch (SQLException e) {
@@ -158,10 +145,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 					eb.setColor(Color.BLACK);
 					MessageEmbed mb = eb.build();
 					
-					event.getGuild()
-						 .getTextChannelById(event.getChannel().asTextChannel().getId())
-						 .sendMessageEmbeds(mb)
-						 .queue();
+					event.replyEmbeds(mb).setEphemeral(false).queue();
 					
 					eb.clearFields();
 					e.printStackTrace();
