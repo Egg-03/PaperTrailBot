@@ -18,11 +18,11 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 	private void setAuditLogCommands(JDA jda) {
 
 		CommandData auditLogChannelRegistration = Commands.slash("ralc",
-				"Registers the channel where audit log updates will be posted");
+				"Registers the channel where audit log updates will be posted (Requires Manage Server Permission)");
 		CommandData auditLogChannelFetch = Commands.slash("galc",
-				"Shows the channel where audit log updates gets posted");
+				"Shows the channel where audit log updates gets posted (Requires Manage Server Permission)");
 		CommandData auditLogChannelDeletion = Commands.slash("ualc",
-				"Unsets the channel where audit log updates used to be posted");
+				"Unsets the channel where audit log updates used to be posted (Requires Manage Server Permission)");
 		jda.updateCommands()
 				.addCommands(auditLogChannelRegistration, auditLogChannelFetch, auditLogChannelDeletion)			
 				.queue();

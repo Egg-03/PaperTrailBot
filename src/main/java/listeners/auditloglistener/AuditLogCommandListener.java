@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import database.DatabaseConnector;
 import database.TableNames;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -27,6 +29,15 @@ public class AuditLogCommandListener extends ListenerAdapter {
 
 		// Command for binding the listener to a channel
 		if (event.getName().equals("ralc")) {
+			
+			// Only members with MANAGE_SERVER permissions should be able to use this command
+			Member member = event.getMember();
+	        if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
+	            event.reply("❌ You don't have the permission required to use this command.")
+	                 .setEphemeral(true)
+	                 .queue();
+	            return;
+	        }
 			
 			String guildId = event.getGuild().getId();
 			// retrieve the previously registered channel_id associated with the given
@@ -81,6 +92,15 @@ public class AuditLogCommandListener extends ListenerAdapter {
 
 		// Command for getting the channel where audit logs are posted
 		if (event.getName().equals("galc")) {
+			
+			// Only members with MANAGE_SERVER permissions should be able to use this command
+			Member member = event.getMember();
+	        if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
+	            event.reply("❌ You don't have the permission required to use this command.")
+	                 .setEphemeral(true)
+	                 .queue();
+	            return;
+	        }
 
 			String guildId = event.getGuild().getId();
 
@@ -115,6 +135,15 @@ public class AuditLogCommandListener extends ListenerAdapter {
 
 		// Command for un-setting a previously bound listener from a channel
 		if (event.getName().equals("ualc")) {
+			
+			// Only members with MANAGE_SERVER permissions should be able to use this command
+			Member member = event.getMember();
+	        if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
+	            event.reply("❌ You don't have the permission required to use this command.")
+	                 .setEphemeral(true)
+	                 .queue();
+	            return;
+	        }
 
 			String guildId = event.getGuild().getId();
 			String registeredChannelId = dc.retrieveChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
