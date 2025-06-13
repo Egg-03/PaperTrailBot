@@ -1,9 +1,12 @@
 package listeners.auditloglistener;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.apache.commons.lang3.StringUtils;
 
 import database.DatabaseConnector;
 import database.TableNames;
@@ -52,7 +55,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case AUTO_MODERATION_FLAG_TO_CHANNEL -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_MEMBER_TIMEOUT -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_BLOCK_MESSAGE -> formatGeneric(event, ale, channelIdToSendTo);
-		case AUTO_MODERATION_RULE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case AUTO_MODERATION_RULE_CREATE -> formatAutoModRuleCreate(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case BAN -> formatBan(event, ale, channelIdToSendTo);
@@ -120,8 +123,8 @@ public class AuditLogListener extends ListenerAdapter{
 		
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.LIGHT_GRAY);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true); 
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			String change = changes.getKey();
@@ -145,8 +148,8 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.CYAN);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 
@@ -157,11 +160,11 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {
 
 			case "code":
-				eb.addField("Invite Code", newValue.toString(), false);
+				eb.addField("Invite Code", String.valueOf(newValue), false);
 				break;
 
 			case "inviter_id":
-				User inviter = ale.getJDA().getUserById(newValue.toString());
+				User inviter = ale.getJDA().getUserById(String.valueOf(newValue));
 				eb.addField("Invite Created By", (inviter != null ? inviter.getAsMention() : ale.getUserId()), false);
 				break;
 
@@ -170,7 +173,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 
 			case "max_uses":
-				int maxUses = Integer.parseInt(newValue.toString());
+				int maxUses = Integer.parseInt(String.valueOf(newValue));
 				eb.addField("Max Uses", (maxUses == 0 ? "Unlimited" : String.valueOf(maxUses)), false);
 				break;
 			case "uses", "flags":
@@ -181,7 +184,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 			case "channel_id":
 				GuildChannel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
-				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+newValue.toString()+"`"), false);
+				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+String.valueOf(newValue)+"`"), false);
 				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
@@ -204,8 +207,8 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.CYAN);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true); 
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 
@@ -216,11 +219,11 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {
 
 			case "code":
-				eb.addField("Deleted Invite Code", oldValue.toString(), false);
+				eb.addField("Deleted Invite Code", String.valueOf(oldValue), false);
 				break;
 
 			case "inviter_id":
-				User inviter = ale.getJDA().getUserById(oldValue.toString());
+				User inviter = ale.getJDA().getUserById(String.valueOf(oldValue));
 				eb.addField("Invite Deleted By", (inviter != null ? inviter.getAsMention() : "`Unknown`"), false);
 				break;
 
@@ -231,11 +234,11 @@ public class AuditLogListener extends ListenerAdapter{
 			case "max_uses", "flags", "max_age":
 				break;
 			case "uses":
-				eb.addField("Number of times the invite was used", oldValue.toString(), false);
+				eb.addField("Number of times the invite was used", String.valueOf(oldValue), false);
 				break;
 			case "channel_id":
 				Channel channel = ale.getGuild().getGuildChannelById(String.valueOf(oldValue));
-				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+oldValue.toString()+"`"), false);
+				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+String.valueOf(oldValue)+"`"), false);
 				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
@@ -257,8 +260,8 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.ORANGE);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true); 
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
 		String moderatorId = ale.getUserId();
 		String targetId = ale.getTargetId();
@@ -285,8 +288,8 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.RED);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true); 
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);  
 
 		String moderatorId = ale.getUserId();
 		String targetId = ale.getTargetId();
@@ -313,8 +316,8 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.GREEN);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true); 
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
 		String moderatorId = ale.getUserId();
 		String targetId = ale.getTargetId();
@@ -342,8 +345,8 @@ public class AuditLogListener extends ListenerAdapter{
 		
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.CYAN);
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true); 
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 
@@ -372,9 +375,9 @@ public class AuditLogListener extends ListenerAdapter{
 				if(oldValue!=null && newValue==null) { // resetting to default nickname
 					eb.addField("Nickname Update", "Reset "+targetMention+"'s name", false);
 				} else if(oldValue!=null && newValue!=null) { // changing from one nickname to another
-					eb.addField("Nickname Update", "Updated "+targetMention+"'s name from "+oldValue.toString()+ " to "+ newValue.toString(), false);
+					eb.addField("Nickname Update", "Updated "+targetMention+"'s name from "+String.valueOf(oldValue)+ " to "+ String.valueOf(newValue), false);
 				} else if(oldValue==null && newValue!=null) { // changing from default nickname to a new nickname
-					eb.addField("Nickname Update", "Set "+targetMention+"'s name as "+ newValue.toString(), false);
+					eb.addField("Nickname Update", "Set "+targetMention+"'s name as "+ String.valueOf(newValue), false);
 				}
 				break;
 
@@ -402,8 +405,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.CYAN);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		eb.addField("Added a bot: ", (target!=null ? target.getAsMention() : ale.getTargetId()), false);
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
@@ -424,8 +427,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.PINK);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
@@ -465,8 +468,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
@@ -506,8 +509,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
@@ -569,8 +572,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		eb.addBlankField(true);
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
@@ -657,8 +660,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
@@ -702,8 +705,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
@@ -722,7 +725,7 @@ public class AuditLogListener extends ListenerAdapter{
 				// in case the newValue returns null, return an empty list having no permissions
 				// usually newValue in deny/allow cases return 0 instead of null in case no overrides are created, but for null safety, this check is placed
 				// the oldValue will return null if a new channel is over-riden for the first time but we're not concerned with oldValue
-				List<String> deniedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				List<String> deniedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
 				StringBuilder sbDenied = new StringBuilder();
 				for(String permission: deniedPermissions) {
 					sbDenied.append("❌").append(permission).append(System.lineSeparator());
@@ -734,7 +737,7 @@ public class AuditLogListener extends ListenerAdapter{
 				// in case the newValue returns null, return an empty list having no permissions
 				// usually newValue in deny/allow cases return 0 instead of null in case no overrides are created, but for null safety, this check is placed
 				// the oldValue will return null if a new channel is over-riden for the first time but we're not concerned with oldValue
-				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
 				StringBuilder sbAllowed = new StringBuilder();
 				for(String permission: allowedPermissions) {
 					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
@@ -782,8 +785,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
@@ -795,7 +798,7 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {	
 							
 			case "deny":
-				List<String> deniedPermissions = (newValue==null ? Collections.list(null) : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				List<String> deniedPermissions = (newValue==null ? Collections.list(null) : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
 				StringBuilder sbDenied = new StringBuilder();
 				for(String permission: deniedPermissions) {
 					sbDenied.append("❌").append(permission).append(System.lineSeparator());
@@ -805,7 +808,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "allow":
-				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(newValue.toString())));
+				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
 				StringBuilder sbAllowed = new StringBuilder();
 				for(String permission: allowedPermissions) {
 					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
@@ -841,8 +844,8 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
-		eb.addField("Action Type", ale.getType().toString(), true);
-		eb.addField("Target Type", ale.getTargetType().toString(), true);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
@@ -861,7 +864,7 @@ public class AuditLogListener extends ListenerAdapter{
 				// in case the oldValue returns null, return an empty list having no permissions
 				// usually oldValue in deny/allow cases return a defined number instead of null in case no overrides are deleted, but for null safety, this check is placed
 				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
-				List<String> deniedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(oldValue.toString())));
+				List<String> deniedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(oldValue))));
 				StringBuilder sbDenied = new StringBuilder();
 				for(String permission: deniedPermissions) {
 					sbDenied.append("❌").append(permission).append(System.lineSeparator());
@@ -873,7 +876,7 @@ public class AuditLogListener extends ListenerAdapter{
 				// in case the oldValue returns null, return an empty list having no permissions
 				// usually oldValue in deny/allow cases return a defined number instead of null in case no overrides are deleted, but for null safety, this check is placed
 				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
-				List<String> allowedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(oldValue.toString())));
+				List<String> allowedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(oldValue))));
 				StringBuilder sbAllowed = new StringBuilder();
 				for(String permission: allowedPermissions) {
 					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
@@ -902,6 +905,88 @@ public class AuditLogListener extends ListenerAdapter{
 		// add the target channel whose permissions were over-riden
 		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
 		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatAutoModRuleCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+				
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+						
+			case "exempt_roles":
+				String roleIds = String.valueOf(newValue);
+				String cleanedRoleIds = StringUtils.strip(roleIds, "[]");			
+				List<String> roleIdList = Arrays.asList(StringUtils.split(cleanedRoleIds, ","));
+				StringBuilder mentionableRoles = new StringBuilder();
+				for(String roleId : roleIdList) {
+					Role r = ale.getGuild().getRoleById(roleId.strip());
+					mentionableRoles.append(r!=null ? r.getAsMention() : roleId.strip()).append(", ");
+				}
+				eb.addField("Exempt Roles: ", mentionableRoles.toString(), false);
+				break;
+				
+			case "enabled":
+				eb.addField("Enabled", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				break;
+				
+			case "trigger_type":
+				eb.addField("Trigger Type", TypeResolver.automodTriggerType((Integer) newValue), false);
+				break;
+				
+			case "actions":
+				eb.addField("Actions", String.valueOf(newValue), false);
+				break;
+				
+			case "exempt_channels":
+				String channelIds = String.valueOf(newValue);
+				String cleanedChannelIds = StringUtils.strip(channelIds, "[]");			
+				List<String> channelIdList = Arrays.asList(StringUtils.split(cleanedChannelIds, ","));
+				StringBuilder mentionableChannels = new StringBuilder();
+				for(String channelId : channelIdList) {
+					GuildChannel r = ale.getGuild().getGuildChannelById(channelId.strip());
+					mentionableChannels.append(r!=null ? r.getAsMention() : channelId.strip()).append(", ");
+				}
+				eb.addField("Exempt Channels: ", mentionableChannels.toString(), false);
+				break;
+				
+			case "event_type":
+				eb.addField("Event Type", TypeResolver.automodEventType((Integer) newValue), false);
+				break;
+				
+			case "trigger_metadata":
+				eb.addField("Trigger Metadata", String.valueOf(newValue), false);
+				break;
+				
+			case "name":	
+				eb.addField("AutoMod Rule Name ", String.valueOf(newValue), false);
+				break;
+							
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());

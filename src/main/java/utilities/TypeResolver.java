@@ -62,4 +62,23 @@ public class TypeResolver {
 			default -> "Unknown";
 		};
 	}
+	
+	public static String automodEventType (int type) {
+		return switch(type) {
+			case 1 -> "Message Send";
+			case 2 -> "Message Update";
+			default -> "Unknown";
+		};
+	}
+	
+	public static String automodTriggerType (int type) {
+		return switch(type) {
+			case 1 -> "Keyword";
+			case 3 -> "Spam";
+			case 4 -> "Keyword Preset";
+			case 5 -> "Mention Spam";
+			case 6 -> "Member Profile";
+			default -> "Unknown";
+		};
+	}
 }
