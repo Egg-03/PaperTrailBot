@@ -643,6 +643,9 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
+		// mention the channel that got updated
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
+		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
 			
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
