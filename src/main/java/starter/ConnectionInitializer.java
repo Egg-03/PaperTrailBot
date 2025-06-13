@@ -22,7 +22,6 @@ public class ConnectionInitializer {
 		DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token);
 		builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MODERATION);
 		builder.setStatus(OnlineStatus.ONLINE);
-		builder.setActivity(Activity.watching("Logs"));
 		
 		//cache all users of the bot
 		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
@@ -31,6 +30,7 @@ public class ConnectionInitializer {
 		builder.enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.ONLINE_STATUS);
 		
 		manager = builder.build();
+		builder.setActivity(Activity.watching(manager.getGuilds().size()+" Servers"));
 		// manager.addEventListener(new SlashCommandRegistrar()); 
 		// re-enable it only when adding/updating/deleting commands
 	}
