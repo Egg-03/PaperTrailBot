@@ -56,7 +56,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case AUTO_MODERATION_MEMBER_TIMEOUT -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_BLOCK_MESSAGE -> formatGeneric(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_CREATE -> formatAutoModRuleCreate(event, ale, channelIdToSendTo);
-		case AUTO_MODERATION_RULE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
+		case AUTO_MODERATION_RULE_DELETE -> formatAutoModRuleDelete(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case BAN -> formatBan(event, ale, channelIdToSendTo);
 		case BOT_ADD -> formatBotAdd(event, ale, channelIdToSendTo);
@@ -981,6 +981,47 @@ public class AuditLogListener extends ListenerAdapter{
 				
 			case "name":	
 				eb.addField("AutoMod Rule Name ", String.valueOf(newValue), false);
+				break;
+							
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatAutoModRuleDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+				
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+						
+			case "exempt_roles", "enabled", "trigger_type", "actions", "exempt_channels", "event_type", "trigger_metadata":
+				break;
+				
+			case "name":	
+				eb.addField("AutoMod Rule Name ", String.valueOf(oldValue), false);
 				break;
 							
 			default:
