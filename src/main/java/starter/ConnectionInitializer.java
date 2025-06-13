@@ -1,7 +1,6 @@
 package starter;
 
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -30,7 +29,7 @@ public class ConnectionInitializer {
 		builder.enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.ONLINE_STATUS);
 		
 		manager = builder.build();
-		builder.setActivity(Activity.watching(manager.getGuilds().size()+" Servers"));
+		manager.addEventListener(new ActivityUpdateListener(manager));
 		// manager.addEventListener(new SlashCommandRegistrar()); 
 		// re-enable it only when adding/updating/deleting commands
 	}
