@@ -67,9 +67,9 @@ public class AuditLogListener extends ListenerAdapter{
 		case CHANNEL_OVERRIDE_DELETE -> formatChannelOverrideDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatChannelOverrideUpdate(event, ale, channelIdToSendTo);
 		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
-		case EMOJI_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case EMOJI_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case EMOJI_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case EMOJI_CREATE -> formatEmojiCreate(event, ale, channelIdToSendTo);
+		case EMOJI_DELETE -> formatEmojiDelete(event, ale, channelIdToSendTo);
+		case EMOJI_UPDATE -> formatEmojiUpdate(event, ale, channelIdToSendTo);
 		case GUILD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case INTEGRATION_CREATE -> formatIntegrationCreate(event, ale, channelIdToSendTo);
 		case INTEGRATION_DELETE -> formatIntegrationDelete(event, ale, channelIdToSendTo);
@@ -1106,6 +1106,120 @@ public class AuditLogListener extends ListenerAdapter{
 		AutoModRule rule = ale.getGuild().retrieveAutoModRuleById(ale.getTargetId()).complete();
 		eb.addField("AutoMod Rule Name ", rule.getName(), false);
 		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatEmojiCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+				
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "name":
+				eb.addField("Emoji Name", String.valueOf(newValue), false);
+				eb.addField("Emoji", "<:"+newValue+":"+ale.getTargetId()+">", false);
+				break;
+													
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+		
+			
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatEmojiUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+				
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "name":
+				eb.addField("Emoji Name Updated", "From "+oldValue+" to "+newValue, false);
+				eb.addField("Target Emoji", "<:"+newValue+":"+ale.getTargetId()+">", false);
+				break;
+													
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+				
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatEmojiDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+				
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "name":
+				eb.addField("Deleted Emoji", ":"+oldValue+":", false);			
+				break;
+													
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+				
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
