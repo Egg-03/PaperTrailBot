@@ -81,4 +81,15 @@ public class TypeResolver {
 			default -> "Unknown";
 		};
 	}
+	
+	public static String guildVerificationLevel (int type) {
+		return switch(type) {
+			case 0 -> "NONE";
+			case 1 -> "LOW (Verified Email)";
+			case 2 -> "MEDIUM (Registered on Discord for more than 5 minutes";
+			case 3 -> "HIGH (Must be a member of the server for longer than 10 minutes)";
+			case 4 -> "VERY_HIGH (Must have a verified phone number)";
+			default -> "Unknown";
+		};
+	}
 }
