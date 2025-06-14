@@ -61,33 +61,41 @@ public class AuditLogListener extends ListenerAdapter{
 		case AUTO_MODERATION_RULE_DELETE -> formatAutoModRuleDelete(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_UPDATE -> formatAutoModRuleUpdate(event, ale, channelIdToSendTo);
 		
+		case KICK -> formatKick(event, ale, channelIdToSendTo);
+		case PRUNE -> formatGeneric(event, ale, channelIdToSendTo);
 		case BAN -> formatBan(event, ale, channelIdToSendTo);
-		
+		case UNBAN -> formatUnban(event, ale, channelIdToSendTo);
 		case BOT_ADD -> formatBotAdd(event, ale, channelIdToSendTo);
 		
 		case CHANNEL_CREATE -> formatChannelCreate(event, ale, channelIdToSendTo);
+		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
 		case CHANNEL_DELETE -> formatChannelDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_CREATE -> formatChannelOverrideCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_DELETE -> formatChannelOverrideDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatChannelOverrideUpdate(event, ale, channelIdToSendTo);
-		case CHANNEL_UPDATE -> formatChannelUpdate(event, ale, channelIdToSendTo);
+		
+		case ROLE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case ROLE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
+		case ROLE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		
 		case EMOJI_CREATE -> formatEmojiCreate(event, ale, channelIdToSendTo);
-		case EMOJI_DELETE -> formatEmojiDelete(event, ale, channelIdToSendTo);
 		case EMOJI_UPDATE -> formatEmojiUpdate(event, ale, channelIdToSendTo);
+		case EMOJI_DELETE -> formatEmojiDelete(event, ale, channelIdToSendTo);
 		
+		case STICKER_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case STICKER_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
+		case STICKER_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+			
 		case GUILD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		
 		case INTEGRATION_CREATE -> formatIntegrationCreate(event, ale, channelIdToSendTo);
-		case INTEGRATION_DELETE -> formatIntegrationDelete(event, ale, channelIdToSendTo);
 		case INTEGRATION_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case INTEGRATION_DELETE -> formatIntegrationDelete(event, ale, channelIdToSendTo);
 		
 		case INVITE_CREATE -> formatInviteCreate(event, ale, channelIdToSendTo);
-		case INVITE_DELETE -> formatInviteDelete(event, ale, channelIdToSendTo);
 		case INVITE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
-		case KICK -> formatKick(event, ale, channelIdToSendTo);
-		
+		case INVITE_DELETE -> formatInviteDelete(event, ale, channelIdToSendTo);
+				
 		case MEMBER_ROLE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case MEMBER_UPDATE -> formatMemberUpdate(event, ale, channelIdToSendTo);
 		case MEMBER_VOICE_KICK -> formatGeneric(event, ale, channelIdToSendTo);
@@ -99,13 +107,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case MESSAGE_PIN -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_UNPIN -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
-		case PRUNE -> formatGeneric(event, ale, channelIdToSendTo);
-		
-		case ROLE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case ROLE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case ROLE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
+						
 		case SCHEDULED_EVENT_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case SCHEDULED_EVENT_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case SCHEDULED_EVENT_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -113,25 +115,19 @@ public class AuditLogListener extends ListenerAdapter{
 		case STAGE_INSTANCE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case STAGE_INSTANCE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case STAGE_INSTANCE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
-		case STICKER_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case STICKER_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case STICKER_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
+				
 		case THREAD_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
-		case UNBAN -> formatUnban(event, ale, channelIdToSendTo);
-		
-		case UNKNOWN -> formatGeneric(event, ale, channelIdToSendTo);
-		
+				
 		case VOICE_CHANNEL_STATUS_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case VOICE_CHANNEL_STATUS_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		
 		case WEBHOOK_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case WEBHOOK_REMOVE -> formatGeneric(event, ale, channelIdToSendTo);
 		case WEBHOOK_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		
+		case UNKNOWN -> formatGeneric(event, ale, channelIdToSendTo);
 		default -> formatGeneric(event, ale, channelIdToSendTo);
 		}
 	}
