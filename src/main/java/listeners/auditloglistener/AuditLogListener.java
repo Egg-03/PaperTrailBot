@@ -3,6 +3,7 @@ package listeners.auditloglistener;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import utilities.DurationFormatter;
 import utilities.GuildSystemChannelFlagResolver;
+import utilities.MemberRoleUpdateParser;
 import utilities.PermissionResolver;
 import utilities.TypeResolver;
 
@@ -74,7 +76,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case CHANNEL_OVERRIDE_CREATE -> formatChannelOverrideCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_DELETE -> formatChannelOverrideDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatChannelOverrideUpdate(event, ale, channelIdToSendTo);
-		
+		// TODO
 		case ROLE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case ROLE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case ROLE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -97,7 +99,7 @@ public class AuditLogListener extends ListenerAdapter{
 		case INVITE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case INVITE_DELETE -> formatInviteDelete(event, ale, channelIdToSendTo);
 				
-		case MEMBER_ROLE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case MEMBER_ROLE_UPDATE -> formatMemberRoleUpdate(event, ale, channelIdToSendTo);
 		case MEMBER_UPDATE -> formatMemberUpdate(event, ale, channelIdToSendTo);
 		case MEMBER_VOICE_KICK -> formatGeneric(event, ale, channelIdToSendTo);
 		case MEMBER_VOICE_MOVE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -108,22 +110,22 @@ public class AuditLogListener extends ListenerAdapter{
 		case MESSAGE_PIN -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_UNPIN -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-						
+		
 		case SCHEDULED_EVENT_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case SCHEDULED_EVENT_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case SCHEDULED_EVENT_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
+
 		case STAGE_INSTANCE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case STAGE_INSTANCE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case STAGE_INSTANCE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-				
+	
 		case THREAD_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-				
+	
 		case VOICE_CHANNEL_STATUS_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case VOICE_CHANNEL_STATUS_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-		
+
 		case WEBHOOK_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case WEBHOOK_REMOVE -> formatGeneric(event, ale, channelIdToSendTo);
 		case WEBHOOK_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -1456,6 +1458,56 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField("System Channel Flags", GuildSystemChannelFlagResolver.getParsedFlags(newValue), false);
 				break;
 													
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+				
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatMemberRoleUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());
+		User target = ale.getJDA().getUserById(ale.getTargetId());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.CYAN);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "$add":
+				eb.setColor(Color.GREEN);
+				eb.addField("Target Member", (target != null ? target.getAsMention() : ale.getTargetId()), false);
+				Map<String, String> addedRoleNameAndId = MemberRoleUpdateParser.parseRoleUpdate(newValue);
+				eb.addField("Role Added", addedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
+				eb.addField("Added Role ID", addedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
+				break;
+				
+			case "$remove":
+				eb.setColor(Color.RED);
+				eb.addField("Target Member", (target != null ? target.getAsMention() : ale.getTargetId()), false);
+				Map<String, String> removedRoleNameAndId = MemberRoleUpdateParser.parseRoleUpdate(newValue);
+				eb.addField("Role Removed", removedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
+				eb.addField("Removed Role ID", removedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
+				break;
+																			
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
