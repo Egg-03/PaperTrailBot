@@ -1,7 +1,5 @@
 package utilities;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class GuildSystemChannelFlagResolver {
@@ -19,14 +17,27 @@ public class GuildSystemChannelFlagResolver {
 		throw new IllegalStateException("Utility Class");
 	}
 	
-	public static List<String> getFlagList(long bitfield){
-		List<String> flags = new ArrayList<>();
+	private static String parseFlags(long bitfield){
+		StringBuilder flags = new StringBuilder();
 		for(Map.Entry<Long, String> entry: SYSTEM_CHANNEL_FLAG_MAP.entrySet()) {
 			if((bitfield & entry.getKey()) != 0) {
-				flags.add(entry.getValue());
+				flags.append("✅").append(entry.getValue()).append(System.lineSeparator());
 			}
 		}
-		return flags;
+		return flags.toString();
+	}
+	
+	public static String getParsedFlags(Object flagValue) {
+		if(flagValue==null) {
+			return "ERROR: Value Returned Null";
+		}
+		
+		try {
+			return parseFlags(Long.parseLong(flagValue.toString()));
+		} catch (NumberFormatException  e) {
+			return "No Parsable Flag Values Detected";
+		}
+		
 	}
 }
 

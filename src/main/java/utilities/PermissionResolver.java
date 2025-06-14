@@ -1,7 +1,5 @@
 package utilities;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class PermissionResolver {
@@ -63,13 +61,25 @@ public class PermissionResolver {
 		throw new IllegalStateException("Utility Class");
 	}
 	
-	public static List<String> getPermissionList(long bitfield){
-		List<String> permissions = new ArrayList<>();
+	private static String parsePermissions(long bitfield, String emoji){
+		StringBuilder permissions = new StringBuilder();
 		for(Map.Entry<Long, String> entry: PERMISSION_MAP.entrySet()) {
 			if((bitfield & entry.getKey()) != 0) {
-				permissions.add(entry.getValue());
+				permissions.append(emoji).append(entry.getValue()).append(System.lineSeparator());
 			}
 		}
-		return permissions;
+		return permissions.toString();
+	}
+	
+	public static String getParsedPermissions(Object permissionValues, String emoji) { // this emoji is ❌ for denied permissions and ✅ for allowed
+		if(permissionValues==null) {
+			return "ERROR: Value Returned Null";
+		}
+		
+		try {
+			return parsePermissions(Long.parseLong(permissionValues.toString()), emoji);
+		} catch (NumberFormatException e) {
+			return "No Parsable Permissions Detected";
+		}
 	}
 }

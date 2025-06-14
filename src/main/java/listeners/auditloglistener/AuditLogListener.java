@@ -2,7 +2,6 @@ package listeners.auditloglistener;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -200,7 +199,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 
 			case "max_age":
-				eb.addField("Expires After", DurationFormatter.formatSeconds((Integer) newValue), false);
+				eb.addField("Expires After", DurationFormatter.formatSeconds(newValue), false);
 				break;
 			case "channel_id":
 				GuildChannel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
@@ -384,7 +383,7 @@ public class AuditLogListener extends ListenerAdapter{
 				} else {
 					eb.setColor(Color.YELLOW);
 					eb.addField("Timeout Received", (target !=null ? target.getAsMention() : ale.getTargetId())+ " has received a timeout", false);
-					eb.addField("Till", DurationFormatter.isoToLocalTimeCounter(String.valueOf(newValue)), false);
+					eb.addField("Till", DurationFormatter.isoToLocalTimeCounter(newValue), false);
 					eb.addField("Reason", (ale.getReason()!=null ? ale.getReason() : "No Reason Provided"), false);
 				}
 					
@@ -541,15 +540,15 @@ public class AuditLogListener extends ListenerAdapter{
 			
 			switch(change) {
 			case "user_limit":
-				eb.addField("User Limit", TypeResolver.formatNumberOrUnlimited((Integer) newValue), false);
+				eb.addField("User Limit", TypeResolver.formatNumberOrUnlimited(newValue), false);
 				break;
 				
 			case "rate_limit_per_user":
-				eb.addField("Slowmode", DurationFormatter.formatSeconds((Integer) newValue), false);
+				eb.addField("Slowmode", DurationFormatter.formatSeconds(newValue), false);
 				break;
 				
 			case "type":
-				eb.addField("Channel Type", TypeResolver.channelTypeResolver((Integer) newValue), false);
+				eb.addField("Channel Type", TypeResolver.channelTypeResolver(newValue), false);
 				break;
 				
 			case "nsfw":
@@ -567,7 +566,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "bitrate":
-				eb.addField("Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver((Integer) newValue), false);
+				eb.addField("Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver(newValue), false);
 				break;
 				
 			default:
@@ -605,14 +604,14 @@ public class AuditLogListener extends ListenerAdapter{
 			
 			switch(change) {
 			case "user_limit":
-				eb.addField("Old User Limit", TypeResolver.formatNumberOrUnlimited((Integer) oldValue), true);
-				eb.addField("New User Limit", TypeResolver.formatNumberOrUnlimited((Integer) newValue), true);
+				eb.addField("Old User Limit", TypeResolver.formatNumberOrUnlimited(oldValue), true);
+				eb.addField("New User Limit", TypeResolver.formatNumberOrUnlimited(newValue), true);
 				eb.addBlankField(true);
 				break;
 				
 			case "rate_limit_per_user":
-				eb.addField("Old Slowmode Value", DurationFormatter.formatSeconds((Integer) oldValue), true);
-				eb.addField("New Slowmode Value", DurationFormatter.formatSeconds((Integer) newValue), true);
+				eb.addField("Old Slowmode Value", DurationFormatter.formatSeconds(oldValue), true);
+				eb.addField("New Slowmode Value", DurationFormatter.formatSeconds(newValue), true);
 				eb.addBlankField(true);
 				break;
 					
@@ -623,8 +622,8 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 			
 			case "video_quality_mode":
-				eb.addField("Old Quality Mode", (oldValue == null ? "Unknown" : TypeResolver.videoQualityModeResolver((Integer) oldValue)), true);
-				eb.addField("New Quality Mode", (newValue == null ? "Unknown" : TypeResolver.videoQualityModeResolver((Integer) newValue)), true);
+				eb.addField("Old Quality Mode", TypeResolver.videoQualityModeResolver(oldValue), true);
+				eb.addField("New Quality Mode", TypeResolver.videoQualityModeResolver(newValue), true);
 				eb.addBlankField(true);
 				break;
 				
@@ -635,8 +634,8 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "bitrate":
-				eb.addField("Old Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver((Integer) oldValue), true);
-				eb.addField("New Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver((Integer) newValue), true);
+				eb.addField("Old Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver(oldValue), true);
+				eb.addField("New Voice Channel Bitrate", TypeResolver.voiceChannelBitrateResolver(newValue), true);
 				eb.addBlankField(true);
 				break;
 				
@@ -653,8 +652,8 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 
 			case "default_auto_archive_duration":
-				eb.addField("Old Hide After Inactivity Timer", (oldValue==null ? "N/A" : DurationFormatter.formatMinutes((Integer) oldValue)), true);
-				eb.addField("New Hide After Inactivity Timer", (newValue==null ? "N/A" : DurationFormatter.formatMinutes((Integer) newValue)), true);
+				eb.addField("Old Hide After Inactivity Timer", DurationFormatter.formatMinutes(oldValue), true);
+				eb.addField("New Hide After Inactivity Timer", DurationFormatter.formatMinutes(newValue), true);
 				eb.addBlankField(true);
 				break;
 				
@@ -700,7 +699,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "type":
-				eb.addField("Type", TypeResolver.channelTypeResolver((Integer) oldValue), false);				
+				eb.addField("Type", TypeResolver.channelTypeResolver(oldValue), false);				
 				break;
 				
 			case "user_limit", "rate_limit_per_user", "nsfw", "permission_overwrites", "video_quality_mode", "flags", "bitrate", "rtc_region":
@@ -742,35 +741,24 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {	
 						
 			case "type":
-				eb.addField("Override Type", TypeResolver.channelOverrideTypeResolver((Integer) newValue), false);				
+				eb.addField("Override Type", TypeResolver.channelOverrideTypeResolver(newValue), false);				
 				break;
 			
 			case "deny":
-				// in case the newValue returns null, return an empty list having no permissions
-				// usually newValue in deny/allow cases return 0 instead of null in case no overrides are created, but for null safety, this check is placed
 				// the oldValue will return null if a new channel is over-riden for the first time but we're not concerned with oldValue
-				List<String> deniedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
-				StringBuilder sbDenied = new StringBuilder();
-				for(String permission: deniedPermissions) {
-					sbDenied.append("❌").append(permission).append(System.lineSeparator());
-				}
-				eb.addField("Denied Permissions", sbDenied.toString(), false);
+				// the new value contains the list of denied permissions the moderator sets when creating overrides for the first time				
+				eb.addField("Denied Permissions", PermissionResolver.getParsedPermissions(newValue, "❌"), false);
 				break;
 				
 			case "allow":
-				// in case the newValue returns null, return an empty list having no permissions
-				// usually newValue in deny/allow cases return 0 instead of null in case no overrides are created, but for null safety, this check is placed
 				// the oldValue will return null if a new channel is over-riden for the first time but we're not concerned with oldValue
-				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
-				StringBuilder sbAllowed = new StringBuilder();
-				for(String permission: allowedPermissions) {
-					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
-				}
-				eb.addField("Allowed Permissions", sbAllowed.toString(), false);
+				// the new value contains the list of allowed permissions the moderator sets when creating overrides for the first time				
+				eb.addField("Allowed Permissions", PermissionResolver.getParsedPermissions(newValue, "✅"), false);
 				break;
 				
 			case "id":
 				// id exposes the member/role id which for which the channel permissions are over-riden
+				// only one member/role permissions can be over-riden at a time
 				Member mb = event.getGuild().getMemberById(String.valueOf(newValue));
 				Role r = event.getGuild().getRoleById(String.valueOf(newValue));
 				
@@ -822,23 +810,15 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {	
 							
 			case "deny":
-				List<String> deniedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
-				StringBuilder sbDenied = new StringBuilder();
-				for(String permission: deniedPermissions) {
-					sbDenied.append("❌").append(permission).append(System.lineSeparator());
-				}
+				String deniedPerms = PermissionResolver.getParsedPermissions(newValue, "❌");
 				// if a channel is synchronized with it's category, the permission list will be blank and the StringBuilder will return a blank string
-				eb.addField("Denied Permissions", (sbDenied.toString().isBlank() ? "Permissions Synced With Category" : sbDenied.toString()), false);
+				eb.addField("Denied Permissions", (deniedPerms.isBlank() ? "Permissions Synced With Category" : deniedPerms), false);
 				break;
 				
 			case "allow":
-				List<String> allowedPermissions = (newValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(newValue))));
-				StringBuilder sbAllowed = new StringBuilder();
-				for(String permission: allowedPermissions) {
-					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
-				}
+				String allowedPerms = PermissionResolver.getParsedPermissions(newValue, "✅");			
 				// if a channel is synchronized with it's category, the permission list will be blank and the StringBuilder will return a blank string
-				eb.addField("Allowed Permissions", (sbAllowed.toString().isBlank() ? "Permissions Synced With Category" : sbAllowed.toString()), false);
+				eb.addField("Allowed Permissions", (allowedPerms.isBlank() ? "Permissions Synced With Category" : allowedPerms), false);
 				break;
 			
 			default:
@@ -881,31 +861,19 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {	
 						
 			case "type":
-				eb.addField("Override Type", TypeResolver.channelOverrideTypeResolver((Integer) oldValue), false);				
+				eb.addField("Override Type", TypeResolver.channelOverrideTypeResolver(oldValue), false);				
 				break;
 			
-			case "deny":
-				// in case the oldValue returns null, return an empty list having no permissions
-				// usually oldValue in deny/allow cases return a defined number instead of null in case no overrides are deleted, but for null safety, this check is placed
+			case "deny":	
 				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
-				List<String> deniedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(oldValue))));
-				StringBuilder sbDenied = new StringBuilder();
-				for(String permission: deniedPermissions) {
-					sbDenied.append("❌").append(permission).append(System.lineSeparator());
-				}
-				eb.addField("Previously Denied Permissions", sbDenied.toString(), false);
+				// the oldValue returns the permissions the channel was previously denied
+				eb.addField("Previously Denied Permissions", PermissionResolver.getParsedPermissions(oldValue, "❌"), false);
 				break;
 				
 			case "allow":
-				// in case the oldValue returns null, return an empty list having no permissions
-				// usually oldValue in deny/allow cases return a defined number instead of null in case no overrides are deleted, but for null safety, this check is placed
-				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
-				List<String> allowedPermissions = (oldValue==null ? Collections.emptyList() : PermissionResolver.getPermissionList(Long.valueOf(String.valueOf(oldValue))));
-				StringBuilder sbAllowed = new StringBuilder();
-				for(String permission: allowedPermissions) {
-					sbAllowed.append("✅").append(permission).append(System.lineSeparator());
-				}
-				eb.addField("Previously Allowed Permissions", sbAllowed.toString(), false);
+				/// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
+				// the oldValue returns the permissions the channel was previously allowed
+				eb.addField("Previously Allowed Permissions", PermissionResolver.getParsedPermissions(oldValue, "✅"), false);
 				break;
 				
 			case "id":
@@ -976,7 +944,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "trigger_type":
-				eb.addField("Trigger Type", TypeResolver.automodTriggerType((Integer) newValue), false);
+				eb.addField("Trigger Type", TypeResolver.automodTriggerType(newValue), false);
 				break;
 				
 			case "actions":
@@ -996,7 +964,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "event_type":
-				eb.addField("Event Type", TypeResolver.automodEventType((Integer) newValue), false);
+				eb.addField("Event Type", TypeResolver.automodEventType(newValue), false);
 				break;
 				
 			case "trigger_metadata":
@@ -1401,7 +1369,6 @@ public class AuditLogListener extends ListenerAdapter{
 		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
 	}
 	
-	// TODO Reduce Complexity
 	private void formatGuildUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Audit Log Entry");
@@ -1467,7 +1434,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "verification_level":
-				eb.addField("Verification Level", "`"+TypeResolver.guildVerificationLevel((Integer) newValue)+"`", false);
+				eb.addField("Verification Level", "`"+TypeResolver.guildVerificationLevel(newValue)+"`", false);
 				break;
 				
 			case "owner_id":
@@ -1486,14 +1453,7 @@ public class AuditLogListener extends ListenerAdapter{
 				
 				
 			case "system_channel_flags":
-			
-				List<String> newFlags = (newValue==null ? Collections.emptyList() : GuildSystemChannelFlagResolver.getFlagList(Long.valueOf(String.valueOf(newValue))));
-				StringBuilder sbNew = new StringBuilder();
-				for(String flag: newFlags) {
-					sbNew.append("✅").append(flag).append(System.lineSeparator());
-				}
-				
-				eb.addField("System Channel Flags", sbNew.toString(), false);
+				eb.addField("System Channel Flags", GuildSystemChannelFlagResolver.getParsedFlags(newValue), false);
 				break;
 													
 			default:
