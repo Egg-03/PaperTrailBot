@@ -1,10 +1,11 @@
-package listeners.auditloglistener;
+package org.papertrail.listeners.loglisteners;
 
 import java.awt.Color;
 import java.sql.SQLException;
 
-import database.DatabaseConnector;
-import database.TableNames;
+import org.papertrail.database.DatabaseConnector;
+import org.papertrail.database.TableNames;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,12 +14,12 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class AuditLogCommandListener extends ListenerAdapter {
+public class LogCommandListener extends ListenerAdapter {
 
 	private DatabaseConnector dc;
 	private final EmbedBuilder eb = new EmbedBuilder();
 
-	public AuditLogCommandListener(DatabaseConnector dc) {
+	public LogCommandListener(DatabaseConnector dc) {
 		this.dc = dc;
 		eb.setTitle("Audit Log Configuration");
 		eb.setColor(Color.CYAN);

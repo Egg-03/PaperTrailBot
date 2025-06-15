@@ -1,4 +1,4 @@
-package utilities;
+package org.papertrail.utilities;
 
 /*
  * Resolves Object sub-types from their given IDs

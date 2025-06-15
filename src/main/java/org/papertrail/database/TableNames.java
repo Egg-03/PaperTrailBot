@@ -1,4 +1,4 @@
-package database;
+package org.papertrail.database;
 
 public class TableNames {
 	

@@ -1,16 +1,17 @@
-package starter;
+package org.papertrail.main;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 
+import org.papertrail.database.DatabaseConnector;
+import org.papertrail.listeners.loglisteners.AuditLogListener;
+import org.papertrail.listeners.loglisteners.GuildVoiceListener;
+import org.papertrail.listeners.loglisteners.LogCommandListener;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
-import database.DatabaseConnector;
-import listeners.auditloglistener.AuditLogCommandListener;
-import listeners.auditloglistener.AuditLogListener;
 
 public class FireRun {
 
@@ -19,8 +20,9 @@ public class FireRun {
 		DatabaseConnector dc = new DatabaseConnector();
 		
 		ConnectionInitializer ci = new ConnectionInitializer();
-		ci.getManager().addEventListener(new AuditLogCommandListener(dc));
+		ci.getManager().addEventListener(new LogCommandListener(dc));
 		ci.getManager().addEventListener(new AuditLogListener(dc));
+		ci.getManager().addEventListener(new GuildVoiceListener(dc));
 			
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/ping", new PingHandler());

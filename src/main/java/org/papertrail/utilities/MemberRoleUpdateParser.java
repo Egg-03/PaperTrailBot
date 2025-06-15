@@ -1,4 +1,4 @@
-package utilities;
+package org.papertrail.utilities;
 
 import java.util.Collections;
 import java.util.HashMap;

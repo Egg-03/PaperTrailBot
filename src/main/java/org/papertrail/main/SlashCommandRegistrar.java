@@ -1,4 +1,4 @@
-package starter;
+package org.papertrail.main;
 
 import org.jetbrains.annotations.NotNull;
 

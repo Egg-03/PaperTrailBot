@@ -1,4 +1,4 @@
-package utilities;
+package org.papertrail.utilities;
 
 import io.github.cdimascio.dotenv.Dotenv;
 

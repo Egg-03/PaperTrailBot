@@ -1,4 +1,4 @@
-package listeners.auditloglistener;
+package org.papertrail.listeners.loglisteners;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -7,9 +7,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.papertrail.database.DatabaseConnector;
+import org.papertrail.database.TableNames;
+import org.papertrail.utilities.ColorFormatter;
+import org.papertrail.utilities.DurationFormatter;
+import org.papertrail.utilities.GuildSystemChannelFlagResolver;
+import org.papertrail.utilities.MemberRoleUpdateParser;
+import org.papertrail.utilities.PermissionResolver;
+import org.papertrail.utilities.TypeResolver;
 
-import database.DatabaseConnector;
-import database.TableNames;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogChange;
@@ -24,12 +30,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.sticker.GuildSticker;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import utilities.ColorFormatter;
-import utilities.DurationFormatter;
-import utilities.GuildSystemChannelFlagResolver;
-import utilities.MemberRoleUpdateParser;
-import utilities.PermissionResolver;
-import utilities.TypeResolver;
 
 public class AuditLogListener extends ListenerAdapter{
 
@@ -102,9 +102,9 @@ public class AuditLogListener extends ListenerAdapter{
 				
 		case MEMBER_ROLE_UPDATE -> formatMemberRoleUpdate(event, ale, channelIdToSendTo);
 		case MEMBER_UPDATE -> formatMemberUpdate(event, ale, channelIdToSendTo);
-		// TODO
-		case MEMBER_VOICE_KICK -> formatGeneric(event, ale, channelIdToSendTo);
-		case MEMBER_VOICE_MOVE -> formatGeneric(event, ale, channelIdToSendTo);
+
+		case MEMBER_VOICE_KICK -> formatMemberVoiceKick(event, ale, channelIdToSendTo);
+		case MEMBER_VOICE_MOVE -> formatMemberVoiceMove(event, ale, channelIdToSendTo);
 		
 		case MESSAGE_BULK_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -1780,6 +1780,48 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	// the audit log does not expose much information regarding member vc move and kick events
+	// therefore GuildVoiceListener has been created to know about channels the target has been moved or kicked from
+	private void formatMemberVoiceKick(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatMemberVoiceMove(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
 		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
 	}
 }
