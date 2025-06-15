@@ -168,8 +168,12 @@ public class AuditLogListener extends ListenerAdapter{
 
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
+		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+				
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.CYAN);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -227,8 +231,11 @@ public class AuditLogListener extends ListenerAdapter{
 
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());		
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.CYAN);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -280,8 +287,11 @@ public class AuditLogListener extends ListenerAdapter{
 
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());		
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+				
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.ORANGE);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -309,8 +319,11 @@ public class AuditLogListener extends ListenerAdapter{
 
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());				
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);  
@@ -337,8 +350,11 @@ public class AuditLogListener extends ListenerAdapter{
 
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -435,12 +451,15 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		User target = ale.getJDA().getUserById(ale.getTargetIdLong());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTarget = (target !=null ? target.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.CYAN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
-		eb.addField("Added a bot: ", (target!=null ? target.getAsMention() : ale.getTargetId()), false);
+		eb.addField("Added a bot: ", mentionableTarget, false);
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
@@ -455,9 +474,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());				
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+	
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.PINK);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -496,9 +516,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -538,8 +559,13 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		GuildChannel targetChannel = ale.getGuild().getGuildChannelById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetChannel = (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId());
+
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -573,9 +599,8 @@ public class AuditLogListener extends ListenerAdapter{
 				
 			case "name":
 				eb.addField("Channel Name", String.valueOf(newValue), false);
-				// provide a channel link next to its name
-				GuildChannel targetChannel = ale.getGuild().getGuildChannelById(ale.getTargetId());
-				eb.addField("Channel Link", (targetChannel!=null ? targetChannel.getAsMention() : ale.getTargetId()), true);
+				// provide a channel link next to its name. This mentionable channel can be obtained via the target ID of ALE
+				eb.addField("Channel Link", mentionableTargetChannel, true);
 				break;
 				
 			case "bitrate":
@@ -601,8 +626,12 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetChannel = (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -674,9 +703,8 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
-		// mention the channel that got updated
-		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
-		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		// mention the channel that got updated, id can be exposed via ALE's TargetID
+		eb.addField("Target Channel", mentionableTargetChannel, false);
 			
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
@@ -692,8 +720,12 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		GuildChannel targetChannel = ale.getJDA().getGuildChannelById(ale.getTargetIdLong());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetChannel = (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()); // this will return only the ID cause the channel with the ID has been deleted
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -722,7 +754,8 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
-			
+		
+		eb.addField("Deleted Channel ID", mentionableTargetChannel, false);
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
@@ -737,8 +770,12 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetChannel = (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -789,8 +826,8 @@ public class AuditLogListener extends ListenerAdapter{
 			}	
 		}
 		// add the target channel whose permissions were over-riden
-		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
-		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		// exposed via ALE's TargetID
+		eb.addField("Target Channel", mentionableTargetChannel, false);
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
@@ -806,8 +843,12 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetChannel = (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -840,8 +881,8 @@ public class AuditLogListener extends ListenerAdapter{
 		}
 		
 		// add the target channel whose permissions were over-riden
-		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
-		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		// can be retrieved via ALE's TargetID
+		eb.addField("Target Channel", mentionableTargetChannel, false);
 			
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
@@ -857,8 +898,12 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetChannel = (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -908,8 +953,8 @@ public class AuditLogListener extends ListenerAdapter{
 			}	
 		}
 		// add the target channel whose permissions were over-riden
-		GuildChannel targetChannel = event.getGuild().getGuildChannelById(ale.getTargetId());
-		eb.addField("Target Channel", (targetChannel !=null ? targetChannel.getAsMention() : ale.getTargetId()), false);
+		// can be retrieved via ALE's TargetID
+		eb.addField("Target Channel", mentionableTargetChannel, false);
 		
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
@@ -924,9 +969,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1006,9 +1052,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1047,9 +1094,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1118,9 +1166,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1136,7 +1185,7 @@ public class AuditLogListener extends ListenerAdapter{
 							
 			case "name":
 				eb.addField("Emoji Name", String.valueOf(newValue), false);
-				eb.addField("Emoji", "<:"+newValue+":"+ale.getTargetId()+">", false);
+				eb.addField("Emoji", "<:"+newValue+":"+ale.getTargetId()+">", false); // ale's TargetID retrieves the ID of the created emoji
 				break;
 													
 			default:
@@ -1157,9 +1206,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder(); 
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+	
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1196,8 +1246,9 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1219,7 +1270,8 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
-				
+		
+		eb.addField("Deleted Emoji ID", ale.getTargetId(), false);
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
@@ -1232,9 +1284,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserId());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1286,9 +1339,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserId());
-		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+			
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1338,9 +1392,11 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserId());
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1386,9 +1442,10 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserId());
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.MAGENTA);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1453,7 +1510,9 @@ public class AuditLogListener extends ListenerAdapter{
 			case "owner_id":
 				User oldOwner = ale.getJDA().getUserById(String.valueOf(oldValue));
 				User newOwner = ale.getJDA().getUserById(String.valueOf(newValue));
-				eb.addField("Ownership Change", "from "+(oldOwner!=null ? oldOwner.getAsMention() : String.valueOf(oldValue))+" to "+(newOwner!=null ? newOwner.getAsMention() : String.valueOf(newValue)), false);
+				String mentionableOldOwner = (oldOwner!=null ? oldOwner.getAsMention() : String.valueOf(oldValue));
+				String mentionableNewOwner = (newOwner!=null ? newOwner.getAsMention() : String.valueOf(newValue));
+				eb.addField("Ownership Change", "from "+mentionableOldOwner+" to "+mentionableNewOwner, false);
 				break;
 				
 			case "public_updates_channel_id":
@@ -1490,10 +1549,13 @@ public class AuditLogListener extends ListenerAdapter{
 		EmbedBuilder eb = new EmbedBuilder();
 		eb.setTitle("Audit Log Entry");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserId());
-		User target = ale.getJDA().getUserById(ale.getTargetId());
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		User target = ale.getJDA().getUserById(ale.getTargetIdLong());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTarget = (target !=null ? target.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.CYAN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1509,7 +1571,7 @@ public class AuditLogListener extends ListenerAdapter{
 							
 			case "$add":
 				eb.setColor(Color.GREEN);
-				eb.addField("Target Member", (target != null ? target.getAsMention() : ale.getTargetId()), false);
+				eb.addField("Target Member", mentionableTarget, false);
 				Map<String, String> addedRoleNameAndId = MemberRoleUpdateParser.parseRoleUpdate(newValue);
 				eb.addField("Role Added", "✅ "+addedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
 				eb.addField("Added Role ID", addedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
@@ -1517,7 +1579,7 @@ public class AuditLogListener extends ListenerAdapter{
 				
 			case "$remove":
 				eb.setColor(Color.RED);
-				eb.addField("Target Member", (target != null ? target.getAsMention() : ale.getTargetId()), false);
+				eb.addField("Target Member", mentionableTarget, false);
 				Map<String, String> removedRoleNameAndId = MemberRoleUpdateParser.parseRoleUpdate(newValue);
 				eb.addField("Role Removed", "❌ "+removedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
 				eb.addField("Removed Role ID", removedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
@@ -1543,13 +1605,16 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserId());
 		Role targetRole = ale.getJDA().getRoleById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetRole = (targetRole !=null ? targetRole.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.GREEN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
-		eb.addField("Target Role", (targetRole != null ? targetRole.getAsMention() : ale.getTargetId()), false);
+		eb.addField("Target Role", mentionableTargetRole, false);
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
 			String change = changes.getKey();
@@ -1590,13 +1655,16 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserId());
 		Role targetRole = ale.getJDA().getRoleById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetRole = (targetRole !=null ? targetRole.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
-		eb.addField("Target Role", (targetRole != null ? targetRole.getAsMention() : ale.getTargetId()), false);
+		eb.addField("Target Role", mentionableTargetRole, false);
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
@@ -1659,8 +1727,12 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTitle("Audit Log Entry");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserId());
+		Role targetRole = ale.getJDA().getRoleById(ale.getTargetId());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTargetRole = (targetRole !=null ? targetRole.getAsMention() : ale.getTargetId()); // this will always return the ID only
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.RED);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1701,7 +1773,8 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
 		}
-				
+		
+		eb.addField("Deleted Role ID", mentionableTargetRole, false);
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
