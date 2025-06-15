@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.sticker.GuildSticker;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import utilities.ColorFormatter;
 import utilities.DurationFormatter;
 import utilities.GuildSystemChannelFlagResolver;
 import utilities.MemberRoleUpdateParser;
@@ -76,10 +77,10 @@ public class AuditLogListener extends ListenerAdapter{
 		case CHANNEL_OVERRIDE_CREATE -> formatChannelOverrideCreate(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_DELETE -> formatChannelOverrideDelete(event, ale, channelIdToSendTo);
 		case CHANNEL_OVERRIDE_UPDATE -> formatChannelOverrideUpdate(event, ale, channelIdToSendTo);
-		// TODO
-		case ROLE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case ROLE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case ROLE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		
+		case ROLE_CREATE -> formatRoleCreate(event, ale, channelIdToSendTo);
+		case ROLE_UPDATE -> formatRoleUpdate(event, ale, channelIdToSendTo);
+		case ROLE_DELETE -> formatRoleDelete(event, ale, channelIdToSendTo);
 		
 		case EMOJI_CREATE -> formatEmojiCreate(event, ale, channelIdToSendTo);
 		case EMOJI_UPDATE -> formatEmojiUpdate(event, ale, channelIdToSendTo);
@@ -101,6 +102,7 @@ public class AuditLogListener extends ListenerAdapter{
 				
 		case MEMBER_ROLE_UPDATE -> formatMemberRoleUpdate(event, ale, channelIdToSendTo);
 		case MEMBER_UPDATE -> formatMemberUpdate(event, ale, channelIdToSendTo);
+		// TODO
 		case MEMBER_VOICE_KICK -> formatGeneric(event, ale, channelIdToSendTo);
 		case MEMBER_VOICE_MOVE -> formatGeneric(event, ale, channelIdToSendTo);
 		
@@ -1508,6 +1510,180 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField("Removed Role ID", removedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
 				break;
 																			
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+				
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatRoleCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());
+		Role targetRole = ale.getJDA().getRoleById(ale.getTargetId());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+		
+		eb.addField("Target Role", (targetRole != null ? targetRole.getAsMention() : ale.getTargetId()), false);
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "name":		
+				eb.addField("Role Name", String.valueOf(newValue), false);
+				break;
+			
+				/*
+				 * discord for some reason shows the following to be default/null even
+				 * when you set them during the creation of the role itself
+				 * and delegates them to ROLE_UPDATE event
+				 */
+			case "colors", "hoist", "color", "permissions", "mentionable": 
+				break;
+																			
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+				
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatRoleUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());
+		Role targetRole = ale.getJDA().getRoleById(ale.getTargetId());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+		
+		eb.addField("Target Role", (targetRole != null ? targetRole.getAsMention() : ale.getTargetId()), false);
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "name":
+				eb.addField("Old Role Name", String.valueOf(oldValue), true);
+				eb.addField("New Role Name", String.valueOf(newValue), true);
+				eb.addBlankField(true);
+				break;
+			
+			case "hoist":
+				eb.addField("Old Display Seperately", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), true);
+				eb.addField("New Display Seperately", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), true);
+				eb.addBlankField(true);
+				break;	
+				
+			case "color":
+				eb.addField("Old Color", ColorFormatter.formatToHex(oldValue), true);
+				eb.addField("New Color", ColorFormatter.formatToHex(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "permissions":
+				eb.addField("Old Role Permissions", PermissionResolver.getParsedPermissions(oldValue, "✅"), true);
+				eb.addField("New Role Permissions", PermissionResolver.getParsedPermissions(newValue, "✅"), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "mentionable":
+				eb.addField("Old Mentionable", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), true);
+				eb.addField("New Mentionable", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), true);
+				eb.addBlankField(true);
+				break;
+			
+			case "colors":
+				eb.addField("Old Gradient Color System", ColorFormatter.formatGradientColorSystemToHex(oldValue), true);
+				eb.addField("New Gradient Color System", ColorFormatter.formatGradientColorSystemToHex(newValue), true);
+				eb.addBlankField(true);
+				break;
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
+			}	
+		}
+				
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatRoleDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());
+		
+		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		eb.setColor(Color.RED);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+		
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {	
+							
+			case "name":		
+				eb.addField("Role Name", String.valueOf(oldValue), false);
+				break;
+			
+			case "hoist":
+				eb.addField("Display Seperately", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
+				break;	
+				
+			case "color": 
+				eb.addField("Color", ColorFormatter.formatToHex(oldValue), false);
+				break;
+				
+			case "permissions": 
+				eb.addField("Role Permissions", PermissionResolver.getParsedPermissions(oldValue, "✅"), false);
+				break;
+				
+			case "mentionable": 
+				eb.addField("Mentionable", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
+				break;
+			
+			case "colors":
+				eb.addField("Gradient Color System", ColorFormatter.formatGradientColorSystemToHex(oldValue), false);
+				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);			
 			}	
