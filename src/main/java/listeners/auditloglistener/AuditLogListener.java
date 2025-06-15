@@ -948,7 +948,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "trigger_type":
-				eb.addField("Trigger Type", TypeResolver.automodTriggerType(newValue), false);
+				eb.addField("Trigger Type", TypeResolver.automodTriggerTypeResolver(newValue), false);
 				break;
 				
 			case "actions":
@@ -968,7 +968,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "event_type":
-				eb.addField("Event Type", TypeResolver.automodEventType(newValue), false);
+				eb.addField("Event Type", TypeResolver.automodEventTypeResolver(newValue), false);
 				break;
 				
 			case "trigger_metadata":
@@ -1438,7 +1438,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "verification_level":
-				eb.addField("Verification Level", "`"+TypeResolver.guildVerificationLevel(newValue)+"`", false);
+				eb.addField("Verification Level", "`"+TypeResolver.guildVerificationLevelResolver(newValue)+"`", false);
 				break;
 				
 			case "owner_id":
@@ -1458,6 +1458,10 @@ public class AuditLogListener extends ListenerAdapter{
 				
 			case "system_channel_flags":
 				eb.addField("System Channel Flags", GuildSystemChannelFlagResolver.getParsedFlags(newValue), false);
+				break;
+				
+			case "explicit_content_filter":
+				eb.addField("Explicit Content Filter", TypeResolver.explicitFilterTypeResolver(newValue), false);
 				break;
 													
 			default:
@@ -1498,7 +1502,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.setColor(Color.GREEN);
 				eb.addField("Target Member", (target != null ? target.getAsMention() : ale.getTargetId()), false);
 				Map<String, String> addedRoleNameAndId = MemberRoleUpdateParser.parseRoleUpdate(newValue);
-				eb.addField("Role Added", addedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
+				eb.addField("Role Added", "✅ "+addedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
 				eb.addField("Added Role ID", addedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
 				break;
 				
@@ -1506,7 +1510,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.setColor(Color.RED);
 				eb.addField("Target Member", (target != null ? target.getAsMention() : ale.getTargetId()), false);
 				Map<String, String> removedRoleNameAndId = MemberRoleUpdateParser.parseRoleUpdate(newValue);
-				eb.addField("Role Removed", removedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
+				eb.addField("Role Removed", "❌ "+removedRoleNameAndId.getOrDefault("name", "`ERROR: Not Found`"), false);
 				eb.addField("Removed Role ID", removedRoleNameAndId.getOrDefault("id", "`ERROR: Not Found`"), false);
 				break;
 																			
