@@ -17,6 +17,6 @@ FROM openjdk:21-jdk
 VOLUME /tmp
 
 # Copy the JAR from the build stage
-COPY --from=build /app/target/simple-logger.jar simple-logger.jar
-ENTRYPOINT ["java","-jar","simple-logger.jar", " --trace"]
+COPY --from=build /app/target/paper-trail-bot.jar paper-trail-bot.jar
+ENTRYPOINT ["java","-jar","paper-trail-bot.jar", " --trace"]
 EXPOSE 8080

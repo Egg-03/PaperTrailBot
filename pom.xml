@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.egg.simplelogger</groupId>
-  <artifactId>simple-logger</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>Simple Logger</name>
-  <description>Discord Activity Logging Bot</description>
+  <groupId>org.egg.papertrail</groupId>
+  <artifactId>paper-trail-bot</artifactId>
+  <version>0.1.0</version>
+  <name>PaperTrail</name>
+  <description>A simple bot for logging all user actions</description>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
