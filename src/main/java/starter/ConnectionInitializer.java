@@ -19,7 +19,7 @@ public class ConnectionInitializer {
 		String token = EnvConfig.get("TOKEN");
 		
 		DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(token);
-		builder.enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MODERATION);
+		builder.enableIntents(GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.AUTO_MODERATION_EXECUTION, GatewayIntent.AUTO_MODERATION_CONFIGURATION, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MODERATION);
 		builder.setStatus(OnlineStatus.ONLINE);
 		
 		//cache all users of the bot
