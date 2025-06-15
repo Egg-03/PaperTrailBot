@@ -367,11 +367,14 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		User target = ale.getJDA().getUserById(ale.getTargetIdLong());
 		
-		eb.setDescription((executor != null ? executor.getAsMention() : ale.getUserId())+" has executed the following action:");
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		String mentionableTarget = (target !=null ? target.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.CYAN);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
-		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
-
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 	
+				
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 
 			String change = changes.getKey();
@@ -383,26 +386,32 @@ public class AuditLogListener extends ListenerAdapter{
 			case "communication_disabled_until":
 				if(newValue==null) {
 					eb.setColor(Color.GREEN);
-					eb.addField("Timeout Lifted", "Timeout for "+(target !=null ? target.getAsMention() : ale.getTargetId())+ " has been removed", false);
+					eb.addField("Timeout Lifted", "Timeout for "+mentionableTarget+ " has been removed", false);
 				} else {
 					eb.setColor(Color.YELLOW);
-					eb.addField("Timeout Received", (target !=null ? target.getAsMention() : ale.getTargetId())+ " has received a timeout", false);
+					eb.addField("Timeout Received", mentionableTarget+ " has received a timeout", false);
 					eb.addField("Till", DurationFormatter.isoToLocalTimeCounter(newValue), false);
 					eb.addField("Reason", (ale.getReason()!=null ? ale.getReason() : "No Reason Provided"), false);
 				}
 					
 				break;
 
-			case "nick":
-				String targetMention = (target !=null ? target.getAsMention() : ale.getTargetId());
-				
+			case "nick":							
 				if(oldValue!=null && newValue==null) { // resetting to default nickname
-					eb.addField("Nickname Update", "Reset "+targetMention+"'s name", false);
+					eb.addField("Nickname Update", "Reset "+mentionableTarget+"'s name", false);
 				} else if(oldValue!=null && newValue!=null) { // changing from one nickname to another
-					eb.addField("Nickname Update", "Updated "+targetMention+"'s name from "+oldValue+ " to "+ newValue, false);
+					eb.addField("Nickname Update", "Updated "+mentionableTarget+"'s name from "+oldValue+ " to "+ newValue, false);
 				} else if(oldValue==null && newValue!=null) { // changing from default nickname to a new nickname
-					eb.addField("Nickname Update", "Set "+targetMention+"'s name as "+ newValue, false);
+					eb.addField("Nickname Update", "Set "+mentionableTarget+"'s name as "+ newValue, false);
 				}
+				break;
+				
+			case "mute":
+				eb.addField("Is Muted", "Set "+mentionableTarget+"'s Mute Status as "+ ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				break;
+				
+			case "deaf":							
+				eb.addField("Is Deafened", "Set "+mentionableTarget+"'s Deafened Status as "+ ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
 				break;
 
 			default:
