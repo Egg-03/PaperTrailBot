@@ -58,9 +58,9 @@ public class AuditLogListener extends ListenerAdapter{
 		switch(action) {
 		case APPLICATION_COMMAND_PRIVILEGES_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 		
-		case AUTO_MODERATION_FLAG_TO_CHANNEL -> formatGeneric(event, ale, channelIdToSendTo);
-		case AUTO_MODERATION_MEMBER_TIMEOUT -> formatGeneric(event, ale, channelIdToSendTo);
-		case AUTO_MODERATION_RULE_BLOCK_MESSAGE -> formatGeneric(event, ale, channelIdToSendTo);
+		case AUTO_MODERATION_FLAG_TO_CHANNEL -> formatAutoModFlagToChannel(event, ale, channelIdToSendTo);
+		case AUTO_MODERATION_MEMBER_TIMEOUT -> formatAutoModMemberTimeout(event, ale, channelIdToSendTo);
+		case AUTO_MODERATION_RULE_BLOCK_MESSAGE -> formatAutoModRuleBlockMessage(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_CREATE -> formatAutoModRuleCreate(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_DELETE -> formatAutoModRuleDelete(event, ale, channelIdToSendTo);
 		case AUTO_MODERATION_RULE_UPDATE -> formatAutoModRuleUpdate(event, ale, channelIdToSendTo);
@@ -1859,6 +1859,66 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableTargetChannel = (targetChannel != null ? targetChannel.getAsMention() : ale.getTargetId());
 		
 		eb.setDescription(mentionableExecutor+" has deleted the status of the voice channel: "+mentionableTargetChannel);
+		eb.setColor(Color.ORANGE);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatAutoModFlagToChannel(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+			
+		User targetUser = ale.getJDA().getUserById(ale.getTargetId());
+		String mentionableTargetUser = (targetUser != null ? targetUser.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription("Automod has flagged a message sent by: "+mentionableTargetUser);
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatAutoModMemberTimeout (GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+			
+		User targetUser = ale.getJDA().getUserById(ale.getTargetId());
+		String mentionableTargetUser = (targetUser != null ? targetUser.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription("Automod has timed out"+mentionableTargetUser+" for a defined rule violation");
+		eb.setColor(Color.MAGENTA);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatAutoModRuleBlockMessage (GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+			
+		User targetUser = ale.getJDA().getUserById(ale.getTargetId());
+		String mentionableTargetUser = (targetUser != null ? targetUser.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription("Automod has deleted a message sent by: "+mentionableTargetUser);
 		eb.setColor(Color.ORANGE);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
