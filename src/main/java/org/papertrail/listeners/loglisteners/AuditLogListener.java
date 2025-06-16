@@ -862,7 +862,27 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
-		
+		// changes does not expose the id and type keys in case of override updates
+		String overriddenId = ale.getOptionByName("id");
+		String overriddenType = ale.getOptionByName("type");
+
+		String mentionableOverrideTarget = overriddenId;
+		if ("0".equals(overriddenType)) {
+		    // It’s a role
+		    Role role = event.getGuild().getRoleById(overriddenId);
+		    if (role != null) {
+		        mentionableOverrideTarget = role.getAsMention();
+		    }
+		} else if ("1".equals(overriddenType)) {
+		    // It’s a member
+		    Member member = event.getGuild().getMemberById(overriddenId);
+		    if (member != null) {
+		        mentionableOverrideTarget = member.getAsMention();
+		    }
+		}
+
+		eb.addField("Permissions Overridden For", mentionableOverrideTarget, false);
+	
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
 			String change = changes.getKey();
