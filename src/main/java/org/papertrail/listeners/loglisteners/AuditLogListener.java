@@ -106,12 +106,14 @@ public class AuditLogListener extends ListenerAdapter{
 		case MEMBER_VOICE_KICK -> formatMemberVoiceKick(event, ale, channelIdToSendTo);
 		case MEMBER_VOICE_MOVE -> formatMemberVoiceMove(event, ale, channelIdToSendTo);
 		
+		// this seemingly don't trigger properly, or are unreliable
 		case MESSAGE_BULK_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case MESSAGE_PIN -> formatGeneric(event, ale, channelIdToSendTo);
-		case MESSAGE_UNPIN -> formatGeneric(event, ale, channelIdToSendTo);
 		case MESSAGE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		
+		case MESSAGE_PIN -> formatMessagePin(event, ale, channelIdToSendTo);
+		case MESSAGE_UNPIN -> formatMessageUnpin(event, ale, channelIdToSendTo);
 		
 		case SCHEDULED_EVENT_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case SCHEDULED_EVENT_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -1920,6 +1922,46 @@ public class AuditLogListener extends ListenerAdapter{
 		
 		eb.setDescription("Automod has deleted a message sent by: "+mentionableTargetUser);
 		eb.setColor(Color.ORANGE);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatMessagePin(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+			
+		User executor = ale.getJDA().getUserById(ale.getTargetId());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getTargetId());
+			
+		eb.setDescription(mentionableExecutor+ "pinned a message");
+		eb.setColor(Color.PINK);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	// these audit log events don't expose anything other than the executor of the event
+	private void formatMessageUnpin(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+			
+		User executor = ale.getJDA().getUserById(ale.getTargetId());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getTargetId());
+				
+		eb.setDescription(mentionableExecutor+ "has un-pinned a message");
+		eb.setColor(Color.MAGENTA);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
