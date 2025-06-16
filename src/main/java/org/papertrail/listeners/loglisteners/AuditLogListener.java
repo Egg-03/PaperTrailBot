@@ -431,7 +431,11 @@ public class AuditLogListener extends ListenerAdapter{
 			case "deaf":							
 				eb.addField("Is Deafened", "Set "+mentionableTarget+"'s Deafened Status as "+ ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
 				break;
-
+				
+			case "bypasses_verification":
+				eb.addField("Bypass Verification", "Set "+mentionableTarget+"'s verification bypass status as "+ ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				break;
+				
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
 			}
