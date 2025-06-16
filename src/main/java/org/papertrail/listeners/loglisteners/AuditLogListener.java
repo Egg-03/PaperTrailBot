@@ -119,10 +119,10 @@ public class AuditLogListener extends ListenerAdapter{
 		case SCHEDULED_EVENT_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case SCHEDULED_EVENT_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 
-		case STAGE_INSTANCE_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case STAGE_INSTANCE_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case STAGE_INSTANCE_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-	
+		case STAGE_INSTANCE_CREATE -> formatStageInstanceCreate(event, ale, channelIdToSendTo);
+		case STAGE_INSTANCE_UPDATE -> formatStageInstanceUpdate(event, ale, channelIdToSendTo);
+		case STAGE_INSTANCE_DELETE -> formatStageInstanceDelete(event, ale, channelIdToSendTo);
+		
 		case THREAD_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -1975,5 +1975,130 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatStageInstanceCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "topic":
+				eb.addField("Stage Topic", String.valueOf(newValue), false);
+				break;
+				
+			case "privacy_level":
+				eb.addField("Stage Privacy", String.valueOf(newValue), false);
+				eb.addField("Stage Privacy Result Inference", "-# A value of 1 means PUBLIC (deprecated) and 2 means GUILD_ONLY", false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatStageInstanceUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+	
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "topic":
+				eb.addField("OldStage Topic", String.valueOf(oldValue), false);
+				eb.addField("New Stage Topic", String.valueOf(newValue), false);
+				break;
+				
+			case "privacy_level":
+				eb.addField("Old Stage Privacy", String.valueOf(oldValue), false);
+				eb.addField("New Stage Privacy", String.valueOf(newValue), false);
+				eb.addField("Stage Privacy Result Inference", "-# A value of 1 means PUBLIC (deprecated) and 2 means GUILD_ONLY", false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatStageInstanceDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.RED);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "topic":
+				eb.addField("Deleted Stage Topic", String.valueOf(oldValue), false);
+				break;
+				
+			case "privacy_level":
+				eb.addField("Deleted Stage Privacy", String.valueOf(oldValue), false);
+				eb.addField("Stage Privacy Result Inference", "-# A value of 1 means PUBLIC (deprecated) and 2 means GUILD_ONLY", false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
 	}
 }
