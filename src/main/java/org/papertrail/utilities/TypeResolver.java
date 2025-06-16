@@ -190,4 +190,43 @@ public class TypeResolver {
 		}
 
 	}
+	
+	public static String scheduleEventTypeResolver(Object type) {
+		if (type == null) {
+			return "ERROR: Value Returned Null";
+		}
+
+		try {
+			Integer t = Integer.parseInt(type.toString());
+			return switch (t) {
+			case 1 -> "Stage Event";
+			case 2 -> "Voice Event";
+			case 3 -> "Text Event";
+			default -> "Unknown";
+			};
+		} catch (NumberFormatException e) {
+			return "No Parsable Type Values Detected";
+		}
+
+	}
+	
+	public static String scheduleEventStatusTypeResolver(Object type) {
+		if (type == null) {
+			return "ERROR: Value Returned Null";
+		}
+
+		try {
+			Integer t = Integer.parseInt(type.toString());
+			return switch (t) {
+			case 1 -> "Scheduled";
+			case 2 -> "Active";
+			case 3 -> "Completed";
+			case 4 -> "Cancelled";
+			default -> "Unknown";
+			};
+		} catch (NumberFormatException e) {
+			return "No Parsable Type Values Detected";
+		}
+
+	}
 }

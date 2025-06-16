@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.ScheduledEvent;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.automod.AutoModRule;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -115,9 +116,9 @@ public class AuditLogListener extends ListenerAdapter{
 		case MESSAGE_PIN -> formatMessagePin(event, ale, channelIdToSendTo);
 		case MESSAGE_UNPIN -> formatMessageUnpin(event, ale, channelIdToSendTo);
 		
-		case SCHEDULED_EVENT_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case SCHEDULED_EVENT_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case SCHEDULED_EVENT_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case SCHEDULED_EVENT_CREATE -> formatScheduledEventCreate(event, ale, channelIdToSendTo);
+		case SCHEDULED_EVENT_UPDATE -> formatScheduledEventUpdate(event, ale, channelIdToSendTo);
+		case SCHEDULED_EVENT_DELETE -> formatScheduledEventDelete(event, ale, channelIdToSendTo);
 
 		case STAGE_INSTANCE_CREATE -> formatStageInstanceCreate(event, ale, channelIdToSendTo);
 		case STAGE_INSTANCE_UPDATE -> formatStageInstanceUpdate(event, ale, channelIdToSendTo);
@@ -2087,6 +2088,194 @@ public class AuditLogListener extends ListenerAdapter{
 			case "privacy_level":
 				eb.addField("Deleted Stage Privacy", String.valueOf(oldValue), false);
 				eb.addField("Stage Privacy Result Inference", "-# A value of 1 means PUBLIC (deprecated) and 2 means GUILD_ONLY", false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatScheduledEventCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "entity_type":
+				eb.addField("Event Type", TypeResolver.scheduleEventTypeResolver(newValue), false);
+				break;
+				
+			case "privacy_level", "image_hash":
+				break;
+				
+			case "description":
+				eb.addField("Event Description", String.valueOf(newValue), false);
+				break;
+				
+			case "status":
+				eb.addField("Event Status", TypeResolver.scheduleEventStatusTypeResolver(newValue), false);
+				break;
+				
+			case "location":
+				eb.addField("Event Location", String.valueOf(newValue), false);
+				break;
+				
+			case "name":
+				eb.addField("Event Name", String.valueOf(newValue), false);
+				break;
+				
+			case "channel_id":
+				GuildChannel eventChannel = event.getGuild().getGuildChannelById(String.valueOf(newValue));
+				eb.addField("Event Channel", (eventChannel!=null ? eventChannel.getAsMention() : String.valueOf(newValue)), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatScheduledEventUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		ScheduledEvent targetEvent = event.getGuild().getScheduledEventById(ale.getTargetId());
+		eb.setDescription(mentionableExecutor+" has executed the following action to a scheduled event: "+targetEvent.getName());
+		eb.setColor(Color.YELLOW);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "entity_type":
+				eb.addField("Old Event Type", TypeResolver.scheduleEventTypeResolver(oldValue), false);
+				eb.addField("New Event Type", TypeResolver.scheduleEventTypeResolver(newValue), false);
+				break;
+				
+			case "privacy_level", "image_hash":
+				break;
+				
+			case "description":
+				eb.addField("Old Event Description", String.valueOf(oldValue), false);
+				eb.addField("New Event Description", String.valueOf(newValue), false);
+				break;
+				
+			case "status":
+				eb.addField("Old Event Status", TypeResolver.scheduleEventStatusTypeResolver(oldValue), false);
+				eb.addField("New Event Status", TypeResolver.scheduleEventStatusTypeResolver(newValue), false);
+				break;
+				
+			case "location":
+				eb.addField("Event Location", String.valueOf(oldValue), false);
+				eb.addField("Event Location", String.valueOf(newValue), false);
+				break;
+				
+			case "name":
+				eb.addField("Old Event Name", String.valueOf(oldValue), false);
+				eb.addField("New Event Name", String.valueOf(newValue), false);
+				break;
+				
+			case "channel_id":
+				GuildChannel eventChannel = event.getGuild().getGuildChannelById(String.valueOf(oldValue));
+				eb.addField("Old Event Channel", (eventChannel!=null ? eventChannel.getAsMention() : String.valueOf(oldValue)), false);
+				eventChannel = event.getGuild().getGuildChannelById(String.valueOf(newValue));
+				eb.addField("New Event Channel", (eventChannel!=null ? eventChannel.getAsMention() : String.valueOf(newValue)), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatScheduledEventDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.RED);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "entity_type":
+				eb.addField("Event Type", TypeResolver.scheduleEventTypeResolver(oldValue), false);
+				break;
+				
+			case "privacy_level", "image_hash":
+				break;
+				
+			case "description":
+				eb.addField("Event Description", String.valueOf(newValue), false);
+				break;
+				
+			case "status":
+				eb.addField("Event Status", TypeResolver.scheduleEventStatusTypeResolver(oldValue), false);
+				break;
+				
+			case "location":
+				eb.addField("Event Location", String.valueOf(oldValue), false);
+				break;
+				
+			case "name":
+				eb.addField("Event Name", String.valueOf(oldValue), false);
+				break;
+				
+			case "channel_id":
+				GuildChannel eventChannel = event.getGuild().getGuildChannelById(String.valueOf(oldValue));
+				eb.addField("Event Channel", (eventChannel!=null ? eventChannel.getAsMention() : String.valueOf(oldValue)), false);
 				break;
 				
 			default:
