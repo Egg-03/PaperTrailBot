@@ -25,7 +25,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.ScheduledEvent;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.automod.AutoModRule;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
@@ -1404,12 +1403,16 @@ public class AuditLogListener extends ListenerAdapter{
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());	
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
+		GuildSticker targetSticker = event.getGuild().getStickerById(ale.getTargetId());
 		
 		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+		
+		eb.addField("Target Sticker Name", targetSticker.getName(), false);
+		eb.addField("Target Sticker Url", targetSticker.getIconUrl(), false);
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
 			
@@ -2028,7 +2031,6 @@ public class AuditLogListener extends ListenerAdapter{
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
-	
 		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
