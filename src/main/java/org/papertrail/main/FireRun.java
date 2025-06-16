@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.SQLException;
 
+import org.papertrail.cleanup.BotKickListener;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
 import org.papertrail.listeners.loglisteners.GuildVoiceListener;
@@ -23,6 +24,8 @@ public class FireRun {
 		ci.getManager().addEventListener(new LogCommandListener(dc));
 		ci.getManager().addEventListener(new AuditLogListener(dc));
 		ci.getManager().addEventListener(new GuildVoiceListener(dc));
+		
+		ci.getManager().addEventListener(new BotKickListener(dc));
 			
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/ping", new PingHandler());
