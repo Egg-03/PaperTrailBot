@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.entities.ScheduledEvent;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.automod.AutoModRule;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.sticker.GuildSticker;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
@@ -124,10 +125,10 @@ public class AuditLogListener extends ListenerAdapter{
 		case STAGE_INSTANCE_UPDATE -> formatStageInstanceUpdate(event, ale, channelIdToSendTo);
 		case STAGE_INSTANCE_DELETE -> formatStageInstanceDelete(event, ale, channelIdToSendTo);
 		
-		case THREAD_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
-		case THREAD_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case THREAD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
-	
+		case THREAD_CREATE -> formatThreadCreate(event, ale, channelIdToSendTo);
+		case THREAD_UPDATE -> formatThreadUpdate(event, ale, channelIdToSendTo);
+		case THREAD_DELETE -> formatThreadDelete(event, ale, channelIdToSendTo);
+		
 		case VOICE_CHANNEL_STATUS_DELETE -> formatVoiceChannelStatusDelete(event, ale, channelIdToSendTo);
 		case VOICE_CHANNEL_STATUS_UPDATE -> formatVoiceChannelStatusUpdate(event, ale, channelIdToSendTo);
 
@@ -2284,6 +2285,206 @@ public class AuditLogListener extends ListenerAdapter{
 					
 		}
 		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatThreadCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		ThreadChannel targetThread = event.getGuild().getThreadChannelById(ale.getTargetId());
+		String mentionableTargetThread = (targetThread !=null ? targetThread.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.GREEN);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "locked":
+				eb.addField("Locked", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				break;
+				
+			case "auto_archive_duration":
+				eb.addField("Auto Archive Duration", DurationFormatter.formatMinutes(newValue), false);
+				break;
+				
+			case "rate_limit_per_user":
+				eb.addField("Slowmode Limit", DurationFormatter.formatSeconds(newValue), false);
+				break;
+				
+			case "type":
+				eb.addField("Thread Type", TypeResolver.channelTypeResolver(newValue), false);
+				break;
+				
+			case "archived":
+				eb.addField("Archived", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				break;
+				
+			case "flags":
+				eb.addField("Flags", String.valueOf(newValue), false);
+				break;
+				
+			case "name":	
+				eb.addField("Thread Name", String.valueOf(newValue), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		eb.addField("Target Thread", mentionableTargetThread, false);
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatThreadUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		ThreadChannel targetThread = event.getGuild().getThreadChannelById(ale.getTargetId());
+		String mentionableTargetThread = (targetThread !=null ? targetThread.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.YELLOW);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		eb.addBlankField(true);
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "locked":
+				eb.addField("Old Lock Status", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), true);
+				eb.addField("New Lock Status", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "auto_archive_duration":
+				eb.addField("Old Auto Archive Duration", DurationFormatter.formatMinutes(oldValue), true);
+				eb.addField("New Auto Archive Duration", DurationFormatter.formatMinutes(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "rate_limit_per_user":
+				eb.addField("Old Slowmode Limit", DurationFormatter.formatSeconds(oldValue), true);
+				eb.addField("New Slowmode Limit", DurationFormatter.formatSeconds(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "type":
+				eb.addField("Old Thread Type", TypeResolver.channelTypeResolver(oldValue), true);
+				eb.addField("New Thread Type", TypeResolver.channelTypeResolver(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "archived":
+				eb.addField("Old Archive Status", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), true);
+				eb.addField("New Archive Status", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "flags":
+				eb.addField("Old Flag Value", String.valueOf(oldValue), true);
+				eb.addField("New Flag Value", String.valueOf(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			case "name":
+				eb.addField("Old Thread Name", String.valueOf(oldValue), true);
+				eb.addField("New Thread Name", String.valueOf(newValue), true);
+				eb.addBlankField(true);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
+		eb.addField("Target Thread", mentionableTargetThread, false);
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();	 
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+	}
+	
+	private void formatThreadDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+
+		EmbedBuilder eb = new EmbedBuilder(); 
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+	
+		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setColor(Color.RED);
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
+
+		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
+			String change = changes.getKey();
+			Object oldValue = changes.getValue().getOldValue();
+			Object newValue = changes.getValue().getNewValue();
+			
+			switch(change) {
+			case "locked":
+				eb.addField("Locked", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
+				break;
+				
+			case "auto_archive_duration":
+				eb.addField("Auto Archive Duration", DurationFormatter.formatMinutes(oldValue), false);
+				break;
+				
+			case "rate_limit_per_user":
+				eb.addField("Slowmode Limit", DurationFormatter.formatSeconds(oldValue), false);
+				break;
+				
+			case "type":
+				eb.addField("Thread Type", TypeResolver.channelTypeResolver(oldValue), false);
+				break;
+				
+			case "archived":
+				eb.addField("Archived", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
+				break;
+				
+			case "flags":
+				eb.addField("Flags", String.valueOf(oldValue), false);
+				break;
+				
+			case "name":	
+				eb.addField("Thread Name", String.valueOf(oldValue), false);
+				break;
+				
+			default:
+				eb.addField(change, "from "+oldValue+" to "+newValue, false);
+			}
+					
+		}
 		eb.setFooter("Audit Log Entry ID: "+ale.getId());
 		eb.setTimestamp(ale.getTimeCreated());
 
