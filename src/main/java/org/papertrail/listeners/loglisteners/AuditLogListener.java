@@ -125,8 +125,8 @@ public class AuditLogListener extends ListenerAdapter{
 		case THREAD_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
 		case THREAD_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
 	
-		case VOICE_CHANNEL_STATUS_DELETE -> formatGeneric(event, ale, channelIdToSendTo);
-		case VOICE_CHANNEL_STATUS_UPDATE -> formatGeneric(event, ale, channelIdToSendTo);
+		case VOICE_CHANNEL_STATUS_DELETE -> formatVoiceChannelStatusDelete(event, ale, channelIdToSendTo);
+		case VOICE_CHANNEL_STATUS_UPDATE -> formatVoiceChannelStatusUpdate(event, ale, channelIdToSendTo);
 
 		case WEBHOOK_CREATE -> formatGeneric(event, ale, channelIdToSendTo);
 		case WEBHOOK_REMOVE -> formatGeneric(event, ale, channelIdToSendTo);
@@ -1814,6 +1814,52 @@ public class AuditLogListener extends ListenerAdapter{
 			
 		eb.setDescription(mentionableExecutor+" has executed the following action:");
 		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatVoiceChannelStatusUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		GuildChannel targetChannel = ale.getJDA().getGuildChannelById(ale.getTargetId());
+		String mentionableTargetChannel = (targetChannel != null ? targetChannel.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has updated the status of the voice channel: "+mentionableTargetChannel);
+		eb.setColor(Color.YELLOW);
+		
+		eb.addField("Action Type", String.valueOf(ale.getType()), true);
+		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
+		
+		eb.setFooter("Audit Log Entry ID: "+ale.getId());
+		eb.setTimestamp(ale.getTimeCreated());
+
+		MessageEmbed mb = eb.build();
+		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+	}
+	
+	private void formatVoiceChannelStatusDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
+		EmbedBuilder eb = new EmbedBuilder();
+		eb.setTitle("Audit Log Entry");
+		
+		User executor = ale.getJDA().getUserById(ale.getUserId());	
+		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
+		
+		GuildChannel targetChannel = ale.getJDA().getGuildChannelById(ale.getTargetId());
+		String mentionableTargetChannel = (targetChannel != null ? targetChannel.getAsMention() : ale.getTargetId());
+		
+		eb.setDescription(mentionableExecutor+" has deleted the status of the voice channel: "+mentionableTargetChannel);
+		eb.setColor(Color.ORANGE);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true);
