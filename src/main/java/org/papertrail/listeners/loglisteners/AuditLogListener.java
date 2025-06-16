@@ -238,7 +238,7 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 
 		eb.setDescription(mentionableExecutor+" has executed the following action:");
-		eb.setColor(Color.CYAN);
+		eb.setColor(Color.BLUE);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 
