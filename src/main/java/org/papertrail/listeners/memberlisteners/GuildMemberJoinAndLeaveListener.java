@@ -38,16 +38,16 @@ public class GuildMemberJoinAndLeaveListener extends ListenerAdapter {
 		User user = event.getUser();
 		
 		EmbedBuilder eb = new EmbedBuilder(); 
-		eb.setTitle("Member Join Event");
+		eb.setTitle("🛬 Member Join Event");
 		eb.setDescription("A Member has joined "+guild.getName());
 		eb.setColor(Color.GREEN);
 		
-		eb.addField("Member Name", user.getName(), false);
+		eb.addField("🏷️ Member Name", "╰┈➤"+user.getName(), false);
 		eb.setThumbnail(user.getEffectiveAvatarUrl());
-		eb.addField("Member Tag", user.getAsMention(), false);
-		eb.addField("Member ID", user.getId(), false);
-		eb.addField("Account Created", DurationFormatter.isoToLocalTimeCounter(user.getTimeCreated()), false);
-		eb.addField("Is Bot ?", ((Boolean.TRUE.equals(user.isBot())) ? "✅" : "❌"), false);
+		eb.addField("ℹ️ Member Mention", "╰┈➤"+user.getAsMention(), false);
+		eb.addField("🆔 Member ID", "╰┈➤"+user.getId(), false);
+		eb.addField("📅 Account Created", "╰┈➤"+DurationFormatter.isoToLocalTimeCounter(user.getTimeCreated()), false);
+		eb.addField("🤖 Is Application ?", "╰┈➤"+((Boolean.TRUE.equals(user.isBot())) ? "✅" : "❌"), false);
 		eb.setFooter("Member Join Detection");
 		eb.setTimestamp(Instant.now());
 
@@ -71,13 +71,13 @@ public class GuildMemberJoinAndLeaveListener extends ListenerAdapter {
 		User user = event.getUser();
 		
 		EmbedBuilder eb = new EmbedBuilder(); 
-		eb.setTitle("Member Leave Event");
+		eb.setTitle("🛫 Member Leave Event");
 		eb.setDescription("A Member has left "+guild.getName());
 		eb.setColor(Color.RED);
 		
-		eb.addField("Member Name", user.getName(), false);
+		eb.addField("🏷️ Member Name", "╰┈➤"+user.getName(), false);
 		eb.setThumbnail(user.getEffectiveAvatarUrl());
-		eb.addField("Member ID", user.getId(), false);
+		eb.addField("🆔 Member ID", "╰┈➤"+user.getId(), false);
 		
 		eb.setFooter("Member Leave Detection");
 		eb.setTimestamp(Instant.now());

@@ -33,7 +33,7 @@ public class GuildVoiceListener extends ListenerAdapter {
 		}
 		
 		EmbedBuilder eb = new EmbedBuilder(); 
-		eb.setTitle("User Voice Activity Logging");
+		eb.setTitle("🔊 Voice Activity Log");
 		
 	    Member member = event.getMember();
 	    AudioChannel left = event.getOldValue(); // can be null if user joined for first time
@@ -43,21 +43,21 @@ public class GuildVoiceListener extends ListenerAdapter {
 	    	// User has joined a vc
 	    	eb.setDescription("A Member has joined a voice channel");
 			eb.setColor(Color.GREEN);
-			eb.addField("Member Joined", member.getAsMention()+" joined the voice channel "+joined.getAsMention(), false);
+			eb.addField("✅ Member Joined", "╰┈➤"+member.getAsMention()+" joined the voice channel "+joined.getAsMention(), false);
 	    }
 	    
 	    if (left != null && joined != null) {
 	        // Moved from one channel to another
 	    	eb.setDescription("A Member has switched voice channels");
 			eb.setColor(Color.YELLOW);
-			eb.addField("Member Switched Channels", member.getAsMention()+" joined the switched from channel "+left.getAsMention()+ " to "+joined.getAsMention(), false);
+			eb.addField("🔄 Member Switched Channels", "╰┈➤"+member.getAsMention()+" joined the switched from channel "+left.getAsMention()+ " to "+joined.getAsMention(), false);
 	    }
 	    
 	    if (left!=null && joined==null) {
 	        // User disconnected voluntarily (or was disconnected by a moderator)
 	    	eb.setDescription("A Member has left a voice channel");
 			eb.setColor(Color.RED);
-			eb.addField("Member Left A Voice Channel", member.getAsMention()+" left the voice channel "+left.getAsMention(), false);
+			eb.addField("❌ Member Left A Voice Channel", "╰┈➤"+member.getAsMention()+" left the voice channel "+left.getAsMention(), false);
 	    }
 	    
 	    eb.setFooter("Voice Activity Detection");

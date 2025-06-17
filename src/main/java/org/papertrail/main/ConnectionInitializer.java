@@ -27,7 +27,7 @@ public class ConnectionInitializer {
 		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 		builder.setChunkingFilter(ChunkingFilter.ALL);
 		//you will still need builder.enableCache() to cache user activities and status
-		builder.enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.ONLINE_STATUS);
+		builder.enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.ONLINE_STATUS, CacheFlag.MEMBER_OVERRIDES, CacheFlag.ROLE_TAGS, CacheFlag.SCHEDULED_EVENTS);
 		
 		manager = builder.build();
 		manager.addEventListener(new ActivityUpdateListener(manager));
