@@ -462,7 +462,7 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		String mentionableTarget = (target !=null ? target.getAsMention() : ale.getTargetId());
 		
-		eb.setDescription("👤 **By**: "+mentionableExecutor+"\nℹ️ The bot was added");
+		eb.setDescription("👤 **By**: "+mentionableExecutor+"\nℹ️ A bot was added");
 		eb.setColor(Color.CYAN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
