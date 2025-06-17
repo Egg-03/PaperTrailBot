@@ -52,7 +52,7 @@ public class ServerStatListener extends ListenerAdapter{
 			eb.addField("📅 Guild Created On", DurationFormatter.isoToLocalTimeCounter(guild.getTimeCreated()), false);
 			eb.addField("🔗 Guild Vanity URL", (guild.getVanityUrl() !=null ? guild.getVanityUrl() : "Not Set"), false);
 			
-			eb.addField("🫂 Member Count", String.valueOf(userCount), true);
+			eb.addField("👥 Member Count", String.valueOf(userCount), true);
 			eb.addField("🤖 Bot Count", String.valueOf(botCount), true);
 			eb.addBlankField(true);
 			
