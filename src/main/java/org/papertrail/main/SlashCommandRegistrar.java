@@ -23,8 +23,10 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 				"Shows the channel where audit log updates gets posted (Requires Manage Server Permission)");
 		CommandData auditLogChannelDeletion = Commands.slash("ualc",
 				"Unsets the channel where audit log updates used to be posted (Requires Manage Server Permission)");
+		CommandData serverStats = Commands.slash("stats",
+				"Provides Server Statistics");
 		jda.updateCommands()
-				.addCommands(auditLogChannelRegistration, auditLogChannelFetch, auditLogChannelDeletion)			
+				.addCommands(auditLogChannelRegistration, auditLogChannelFetch, auditLogChannelDeletion, serverStats)			
 				.queue();
 	}
 }
