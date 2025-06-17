@@ -53,10 +53,8 @@ public class ServerStatListener extends ListenerAdapter{
 			eb.addField("🔗 Guild Vanity URL", (guild.getVanityUrl() !=null ? guild.getVanityUrl() : "Not Set"), false);
 			
 			eb.addField("👥 Member Count", String.valueOf(userCount), true);
-			eb.addField("🤖 Bot Count", String.valueOf(botCount), true);
-			eb.addBlankField(true);
-			
-			eb.addField("🟢 Members Online", String.valueOf(onlineUserCount), false);
+			eb.addField("🤖 Bot Count", String.valueOf(botCount), true);	
+			eb.addField("🟢 Members Online", onlineUserCount+"/"+userCount, true);
 				
 			List<Member> boosters = guild.getBoosters();
 			StringBuilder mentionableBoosters = new StringBuilder();
@@ -68,6 +66,13 @@ public class ServerStatListener extends ListenerAdapter{
 			eb.addField("📎 Booster Role", (guild.getBoostRole() !=null ? guild.getBoostRole().getAsMention() : "No Boost Role Found"), false);
 			eb.addField("🗼 Boost Tier", guild.getBoostTier().toString(), false);
 			
+			eb.addField("🌐 Locale", guild.getLocale().getNativeName(), true);
+			eb.addField("🔒 Verification", guild.getVerificationLevel().name(), true);
+			eb.addField("🧱 Roles", String.valueOf(guild.getRoles().size()), true);
+			eb.addField("🗂️ Categories", String.valueOf(guild.getCategories().size()), true);
+			eb.addField("💬 Text Channels", String.valueOf(guild.getTextChannels().size()), true);
+			eb.addField("🔊 Voice Channels", String.valueOf(guild.getVoiceChannels().size()), true);
+
 			eb.addField("📋 Data Requested By", event.getMember().getAsMention(), false);
 			eb.setFooter("📋 Stats By: PaperTrail 📋");
 			eb.setTimestamp(Instant.now());
