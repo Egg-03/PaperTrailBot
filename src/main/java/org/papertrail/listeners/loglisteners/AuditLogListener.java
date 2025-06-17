@@ -171,13 +171,12 @@ public class AuditLogListener extends ListenerAdapter{
 	private void formatInviteCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale , String channelIdToSendTo) {
 
 		EmbedBuilder eb = new EmbedBuilder(); 
-		eb.setTitle("Audit Log Entry");
+		eb.setTitle("Audit Log Entry | Invite Created");
 		
-		User executor = ale.getJDA().getUserById(ale.getUserIdLong());
-		
+		User executor = ale.getJDA().getUserById(ale.getUserIdLong());		
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 				
-		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setDescription("👤 **By**: "+mentionableExecutor+"\n📨 The following invite create event was recorded");
 		eb.setColor(Color.CYAN);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -191,31 +190,31 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {
 
 			case "code":
-				eb.addField("Invite Code", String.valueOf(newValue), false);
+				eb.addField("🔗 Invite Code", "↪"+newValue, false);
 				break;
 
 			case "inviter_id":
 				User inviter = ale.getJDA().getUserById(String.valueOf(newValue));
-				eb.addField("Invite Created By", (inviter != null ? inviter.getAsMention() : ale.getUserId()), false);
+				eb.addField("👤 Invite Created By", "↪"+(inviter != null ? inviter.getAsMention() : ale.getUserId()), false);
 				break;
 
 			case "temporary":
-				eb.addField("Temporary Invite", ((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
+				eb.addField("🕒 Temporary Invite", "↪"+((Boolean.TRUE.equals(newValue)) ? "✅" : "❌"), false);
 				break;
 
 			case "max_uses":
 				int maxUses = Integer.parseInt(String.valueOf(newValue));
-				eb.addField("Max Uses", (maxUses == 0 ? "Unlimited" : String.valueOf(maxUses)), false);
+				eb.addField("🔢 Max Uses", "↪"+(maxUses == 0 ? "Unlimited" : String.valueOf(maxUses)), false);
 				break;
 			case "uses", "flags":
 				break;
 
 			case "max_age":
-				eb.addField("Expires After", DurationFormatter.formatSeconds(newValue), false);
+				eb.addField("⏳ Expires After", "↪"+DurationFormatter.formatSeconds(newValue), false);
 				break;
 			case "channel_id":
 				GuildChannel channel = ale.getGuild().getGuildChannelById(String.valueOf(newValue));
-				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+newValue+"`"), false);
+				eb.addField("💬 Invite Channel", "↪"+(channel != null ? channel.getAsMention() : "`"+newValue+"`"), false);
 				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
@@ -234,12 +233,12 @@ public class AuditLogListener extends ListenerAdapter{
 	private void formatInviteDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
 
 		EmbedBuilder eb = new EmbedBuilder(); 
-		eb.setTitle("Audit Log Entry");
+		eb.setTitle("Audit Log Entry | Invite Deleted");
 		
 		User executor = ale.getJDA().getUserById(ale.getUserIdLong());		
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 
-		eb.setDescription(mentionableExecutor+" has executed the following action:");
+		eb.setDescription("👤 **By**: "+mentionableExecutor+"\n📨 The following invite delete event was recorded");
 		eb.setColor(Color.BLUE);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -253,26 +252,26 @@ public class AuditLogListener extends ListenerAdapter{
 			switch(change) {
 
 			case "code":
-				eb.addField("Deleted Invite Code", String.valueOf(oldValue), false);
+				eb.addField("🔗 Deleted Invite Code", "↪"+oldValue, false);
 				break;
 
 			case "inviter_id":
 				User inviter = ale.getJDA().getUserById(String.valueOf(oldValue));
-				eb.addField("Invite Deleted By", (inviter != null ? inviter.getAsMention() : "`Unknown`"), false);
+				eb.addField("👤 Invite Deleted By", "↪"+(inviter != null ? inviter.getAsMention() : "`Unknown`"), false);
 				break;
 
 			case "temporary":
-				eb.addField("Temporary Invite", ((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
+				eb.addField("🕒 Temporary Invite", "↪"+((Boolean.TRUE.equals(oldValue)) ? "✅" : "❌"), false);
 				break;
 
 			case "max_uses", "flags", "max_age":
 				break;
 			case "uses":
-				eb.addField("Number of times the invite was used", String.valueOf(oldValue), false);
+				eb.addField("🔢 Number of times the invite was used", "↪"+oldValue, false);
 				break;
 			case "channel_id":
 				Channel channel = ale.getGuild().getGuildChannelById(String.valueOf(oldValue));
-				eb.addField("Invite Channel", (channel != null ? channel.getAsMention() : "`"+oldValue+"`"), false);
+				eb.addField("💬 Invite Channel", "↪"+(channel != null ? channel.getAsMention() : "`"+oldValue+"`"), false);
 				break;
 			default:
 				eb.addField(change, "from "+oldValue+" to "+newValue, false);
