@@ -18,7 +18,9 @@ import org.papertrail.listeners.voicelisteners.GuildVoiceListener;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
+/*
+ * The main class of the bot
+ */
 public class FireRun {
 
 	public static void main(String[] args) throws IOException, SQLException {
@@ -37,6 +39,10 @@ public class FireRun {
 		ci.getManager().addEventListener(new BotInfoListener());
 		ci.getManager().addEventListener(new SetupListener());
 		
+		/*
+		 * This is required only to set up a cron-job to periodically ping this end-point so that
+		 * hosting services that spin down after inactivity don't do that anymore
+		 */
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/ping", new PingHandler());
         server.setExecutor(null); // creates a default executor

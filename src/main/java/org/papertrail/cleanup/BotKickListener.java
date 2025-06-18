@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.jetbrains.annotations.NotNull;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
+import org.tinylog.Logger;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
@@ -26,8 +27,7 @@ public class BotKickListener extends ListenerAdapter {
 		try {
 			dc.unregisterGuildAndChannel(leftGuild.getId(), TableNames.AUDIT_LOG_TABLE);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.error("Could not auto-unregister guild upon guild leave", e);
 		}
 	}
 }

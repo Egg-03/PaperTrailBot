@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.papertrail.utilities.EnvConfig;
+import org.tinylog.Logger;
 
 public class DatabaseConnector {
 
@@ -31,30 +32,28 @@ public class DatabaseConnector {
 	}
 	
 	public String retrieveChannelId(String guildId, String tableName) {
-		
-		String sqlStatement = "SELECT (channel_id) FROM "+tableName+" WHERE guild_id = ?";
+
+		String sqlStatement = "SELECT (channel_id) FROM " + tableName + " WHERE guild_id = ?";
 		String channelId = "";
-		
-		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
+
+		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
 			psmt.setString(1, guildId);
-			
-			ResultSet rs = psmt.executeQuery();
-			if(!rs.isBeforeFirst()) {
-				return null;
-			} else {
-				while(rs.next()) {
-					channelId = rs.getString("channel_id");
+
+			try (ResultSet rs = psmt.executeQuery()) {
+				if (!rs.isBeforeFirst()) {
+					return null;
+				} else {
+					while (rs.next()) { // by configuration, there will always be only one channel id row at a time
+										// because registering multiple channels is not allowed
+						channelId = rs.getString("channel_id");
+					}
 				}
 			}
-			
-			rs.close();
 			return channelId;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.error("Could not retrieve registered guild channel id", e);
 			return null;
 		}
-		
 	}
 	
 	public void unregisterGuildAndChannel(String guildId, String tableName) throws SQLException {

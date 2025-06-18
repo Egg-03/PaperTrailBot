@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
+import org.tinylog.Logger;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -86,8 +87,7 @@ public class LogCommandListener extends ListenerAdapter {
 				
 				eb.clearFields();
 				
-				e.printStackTrace();
-				// TODO log
+				Logger.error("Audit Log Channel could not be registered", e);
 			}
 		}
 
@@ -180,7 +180,7 @@ public class LogCommandListener extends ListenerAdapter {
 					event.replyEmbeds(mb).setEphemeral(false).queue();
 					
 					eb.clearFields();
-					e.printStackTrace();
+					Logger.error("Could not un-register audit log channel", e);
 				}
 			}
 

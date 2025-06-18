@@ -8,6 +8,9 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+/*
+ * Registers all the slash commands places throughout the code
+ */
 public class SlashCommandRegistrar extends ListenerAdapter {
 
 	@Override
