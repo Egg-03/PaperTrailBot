@@ -1,4 +1,4 @@
-package org.papertrail.listeners.customlisteners;
+package org.papertrail.listeners.guildlisteners;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -53,7 +53,7 @@ public class ServerBoostListener extends ListenerAdapter {
 	    	eb.setDescription("⚠️ **" + guild.getName() + "** has lost a boost.");
 			eb.setColor(Color.GRAY);
 	        eb.addField("🪫 Booster Lost", "╰┈➤"+mentionableMember+" has removed their boost from your server", false);
-	        eb.addField("📈 Remaining Boosts In The Server", "╰┈➤"+guild.getBoostCount(), false);
+	        eb.addField("📉 Remaining Boosts In The Server", "╰┈➤"+guild.getBoostCount(), false);
 	        eb.addField("🎖️ Current Boost Tier", "╰┈➤"+guild.getBoostTier().toString(), false);
 	    }
 	    
