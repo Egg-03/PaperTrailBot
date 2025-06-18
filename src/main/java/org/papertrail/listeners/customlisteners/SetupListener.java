@@ -45,7 +45,7 @@ public class SetupListener extends ListenerAdapter {
 			String tips = """
 					- Make sure the bot has proper permissions for it to work correctly.
 					- Commands only work in servers (guilds), not in DMs.
-					- Re-register the audit log channel after deletion or permission changes.""";
+					- The bot will lose its configuration if kicked from the server.""";
 			
 			eb.addField("💡 Tips",tips,false);
 			eb.addField("📬 Need help?", "Create an issue on [GitHub](" + VersionInfo.PROJECT_ISSUE_LINK+")", false);
