@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import org.papertrail.cleanup.BotKickListener;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.listeners.customlisteners.BotInfoListener;
+import org.papertrail.listeners.customlisteners.ServerBoostListener;
 import org.papertrail.listeners.customlisteners.ServerStatListener;
 import org.papertrail.listeners.customlisteners.SetupListener;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
@@ -29,6 +30,7 @@ public class FireRun {
 		ci.getManager().addEventListener(new AuditLogListener(dc));
 		ci.getManager().addEventListener(new GuildVoiceListener(dc));
 		ci.getManager().addEventListener(new GuildMemberJoinAndLeaveListener(dc));
+		ci.getManager().addEventListener(new ServerBoostListener(dc));
 		ci.getManager().addEventListener(new BotKickListener(dc));
 		
 		ci.getManager().addEventListener(new ServerStatListener());
