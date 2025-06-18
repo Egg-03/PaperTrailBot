@@ -10,8 +10,7 @@ import org.papertrail.utilities.EnvConfig;
 
 public class DatabaseConnector {
 
-	private static final String DB_URL = "jdbc:postgresql://" + EnvConfig.get("PGHOST") + "/defaultdb?ssl=require&user="
-			+ EnvConfig.get("PGUSER") + "&password=" + EnvConfig.get("PGPASSWORD");
+	private static final String DB_URL = EnvConfig.get("DATABASEURL");
 	
 	private Connection connect;
 	
