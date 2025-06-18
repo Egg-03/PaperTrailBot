@@ -6,7 +6,9 @@ import java.sql.SQLException;
 
 import org.papertrail.cleanup.BotKickListener;
 import org.papertrail.database.DatabaseConnector;
+import org.papertrail.listeners.customlisteners.BotInfoListener;
 import org.papertrail.listeners.customlisteners.ServerStatListener;
+import org.papertrail.listeners.customlisteners.SetupListener;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
 import org.papertrail.listeners.loglisteners.LogCommandListener;
 import org.papertrail.listeners.memberlisteners.GuildMemberJoinAndLeaveListener;
@@ -27,10 +29,12 @@ public class FireRun {
 		ci.getManager().addEventListener(new AuditLogListener(dc));
 		ci.getManager().addEventListener(new GuildVoiceListener(dc));
 		ci.getManager().addEventListener(new GuildMemberJoinAndLeaveListener(dc));
-		ci.getManager().addEventListener(new ServerStatListener());
-		
 		ci.getManager().addEventListener(new BotKickListener(dc));
-			
+		
+		ci.getManager().addEventListener(new ServerStatListener());
+		ci.getManager().addEventListener(new BotInfoListener());
+		ci.getManager().addEventListener(new SetupListener());
+		
 		HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/ping", new PingHandler());
         server.setExecutor(null); // creates a default executor

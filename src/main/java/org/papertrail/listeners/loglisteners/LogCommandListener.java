@@ -21,7 +21,7 @@ public class LogCommandListener extends ListenerAdapter {
 
 	public LogCommandListener(DatabaseConnector dc) {
 		this.dc = dc;
-		eb.setTitle("Audit Log Configuration");
+		eb.setTitle("📝 Audit Log Configuration");
 		eb.setColor(Color.CYAN);
 	}
 
@@ -51,7 +51,7 @@ public class LogCommandListener extends ListenerAdapter {
 			if (registeredChannelId != null && !registeredChannelId.isBlank()) {
 				
 				GuildChannel registeredChannel = event.getGuild().getGuildChannelById(registeredChannelId);
-				eb.addField("Audit Log Channel Already Registered", (registeredChannel !=null ? registeredChannel.getAsMention() : registeredChannelId)+ " has already been selected as the audit log channel", false);
+				eb.addField("⚠️ Channel Already Registered", "╰┈➤"+(registeredChannel !=null ? registeredChannel.getAsMention() : registeredChannelId)+ " has already been selected as the audit log channel", false);
 				eb.setColor(Color.YELLOW);
 				
 				MessageEmbed mb = eb.build();
@@ -68,7 +68,7 @@ public class LogCommandListener extends ListenerAdapter {
 				// register the channel_id along with guild_id in the database
 				dc.registerGuildAndChannel(guildId, channelIdToRegister, TableNames.AUDIT_LOG_TABLE);
 				
-				eb.addField("Audit Log Channel Registration","All audit log info will be logged here", false);
+				eb.addField("✅ Channel Registration Success","╰┈➤"+"All audit log info will be logged here", false);
 				eb.setColor(Color.GREEN);
 				MessageEmbed mb = eb.build();
 				
@@ -78,7 +78,7 @@ public class LogCommandListener extends ListenerAdapter {
 				
 			} catch (SQLException e) {
 				
-				eb.addField("Audit Log Channel Registration Failure","Channel could not be registered", false);
+				eb.addField("❌ Channel Registration Failure","╰┈➤"+"Channel could not be registered", false);
 				eb.setColor(Color.BLACK);
 				MessageEmbed mb = eb.build();
 				
@@ -111,8 +111,8 @@ public class LogCommandListener extends ListenerAdapter {
 			// if there is no channel_id for the given guild_id in the database, then inform
 			// the user of the same, else link the channel that has been registered
 			if (registeredChannelId == null || registeredChannelId.isBlank()) {
-				eb.addField("Audit Log Registration Check", "No channel has been registered for audit logs", false);
-				eb.setColor(Color.RED);
+				eb.addField("⚠️ Channel Registration Check", "╰┈➤"+"No channel has been registered for audit logs", false);
+				eb.setColor(Color.YELLOW);
 				MessageEmbed mb = eb.build();
 				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
@@ -122,9 +122,11 @@ public class LogCommandListener extends ListenerAdapter {
 				// this is particularly useful when a channel that was set for logging may have been deleted
 				GuildChannel registeredChannel =  event.getJDA().getGuildChannelById(registeredChannelId);
 				if(registeredChannel==null) {
-					eb.addField("Audit Log Registration Check", registeredChannelId+" does not exist. Please remove it using `//ualc` and re-register using `//ralc`", false);
+					eb.addField("⚠️ Channel Registration Check", "╰┈➤"+registeredChannelId+" does not exist. Please remove it using `/ualc` and re-register using `/ralc`", false);
+					eb.setColor(Color.RED);
 				} else {
-					eb.addField("Audit Log Registration Check", registeredChannel.getAsMention()+ " has been registered as the audit log channel", false);
+					eb.setColor(Color.CYAN);
+					eb.addField("✅ Channel Registration Check", "╰┈➤"+registeredChannel.getAsMention()+ " is found to be registered as the audit log channel", false);
 				}
 				
 				MessageEmbed mb = eb.build();
@@ -150,8 +152,8 @@ public class LogCommandListener extends ListenerAdapter {
 			String registeredChannelId = dc.retrieveChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
 
 			if (registeredChannelId == null || registeredChannelId.isBlank()) {
-				eb.addField("Audit Log Channel Removal", "No channel has been registered for audit logs", false);
-				eb.setColor(Color.RED);
+				eb.addField("ℹ️ Channel Removal", "╰┈➤"+"No channel has been registered for audit logs", false);
+				eb.setColor(Color.YELLOW);
 				MessageEmbed mb = eb.build();
 				
 				event.replyEmbeds(mb).setEphemeral(false).queue();
@@ -163,7 +165,7 @@ public class LogCommandListener extends ListenerAdapter {
 					
 					dc.unregisterGuildAndChannel(guildId, TableNames.AUDIT_LOG_TABLE);
 					
-					eb.addField("Audit Log Channel Removal", "Channel successfully unset", false);
+					eb.addField("✅ Channel Removal", "╰┈➤"+"Channel successfully unset", false);
 					eb.setColor(Color.GREEN);
 					MessageEmbed mb = eb.build();
 					
@@ -171,7 +173,7 @@ public class LogCommandListener extends ListenerAdapter {
 					
 					eb.clearFields();
 				} catch (SQLException e) {
-					eb.addField("Audit Log Channel Removal Failure", "Channel could not be removed", false);
+					eb.addField("❌ Channel Removal Failure", "╰┈➤"+"Channel could not be unset", false);
 					eb.setColor(Color.BLACK);
 					MessageEmbed mb = eb.build();
 					

@@ -25,8 +25,11 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 				"Unsets the channel where audit log updates used to be posted (Requires Manage Server Permission)");
 		CommandData serverStats = Commands.slash("stats",
 				"Provides Server Statistics");
+		CommandData botInfo = Commands.slash("about",
+				"Provides Bot Info");
+		CommandData setup = Commands.slash("setup", "Provides a guide on setting up the bot");
 		jda.updateCommands()
-				.addCommands(auditLogChannelRegistration, auditLogChannelFetch, auditLogChannelDeletion, serverStats)			
+				.addCommands(auditLogChannelRegistration, auditLogChannelFetch, auditLogChannelDeletion, serverStats, botInfo, setup)			
 				.queue();
 	}
 }
