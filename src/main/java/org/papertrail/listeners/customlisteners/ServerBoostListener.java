@@ -6,7 +6,6 @@ import java.time.OffsetDateTime;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
-import org.papertrail.utilities.DurationFormatter;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -47,7 +46,7 @@ public class ServerBoostListener extends ListenerAdapter {
 	    if (newBoostTime != null) {
 	    	eb.setDescription("🎉 **" + guild.getName() + "** has been boosted!");
 			eb.setColor(Color.PINK);
-	        eb.addField("🔋 Booster", "╰┈➤"+mentionableMember+" has started boosted your server at "+DurationFormatter.isoToLocalTimeCounter(newBoostTime), false);
+	        eb.addField("🔋 Booster Gained", "╰┈➤"+mentionableMember+" has started boosted your server", false);
 	        eb.addField("📈 Total Boosts In The Server", "╰┈➤"+guild.getBoostCount(), false);
 	        eb.addField("🎖️ Current Boost Tier", "╰┈➤"+guild.getBoostTier().toString(), false);
 	    } else {
