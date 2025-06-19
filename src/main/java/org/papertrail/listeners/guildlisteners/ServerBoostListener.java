@@ -26,7 +26,7 @@ public class ServerBoostListener extends ListenerAdapter {
 	public void onGuildMemberUpdateBoostTime(GuildMemberUpdateBoostTimeEvent event) {
 		
 		// this will return a non-null text id if a channel was previously registered in the database
-		String registeredChannelId=dc.retrieveChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId=dc.retrieveRegisteredChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
 		if(registeredChannelId==null ||registeredChannelId.isBlank()) {
 			return;

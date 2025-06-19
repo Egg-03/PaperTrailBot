@@ -45,7 +45,7 @@ public class AuditLogListener extends ListenerAdapter{
 	public void onGuildAuditLogEntryCreate(GuildAuditLogEntryCreateEvent event) {
 
 		// this will return a non-null text id if a channel was previously registered in the database
-		String registeredChannelId=dc.retrieveChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId=dc.retrieveRegisteredChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
 		if(registeredChannelId==null ||registeredChannelId.isBlank()) {
 			return;
