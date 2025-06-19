@@ -105,7 +105,10 @@ public class MessageLogListener extends ListenerAdapter {
 		if(registeredGuildId.equals(guildId)) {
 			try {
 				String messageId = event.getMessageId();
-				// TODO if message id not found in db ,return
+				// if the message id does not exist in db, it means the message has not been logged. in that case, exit
+				if(dc.retrieveMessageId(messageId, TableNames.MESSAGE_LOG_CONTENT_TABLE)==null) {
+					return;
+				}
 				String channelIdToSendTo = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 				List<String> oldAuthorAndMessage = dc.retrieveAuthorAndMessage(messageId, TableNames.MESSAGE_LOG_CONTENT_TABLE);
 				
