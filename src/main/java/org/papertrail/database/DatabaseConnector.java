@@ -128,6 +128,26 @@ public class DatabaseConnector {
 		}
 	}
 	
+	public String retrieveMessageId(String messageId, String tableName) {
+
+		String sqlStatement = "SELECT message_id FROM " + tableName + " WHERE message_id = ?";
+
+		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
+			psmt.setString(1, messageId);
+
+			try (ResultSet rs = psmt.executeQuery()) {	
+				if (rs.next()) { // only one message is logged per row per message id
+					return rs.getString("message_id");
+				}
+			}
+			return null;
+		} catch (SQLException e) {
+			Logger.error("Could not retrieve message id", e);
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public void updateMessage(String messageId, String messageContent, String tableName) throws SQLException {
 		
 		String sqlStatement = "UPDATE " + tableName + " SET message_content = ? WHERE message_id = ?";
