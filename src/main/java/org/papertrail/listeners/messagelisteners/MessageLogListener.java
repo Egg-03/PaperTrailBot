@@ -65,6 +65,7 @@ public class MessageLogListener extends ListenerAdapter {
 			return;
 		}
 		
+		
 		String guildId = event.getGuild().getId();
 
 		String registeredGuildId = dc.checkGuildRegistration(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
@@ -76,20 +77,22 @@ public class MessageLogListener extends ListenerAdapter {
 			try {
 				// get the message id of the message which was updated
 				String messageId = event.getMessageId();
-				// fetch the channel id from the database
-				// this channel is where the logs will be sent to
-				String channelIdToSendTo = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
-				
+							
 				// fetch the old message content and its author from the database
 				List<String> oldAuthorAndMessage = dc.retrieveAuthorAndMessage(messageId, TableNames.MESSAGE_LOG_CONTENT_TABLE);
 				
 				// fetch the updated message from the event
-				String updatedMessage = event.getMessage().getContentRaw();				
-				String mentionableAuthor = event.getAuthor().getAsMention();
+				String updatedMessage = event.getMessage().getContentRaw();	
 				
+				// Ignore events where the message content wasn't edited (e.g., pin, embed resolve)
+				// This is required since MessageUpdateEvent is triggered in case of pins and embed resolves with no change to content
+				if(updatedMessage.equals(oldAuthorAndMessage.getLast())) {
+					return;
+				}
+							
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setTitle("📝 Message Edit Event");
-				eb.setDescription("A message sent by "+mentionableAuthor+" has been edited in: "+event.getJumpUrl());
+				eb.setDescription("A message sent by "+event.getAuthor().getAsMention()+" has been edited in: "+event.getJumpUrl());
 				eb.setThumbnail(event.getAuthor().getEffectiveAvatarUrl());
 				eb.setColor(Color.YELLOW);
 				eb.addField("Old Message", oldAuthorAndMessage.getLast(), false); // get only the message and not the author
@@ -98,10 +101,13 @@ public class MessageLogListener extends ListenerAdapter {
 				// update the database with the new message
 				dc.updateMessage(messageId, updatedMessage, TableNames.MESSAGE_LOG_CONTENT_TABLE);
 				// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
-				// the bot, the error responses wouldn't block the update of the message in the database.
+				// the bot, the error responses wouldn't block the update of the message in the database.		
 				
-				// send to the logging channel
+				// fetch the channel id from the database
+				// this channel is where the logs will be sent to
+				// wrap the embed and send
 				MessageEmbed mb = eb.build();
+				String channelIdToSendTo = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();							
 			} catch (SQLException e) {
 				Logger.error("Could not log updated message", e);
