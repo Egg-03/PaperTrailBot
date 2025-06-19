@@ -84,7 +84,7 @@ public class MessageLogListener extends ListenerAdapter {
 				// fetch the updated message from the event
 				String updatedMessage = event.getMessage().getContentRaw();	
 				
-				// Ignore events where the message content wasn't edited (e.g., pin, embed resolve)
+				// Ignore events where the message content wasn't edited (e.g., pin, embed resolve, thread creates and updates)
 				// This is required since MessageUpdateEvent is triggered in case of pins and embed resolves with no change to content
 				if(updatedMessage.equals(oldAuthorAndMessage.getLast())) {
 					return;
