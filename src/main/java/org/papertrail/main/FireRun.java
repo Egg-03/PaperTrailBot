@@ -11,7 +11,7 @@ import org.papertrail.listeners.customlisteners.ServerStatListener;
 import org.papertrail.listeners.customlisteners.SetupListener;
 import org.papertrail.listeners.guildlisteners.ServerBoostListener;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
-import org.papertrail.listeners.loglisteners.LogCommandListener;
+import org.papertrail.listeners.loglisteners.AuditLogCommandListener;
 import org.papertrail.listeners.memberlisteners.GuildMemberJoinAndLeaveListener;
 import org.papertrail.listeners.messagelisteners.MessageLogCommandListener;
 import org.papertrail.listeners.messagelisteners.MessageLogListener;
@@ -30,7 +30,7 @@ public class FireRun {
 		DatabaseConnector dc = new DatabaseConnector();
 		
 		ConnectionInitializer ci = new ConnectionInitializer();
-		ci.getManager().addEventListener(new LogCommandListener(dc));
+		ci.getManager().addEventListener(new AuditLogCommandListener(dc));
 		ci.getManager().addEventListener(new AuditLogListener(dc));
 		ci.getManager().addEventListener(new GuildVoiceListener(dc));
 		ci.getManager().addEventListener(new GuildMemberJoinAndLeaveListener(dc));

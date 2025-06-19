@@ -14,25 +14,25 @@ import org.tinylog.Logger;
 public class DatabaseConnector {
 
 	private static final String DB_URL = EnvConfig.get("DATABASEURL");
-	
+
 	private Connection connect;
-	
+
 	public DatabaseConnector() throws SQLException {
 		connect = DriverManager.getConnection(DB_URL);
 	}
-	
+
 	public void registerGuildAndChannel(String guildId, String channelId, String tableName) throws SQLException  {
-		
+
 		String sqlStatement = "INSERT INTO "+tableName+" (guild_id, channel_id) VALUES (?, ?)";
-		
+
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setString(1, guildId);
 			psmt.setString(2, channelId);
 			psmt.executeUpdate();
 		} 
-		
+
 	}
-	
+
 	public String retrieveRegisteredChannelId(String guildId, String tableName) {
 
 		String sqlStatement = "SELECT channel_id FROM " + tableName + " WHERE guild_id = ?";
@@ -42,13 +42,10 @@ public class DatabaseConnector {
 			psmt.setString(1, guildId);
 
 			try (ResultSet rs = psmt.executeQuery()) {
-				if (!rs.isBeforeFirst()) {
-					return null;
-				} else {
-					while (rs.next()) { // by configuration, there will always be only one channel id row at a time
-										// because registering multiple channels is not allowed
-						channelId = rs.getString("channel_id");
-					}
+
+				while (rs.next()) { // by configuration, there will always be only one channel id row at a time
+					// because registering multiple channels is not allowed
+					channelId = rs.getString("channel_id");
 				}
 			}
 			return channelId;
@@ -57,21 +54,21 @@ public class DatabaseConnector {
 			return null;
 		}
 	}
-	
-	public String retrieveRegisteredGuildId(String guildId, String tableName) {
+	/*
+	 * If a guild of the  given id is found, will return that id, otherwise null
+	 */
+	public String checkGuildRegistration(String guildId, String tableName) {
 
 		String sqlStatement = "SELECT guild_id FROM " + tableName + " WHERE guild_id = ?";
-		
+
 		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
 			psmt.setString(1, guildId);
 
 			try (ResultSet rs = psmt.executeQuery()) {
-				if (!rs.isBeforeFirst()) {
-					return null;
-				} else {
-					while (rs.next()) { 					
-						return rs.getString("guild_id");
-					}
+
+				while (rs.next()) { 					
+					return rs.getString("guild_id");
+
 				}
 			}
 			return null;
@@ -80,21 +77,45 @@ public class DatabaseConnector {
 			return null;
 		}
 	}
-	
+
+	/*
+	 * If a channel of the  given id is found, will return that id, otherwise null
+	 */
+	public String checkChannelRegistration(String channelId, String tableName) {
+
+		String sqlStatement = "SELECT channel_id FROM " + tableName + " WHERE channel_id = ?";
+
+		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
+			psmt.setString(1, channelId);
+
+			try (ResultSet rs = psmt.executeQuery()) {
+				while (rs.next()) { 					
+					return rs.getString("guild_id");
+				}
+			}
+			return null;
+		} catch (SQLException e) {
+			Logger.error("Could not retrieve registered guild channel id", e);
+			return null;
+		}
+	}
+
 	public void unregisterGuildAndChannel(String guildId, String tableName) throws SQLException {
-		
+
 		String sqlStatement = "DELETE FROM "+tableName+" WHERE guild_id = ?";
-		
+
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setString(1, guildId);
 			psmt.executeUpdate();
 		} 
 	}
+
 	
+	// MESSAGE FUNCTIONS
 	public void logMessage(String messageId, String messageContent, String authorId, String tableName) throws SQLException {
-		
+
 		String sqlStatement = "INSERT INTO "+tableName+" (message_id, message_content, author_id) VALUES (?, ?, ?)";
-		
+
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setString(1, messageId);
 			psmt.setString(2, messageContent);
@@ -102,7 +123,7 @@ public class DatabaseConnector {
 			psmt.executeUpdate();
 		} 
 	}
-	
+
 	public List<String> retrieveAuthorAndMessage(String messageId, String tableName) {
 
 		String sqlStatement = "SELECT author_id, message_content FROM " + tableName + " WHERE message_id = ?";
@@ -127,8 +148,10 @@ public class DatabaseConnector {
 			return Collections.emptyList();
 		}
 	}
-	
-	public String retrieveMessageId(String messageId, String tableName) {
+	/*
+	 * Checks if the message id exists in the database and returns the same if found, else null
+	 */
+	public String checkMessageId(String messageId, String tableName) {
 
 		String sqlStatement = "SELECT message_id FROM " + tableName + " WHERE message_id = ?";
 
@@ -147,22 +170,22 @@ public class DatabaseConnector {
 			return null;
 		}
 	}
-	
+
 	public void updateMessage(String messageId, String messageContent, String tableName) throws SQLException {
-		
+
 		String sqlStatement = "UPDATE " + tableName + " SET message_content = ? WHERE message_id = ?";
-		
+
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setString(1, messageContent);
 			psmt.setString(2, messageId);
 			psmt.executeUpdate();
 		} 
 	}
-	
+
 	public void deleteMessage(String messageId, String tableName) throws SQLException {
-		
+
 		String sqlStatement = "DELETE FROM "+tableName+" WHERE message_id = ?";
-		
+
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setString(1, messageId);
 			psmt.executeUpdate();
