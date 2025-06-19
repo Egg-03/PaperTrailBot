@@ -2,6 +2,7 @@ package org.papertrail.listeners.messagelisteners;
 
 import java.awt.Color;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 
 import org.papertrail.database.DatabaseConnector;
@@ -95,9 +96,12 @@ public class MessageLogListener extends ListenerAdapter {
 				eb.setDescription("A message sent by "+event.getAuthor().getAsMention()+" has been edited in: "+event.getJumpUrl());
 				eb.setThumbnail(event.getAuthor().getEffectiveAvatarUrl());
 				eb.setColor(Color.YELLOW);
+				
 				eb.addField("Old Message", oldAuthorAndMessage.getLast(), false); // get only the message and not the author
 				eb.addField("New Message", updatedMessage, false);
 				
+				eb.setFooter(event.getGuild().getName());
+				eb.setTimestamp(Instant.now());
 				// update the database with the new message
 				dc.updateMessage(messageId, updatedMessage, TableNames.MESSAGE_LOG_CONTENT_TABLE);
 				// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
@@ -148,6 +152,9 @@ public class MessageLogListener extends ListenerAdapter {
 				eb.setDescription("A message sent by "+mentionableAuthor+" has been deleted");
 				eb.setColor(Color.RED);
 				eb.addField("Deleted Message", oldAuthorAndMessage.getLast(), false);
+				
+				eb.setFooter(event.getGuild().getName());
+				eb.setTimestamp(Instant.now());
 				
 				// delete the message from the database 
 				dc.deleteMessage(messageId, TableNames.MESSAGE_LOG_CONTENT_TABLE);
