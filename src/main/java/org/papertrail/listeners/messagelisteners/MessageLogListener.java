@@ -19,16 +19,14 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class MessageLogListener extends ListenerAdapter {
 	
 	private DatabaseConnector dc;
-	private final EmbedBuilder eb = new EmbedBuilder();
-
 	public MessageLogListener(DatabaseConnector dc) {
 		this.dc = dc;
-		eb.setTitle("📝 Message Log Event");
+		
 	}
 	
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
-		
+			
 		// if the author is a bot or system, don't log
 		if(event.getAuthor().isBot() || event.getAuthor().isSystem()) {
 			return;
@@ -89,21 +87,25 @@ public class MessageLogListener extends ListenerAdapter {
 				String updatedMessage = event.getMessage().getContentRaw();				
 				String mentionableAuthor = event.getAuthor().getAsMention();
 				
+				EmbedBuilder eb = new EmbedBuilder();
+				eb.setTitle("📝 Message Edit Event");
 				eb.setDescription("A message sent by "+mentionableAuthor+" has been edited in: "+event.getJumpUrl());
 				eb.setThumbnail(event.getAuthor().getEffectiveAvatarUrl());
 				eb.setColor(Color.YELLOW);
 				eb.addField("Old Message", oldAuthorAndMessage.getLast(), false); // get only the message and not the author
 				eb.addField("New Message", updatedMessage, false);
 				
-				MessageEmbed mb = eb.build();
-				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
-				eb.clearFields();
 				// update the database with the new message
 				dc.updateMessage(messageId, updatedMessage, TableNames.MESSAGE_LOG_CONTENT_TABLE);
+				// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
+				// the bot, the error responses wouldn't block the update of the message in the database.
+				
+				// send to the logging channel
+				MessageEmbed mb = eb.build();
+				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();							
 			} catch (SQLException e) {
 				Logger.error("Could not log updated message", e);
-				e.printStackTrace();
-				eb.clearFields();
+				e.printStackTrace();		
 			}
 		}
 	}
@@ -135,19 +137,25 @@ public class MessageLogListener extends ListenerAdapter {
 				User author = event.getJDA().getUserById(oldAuthorAndMessage.getFirst());
 				String mentionableAuthor = (author !=null ? author.getAsMention() : oldAuthorAndMessage.getFirst());
 				
+				EmbedBuilder eb = new EmbedBuilder();
+				eb.setTitle("📝 Message Delete Event");
 				eb.setDescription("A message sent by "+mentionableAuthor+" has been deleted");
 				eb.setColor(Color.RED);
 				eb.addField("Deleted Message", oldAuthorAndMessage.getLast(), false);
 				
-				MessageEmbed mb = eb.build();
-				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
-				eb.clearFields();
-				// delete the message from the database after logging
+				// delete the message from the database 
 				dc.deleteMessage(messageId, TableNames.MESSAGE_LOG_CONTENT_TABLE);
+				// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
+				// the bot, the error responses wouldn't block the deletion in the database.
+				
+				// send the fetched deleted message to the logging channel
+				MessageEmbed mb = eb.build();
+				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();			
+				
 			} catch (SQLException e) {
 				Logger.error("Could not delete message", e);
 				e.printStackTrace();
-				eb.clearFields();
+				
 			}
 		}
 	}
