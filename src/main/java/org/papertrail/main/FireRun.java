@@ -13,6 +13,8 @@ import org.papertrail.listeners.guildlisteners.ServerBoostListener;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
 import org.papertrail.listeners.loglisteners.LogCommandListener;
 import org.papertrail.listeners.memberlisteners.GuildMemberJoinAndLeaveListener;
+import org.papertrail.listeners.messagelisteners.MessageLogCommandListener;
+import org.papertrail.listeners.messagelisteners.MessageLogListener;
 import org.papertrail.listeners.voicelisteners.GuildVoiceListener;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -34,6 +36,8 @@ public class FireRun {
 		ci.getManager().addEventListener(new GuildMemberJoinAndLeaveListener(dc));
 		ci.getManager().addEventListener(new ServerBoostListener(dc));
 		ci.getManager().addEventListener(new BotKickListener(dc));
+		ci.getManager().addEventListener(new MessageLogCommandListener(dc));
+		ci.getManager().addEventListener(new MessageLogListener(dc));
 		
 		ci.getManager().addEventListener(new ServerStatListener());
 		ci.getManager().addEventListener(new BotInfoListener());

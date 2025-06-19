@@ -30,7 +30,7 @@ public class LogCommandListener extends ListenerAdapter {
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
 		// Command for binding the listener to a channel
-		if (event.getName().equals("ralc")) {
+		if (event.getName().equals("auditlogchannel-set")) {
 			
 			// Only members with MANAGE_SERVER permissions should be able to use this command
 			Member member = event.getMember();
@@ -44,7 +44,7 @@ public class LogCommandListener extends ListenerAdapter {
 			String guildId = event.getGuild().getId();
 			// retrieve the previously registered channel_id associated with the given
 			// guild_id
-			String registeredChannelId = dc.retrieveChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
+			String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
 
 			// if there is a registered channel_id in the database, send a warning message
 			// in the channel where the command was called from, stating that a channel has
@@ -92,7 +92,7 @@ public class LogCommandListener extends ListenerAdapter {
 		}
 
 		// Command for getting the channel where audit logs are posted
-		if (event.getName().equals("galc")) {
+		if (event.getName().equals("auditlogchannel-view")) {
 			
 			// Only members with MANAGE_SERVER permissions should be able to use this command
 			Member member = event.getMember();
@@ -106,7 +106,7 @@ public class LogCommandListener extends ListenerAdapter {
 			String guildId = event.getGuild().getId();
 
 			// retrieve the channel_id registered in the database
-			String registeredChannelId = dc.retrieveChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
+			String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
 
 			// if there is no channel_id for the given guild_id in the database, then inform
 			// the user of the same, else link the channel that has been registered
@@ -122,7 +122,7 @@ public class LogCommandListener extends ListenerAdapter {
 				// this is particularly useful when a channel that was set for logging may have been deleted
 				GuildChannel registeredChannel =  event.getJDA().getGuildChannelById(registeredChannelId);
 				if(registeredChannel==null) {
-					eb.addField("⚠️ Channel Registration Check", "╰┈➤"+registeredChannelId+" does not exist. Please remove it using `/ualc` and re-register using `/ralc`", false);
+					eb.addField("⚠️ Channel Registration Check", "╰┈➤"+registeredChannelId+" does not exist. Please remove it using `/auditlogchannel-remove` and re-register using `/auditlogchannel-set`", false);
 					eb.setColor(Color.RED);
 				} else {
 					eb.setColor(Color.CYAN);
@@ -137,7 +137,7 @@ public class LogCommandListener extends ListenerAdapter {
 		}
 
 		// Command for un-setting a previously bound listener from a channel
-		if (event.getName().equals("ualc")) {
+		if (event.getName().equals("auditlogchannel-remove")) {
 			
 			// Only members with MANAGE_SERVER permissions should be able to use this command
 			Member member = event.getMember();
@@ -149,7 +149,7 @@ public class LogCommandListener extends ListenerAdapter {
 	        }
 
 			String guildId = event.getGuild().getId();
-			String registeredChannelId = dc.retrieveChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
+			String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
 
 			if (registeredChannelId == null || registeredChannelId.isBlank()) {
 				eb.addField("ℹ️ Channel Removal", "╰┈➤"+"No channel has been registered for audit logs", false);
