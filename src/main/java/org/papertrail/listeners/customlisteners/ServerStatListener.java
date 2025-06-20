@@ -34,7 +34,7 @@ public class ServerStatListener extends ListenerAdapter{
 					
 				else {
 					OnlineStatus status = member.getOnlineStatus();
-					if(status.equals(OnlineStatus.DO_NOT_DISTURB) || status.equals(OnlineStatus.IDLE) | status.equals(OnlineStatus.ONLINE)) {
+					if(status.equals(OnlineStatus.DO_NOT_DISTURB) || status.equals(OnlineStatus.IDLE) || status.equals(OnlineStatus.ONLINE)) {
 						onlineUserCount++;
 					}
 					userCount++;

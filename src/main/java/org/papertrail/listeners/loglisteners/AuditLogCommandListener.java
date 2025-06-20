@@ -27,13 +27,6 @@ public class AuditLogCommandListener extends ListenerAdapter {
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
-		// Only members with MANAGE_SERVER permissions should be able to use this command
-		Member member = event.getMember();
-		if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
-			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
-			return;
-		}
-
 		switch(event.getName()) {
 
 		case "auditlogchannel-set":
@@ -55,6 +48,14 @@ public class AuditLogCommandListener extends ListenerAdapter {
 
 
 	private void setAuditLogging(SlashCommandInteractionEvent event) {
+		
+		// Only members with MANAGE_SERVER permissions should be able to use this command
+		Member member = event.getMember();
+		if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
+			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
+			return;
+		}
+			
 		String guildId = event.getGuild().getId();
 		// retrieve the previously registered channel_id associated with the given
 		// guild_id
@@ -106,6 +107,14 @@ public class AuditLogCommandListener extends ListenerAdapter {
 	}
 
 	private void retrieveAuditLoggingChannel(SlashCommandInteractionEvent event) {
+		
+		// Only members with MANAGE_SERVER permissions should be able to use this command
+		Member member = event.getMember();
+		if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
+			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
+			return;
+		}
+		
 		String guildId = event.getGuild().getId();
 
 		// retrieve the channel_id registered in the database
@@ -148,6 +157,14 @@ public class AuditLogCommandListener extends ListenerAdapter {
 	}
 
 	private void unsetAuditLogging(SlashCommandInteractionEvent event) {
+		
+		// Only members with MANAGE_SERVER permissions should be able to use this command
+		Member member = event.getMember();
+		if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
+			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
+			return;
+		}
+		
 		String guildId = event.getGuild().getId();
 		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
 

@@ -16,7 +16,7 @@ public class BotSetupListener extends ListenerAdapter {
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
 		if (event.getName().equals("setup")) {
-
+			
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("🛠️ Setup Guide for " + VersionInfo.APPNAME);
 			eb.setDescription("Welcome to **" + VersionInfo.APPNAME + "**!\nHere's how to get started using the bot in your server.");
@@ -27,7 +27,7 @@ public class BotSetupListener extends ListenerAdapter {
 					false);
 
 			eb.addField("2️⃣ View Registered Audit Log Channel",
-					"- Use `/auditlogchannel-view` to **check which channel** is currently registered for audit logs.\nThis is helpful if you're unsure where logs are going.\n╰┈➤ User must have `Manage Server` permission.",
+					"- Use `/auditlogchannel-view` to **check which channel** is currently registered for audit logs.\nThis is helpful if you're unsure where the audit logs are going.\n╰┈➤ User must have `Manage Server` permission.",
 					false);
 
 			eb.addField("3️⃣ Unregister Audit Log Channel",
@@ -37,15 +37,15 @@ public class BotSetupListener extends ListenerAdapter {
 			eb.addBlankField(false);
 			
 			eb.addField("4️⃣ Register Message Log Channel",
-					"- Use `/messagelogchannel-set` to **register the current channel** for receiving audit log updates.\n╰┈➤ User must have `Manage Server` permission.",
+					"- Use `/messagelogchannel-set` to **register the current channel** for receiving message logs.\n╰┈➤ User must have the `Administrator` permission.",
 					false);
 
 			eb.addField("5️⃣ View Registered Message Log Channel",
-					"- Use `/messagelogchannel-view` to **check which channel** is currently registered for message logs.\nThis is helpful if you're unsure where logs are going.\n╰┈➤ User must have `Manage Server` permission.",
+					"- Use `/messagelogchannel-view` to **check which channel** is currently registered for message logs.\nThis is helpful if you're unsure where the message logs are going.\n╰┈➤ User must have `Administrator` permission.",
 					false);
 
 			eb.addField("6️⃣ Unregister Message Log Channel",
-					"- Use `/messagelogchannel-remove` to **unset the message log channel** if you wish to stop logging or switch to another one.\n╰┈➤ User must have `Manage Server` permission.",
+					"- Use `/messagelogchannel-remove` to **unset the message log channel** if you wish to stop logging or switch to another one.\n╰┈➤ User must have `Administrator` permission.",
 					false);
 			
 			eb.addBlankField(false);

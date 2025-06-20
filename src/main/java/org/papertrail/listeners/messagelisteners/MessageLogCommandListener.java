@@ -29,14 +29,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 	
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-		
-		// Only members with MANAGE_SERVER permissions should be able to use this command
-		Member member = event.getMember();
-		if (member == null || !member.hasPermission(Permission.MANAGE_SERVER)) {
-			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
-			return;
-		}
-		
+			
 		switch(event.getName()) {
 		
 		case "messagelogchannel-set":
@@ -57,6 +50,13 @@ public class MessageLogCommandListener extends ListenerAdapter {
 	}
 
 	private void setMessageLogging(SlashCommandInteractionEvent event) {
+		
+		// Only members with MANAGE_SERVER permissions should be able to use this command
+		Member member = event.getMember();
+		if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
+			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
+			return;
+		}
 		
 		Guild guild = event.getGuild();
 		String guildId = guild.getId();
@@ -106,6 +106,13 @@ public class MessageLogCommandListener extends ListenerAdapter {
 	
 	private void retrieveMessageLoggingChannel(SlashCommandInteractionEvent event) {
 		
+		// Only members with MANAGE_SERVER permissions should be able to use this command
+		Member member = event.getMember();
+		if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
+			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
+			return;
+		}
+		
 		Guild guild = event.getGuild();
 		String guildId = guild.getId();
 			
@@ -139,6 +146,13 @@ public class MessageLogCommandListener extends ListenerAdapter {
 	}
 	
 	private void unsetMessageLogging(SlashCommandInteractionEvent event) {
+		
+		// Only members with MANAGE_SERVER permissions should be able to use this command
+		Member member = event.getMember();
+		if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
+			event.reply("❌ You don't have the permission required to use this command.").setEphemeral(true).queue();
+			return;
+		}
 		
 		Guild guild = event.getGuild();
 		String guildId = guild.getId();
