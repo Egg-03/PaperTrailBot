@@ -26,8 +26,8 @@ public class DatabaseConnector {
 		String sqlStatement = "INSERT INTO "+tableName+" (guild_id, channel_id) VALUES (?, ?)";
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
-			psmt.setString(1, guildId);
-			psmt.setString(2, channelId);
+			psmt.setLong(1, Long.parseLong(guildId));
+			psmt.setLong(2, Long.parseLong(channelId));
 			psmt.executeUpdate();
 		} 
 
@@ -39,13 +39,13 @@ public class DatabaseConnector {
 		String channelId = "";
 
 		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
-			psmt.setString(1, guildId);
+			psmt.setLong(1, Long.parseLong(guildId));
 
 			try (ResultSet rs = psmt.executeQuery()) {
 
 				while (rs.next()) { // by configuration, there will always be only one channel id row at a time
 					// because registering multiple channels is not allowed
-					channelId = rs.getString("channel_id");
+					channelId = String.valueOf(rs.getLong("channel_id"));
 				}
 			}
 			return channelId;
@@ -62,12 +62,12 @@ public class DatabaseConnector {
 		String sqlStatement = "SELECT guild_id FROM " + tableName + " WHERE guild_id = ?";
 
 		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
-			psmt.setString(1, guildId);
+			psmt.setLong(1, Long.parseLong(guildId));
 
 			try (ResultSet rs = psmt.executeQuery()) {
 
 				while (rs.next()) { 					
-					return rs.getString("guild_id");
+					return String.valueOf(rs.getLong("guild_id"));
 
 				}
 			}
@@ -86,11 +86,11 @@ public class DatabaseConnector {
 		String sqlStatement = "SELECT channel_id FROM " + tableName + " WHERE channel_id = ?";
 
 		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
-			psmt.setString(1, channelId);
+			psmt.setLong(1, Long.parseLong(channelId));
 
 			try (ResultSet rs = psmt.executeQuery()) {
 				while (rs.next()) { 					
-					return rs.getString("guild_id");
+					return String.valueOf(rs.getLong("guild_id"));
 				}
 			}
 			return null;
@@ -105,7 +105,7 @@ public class DatabaseConnector {
 		String sqlStatement = "DELETE FROM "+tableName+" WHERE guild_id = ?";
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
-			psmt.setString(1, guildId);
+			psmt.setLong(1, Long.parseLong(guildId));
 			psmt.executeUpdate();
 		} 
 	}
@@ -117,9 +117,9 @@ public class DatabaseConnector {
 		String sqlStatement = "INSERT INTO "+tableName+" (message_id, message_content, author_id) VALUES (?, ?, ?)";
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
-			psmt.setString(1, messageId);
+			psmt.setLong(1, Long.parseLong(messageId));
 			psmt.setString(2, messageContent);
-			psmt.setString(3, authorId);
+			psmt.setLong(3, Long.parseLong(authorId));
 			psmt.executeUpdate();
 		} 
 	}
@@ -132,12 +132,12 @@ public class DatabaseConnector {
 		String authorId = "";
 
 		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
-			psmt.setString(1, messageId);
+			psmt.setLong(1, Long.parseLong(messageId));
 
 			try (ResultSet rs = psmt.executeQuery()) {	
 				if (rs.next()) { // only one message is logged per row per message id
 					messageContent = rs.getString("message_content");
-					authorId = rs.getString("author_id");
+					authorId = String.valueOf(rs.getLong("author_id"));
 					return List.of(authorId, messageContent);
 				}
 			}
@@ -156,11 +156,11 @@ public class DatabaseConnector {
 		String sqlStatement = "SELECT message_id FROM " + tableName + " WHERE message_id = ?";
 
 		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement)) {
-			psmt.setString(1, messageId);
+			psmt.setLong(1, Long.parseLong(messageId));
 
 			try (ResultSet rs = psmt.executeQuery()) {	
 				if (rs.next()) { // only one message is logged per row per message id
-					return rs.getString("message_id");
+					return String.valueOf(rs.getLong("message_id"));
 				}
 			}
 			return null;
@@ -177,7 +177,7 @@ public class DatabaseConnector {
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setString(1, messageContent);
-			psmt.setString(2, messageId);
+			psmt.setLong(2, Long.parseLong(messageId));
 			psmt.executeUpdate();
 		} 
 	}
@@ -187,7 +187,7 @@ public class DatabaseConnector {
 		String sqlStatement = "DELETE FROM "+tableName+" WHERE message_id = ?";
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
-			psmt.setString(1, messageId);
+			psmt.setLong(1, Long.parseLong(messageId));
 			psmt.executeUpdate();
 		} 
 	}
