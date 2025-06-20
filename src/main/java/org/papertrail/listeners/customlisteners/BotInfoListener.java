@@ -26,9 +26,11 @@ public class BotInfoListener extends ListenerAdapter {
 			
 			eb.addField("🏷️ App Name", "╰┈➤"+VersionInfo.APPNAME, false);
 			eb.addField("⚙️ App Version", "╰┈➤"+VersionInfo.VERSION, false);
-			eb.addField("🗂️ App Source Code", VersionInfo.PROJECT_LINK, false);
+			eb.addField("📃 App Source Code", VersionInfo.PROJECT_LINK, false);
+			eb.addField("🖧 App Server", "╰┈➤"+VersionInfo.SERVER_LOCATION, false);
+			eb.addField("🛢 App Database", "╰┈➤"+VersionInfo.DATABASE_LOCATION, false);
 			
-			eb.setFooter(VersionInfo.APPNAME+" is free and open source ");
+			eb.setFooter(VersionInfo.APPNAME+" "+VersionInfo.VERSION);
 			eb.setTimestamp(Instant.now());
 			
 			MessageEmbed mb = eb.build();

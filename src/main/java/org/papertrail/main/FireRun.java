@@ -8,7 +8,7 @@ import org.papertrail.cleanup.BotKickListener;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.listeners.customlisteners.BotInfoListener;
 import org.papertrail.listeners.customlisteners.ServerStatListener;
-import org.papertrail.listeners.customlisteners.SetupListener;
+import org.papertrail.listeners.customlisteners.BotSetupListener;
 import org.papertrail.listeners.guildlisteners.ServerBoostListener;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
 import org.papertrail.listeners.loglisteners.AuditLogCommandListener;
@@ -41,7 +41,7 @@ public class FireRun {
 		
 		ci.getManager().addEventListener(new ServerStatListener());
 		ci.getManager().addEventListener(new BotInfoListener());
-		ci.getManager().addEventListener(new SetupListener());
+		ci.getManager().addEventListener(new BotSetupListener());
 		
 		/*
 		 * This is required only to set up a cron-job to periodically ping this end-point so that
