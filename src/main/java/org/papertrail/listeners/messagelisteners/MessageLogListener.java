@@ -81,7 +81,9 @@ public class MessageLogListener extends ListenerAdapter {
 							
 				// fetch the old message content and its author from the database
 				List<String> oldAuthorAndMessage = dc.retrieveAuthorAndMessage(messageId, TableNames.MESSAGE_LOG_CONTENT_TABLE);
-				
+				if(oldAuthorAndMessage==null || oldAuthorAndMessage.isEmpty()) { // would be true only if the unedited message was not logged in the first place
+					return;
+				}
 				// fetch the updated message from the event
 				String updatedMessage = event.getMessage().getContentRaw();	
 				
