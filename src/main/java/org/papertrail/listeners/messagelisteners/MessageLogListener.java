@@ -96,7 +96,6 @@ public class MessageLogListener extends ListenerAdapter {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setTitle("📝 Message Edit Event");
 				eb.setDescription("A message sent by "+event.getAuthor().getAsMention()+" has been edited in: "+event.getJumpUrl());
-				eb.setThumbnail(event.getAuthor().getEffectiveAvatarUrl());
 				eb.setColor(Color.YELLOW);
 				
 				eb.addField("Old Message", oldAuthorAndMessage.getLast(), false); // get only the message and not the author
@@ -152,7 +151,6 @@ public class MessageLogListener extends ListenerAdapter {
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setTitle("🗑️ Message Delete Event");
 				eb.setDescription("A message sent by "+mentionableAuthor+" has been deleted");
-				eb.setThumbnail(event.getGuild().getMemberById(oldAuthorAndMessage.getFirst()).getEffectiveAvatarUrl());
 				eb.setColor(Color.RED);
 				eb.addField("Deleted Message", oldAuthorAndMessage.getLast(), false);
 				
