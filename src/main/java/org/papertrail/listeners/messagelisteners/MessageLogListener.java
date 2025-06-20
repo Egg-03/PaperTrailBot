@@ -150,8 +150,9 @@ public class MessageLogListener extends ListenerAdapter {
 				String mentionableAuthor = (author !=null ? author.getAsMention() : oldAuthorAndMessage.getFirst());
 				
 				EmbedBuilder eb = new EmbedBuilder();
-				eb.setTitle("📝 Message Delete Event");
+				eb.setTitle("🗑️ Message Delete Event");
 				eb.setDescription("A message sent by "+mentionableAuthor+" has been deleted");
+				eb.setThumbnail(event.getGuild().getMemberById(oldAuthorAndMessage.getFirst()).getEffectiveAvatarUrl());
 				eb.setColor(Color.RED);
 				eb.addField("Deleted Message", oldAuthorAndMessage.getLast(), false);
 				
