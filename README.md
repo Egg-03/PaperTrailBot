@@ -1,3 +1,39 @@
+# Self-Hosting Guide
+
+## 1) Setting up the bot
+The first thing you will need is your discord application token from the [Discord Developer Portal](https://discord.com/developers/applications).
+
+Then you will need a database URL for the database you set up. It needs to be a `PostgreSQL` database.
+The token and the url together will be your environment variables which will be required during setting up the bot.
+
+```env
+TOKEN=your-discord-application-token
+DATABASEURL=jdbc:postgresql://your-database-url
+```
+
+### Using a cloud platform
+If the cloud platform you're using supports deployment from GitHub, you can fork a copy of this repository and use it to deploy the bot. A dockerfile is included for platforms supporting Docker. Otherwise, if the cloud service supports `JDK21` and above, it may build the application from the provided `pom.xml` file.
+
+If the cloud platform you are using requires manual configuration, here are the commands for building and running the bot
+
+For Building
+```
+./mvnw clean package
+```
+OR, if you have Maven installed
+```
+mvn clean package
+```
+This creates the application jar, which gets stored in the project's `target` folder.
+
+You can then configure it to run like this
+```
+java -jar paper-trail-bot.jar
+```
+The above also works for local setups. In case of local setups, you will need to store the secrets as environment variables in a .env file in your project's directory.
+Make sure the secrets don't get leaked and never commit them to your git branch.
+
+## 2) Setting up the database
 Database Tables you will need
 
 ![image](https://github.com/user-attachments/assets/5e56e80c-70e0-4bde-8bcf-0b48933a72af)
