@@ -7,7 +7,7 @@ You will need two environment variables to run the bot:
 
 - `TOKEN` – Your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 - `DATABASEURL` – A PostgreSQL connection URL (format: `jdbc:postgresql://host:port/dbname`)
-  We will get to the DATABASEURL part later
+> 💡 You will receive the DATABASEURL from your database hosting provider once you've set up your database. This value is essential and should be kept secure.
 
 Create a `.env` file with the following:
 
@@ -25,7 +25,7 @@ DATABASEURL=jdbc:postgresql://your-database-url
 
 
 ### Step 2: Deployment Options
-Fork a clone of this repository and deploy it to your chosen platform. 
+> Fork this repository to your GitHub account, connect it to your preferred cloud platform, and configure your environment variables either through the platform's dashboard or secrets manager. Some services may also support adding secrets directly from your `.env` file.
 #### A. Cloud Platforms with GitHub + Docker Support
 
 - These can auto-deploy using the included `Dockerfile`
@@ -47,7 +47,7 @@ If deploying manually or running locally:
 ```sh
 mvn clean package       # If Maven is installed globally
 ```
-This builds the jar in the `target` folder
+This creates a runnable JAR file in the `target/` folder, named `paper-trail-bot.jar`.
 
 **Run the JAR:**
 
@@ -55,13 +55,14 @@ This builds the jar in the `target` folder
 java -jar target/paper-trail-bot.jar
 ```
 
-Ensure you have JDK 21 or later installed.
+> Ensure you have JDK 21 or later installed.
+
+> For local deployments, make sure your `.env` file containing the secrets is placed in the project's base directory
 
 
 ## 2) Setting up the database
 
 You’ll need a PostgreSQL database with the following tables:
-
 ![image](https://github.com/user-attachments/assets/5e56e80c-70e0-4bde-8bcf-0b48933a72af)
 
 Assuming you have a default public schema, use the following SQL Queries to create the required tables:
