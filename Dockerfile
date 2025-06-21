@@ -9,10 +9,12 @@ COPY .mvn .mvn
 
 # Set execution permission for the Maven wrapper
 RUN chmod +x ./mvnw
-RUN ./mvnw clean package -DskipTests
+RUN ./mvnw dependency:go-offline
 
 # Copy the source files after dependencies are cached
 COPY src ./src
+
+RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Create the final Docker image using OpenJDK 21
 FROM openjdk:21-jdk
