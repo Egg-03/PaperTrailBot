@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.papertrail.utilities.EnvConfig;
+import org.papertrail.utilities.MessageEncryption;
 import org.tinylog.Logger;
 
 public class DatabaseConnector {
@@ -118,7 +119,7 @@ public class DatabaseConnector {
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
 			psmt.setLong(1, Long.parseLong(messageId));
-			psmt.setString(2, messageContent);
+			psmt.setString(2, MessageEncryption.encrypt(messageContent));
 			psmt.setLong(3, Long.parseLong(authorId));
 			psmt.executeUpdate();
 		} 
@@ -136,7 +137,7 @@ public class DatabaseConnector {
 
 			try (ResultSet rs = psmt.executeQuery()) {	
 				if (rs.next()) { // only one message is logged per row per message id
-					messageContent = rs.getString("message_content");
+					messageContent = MessageEncryption.decrypt(rs.getString("message_content"));
 					authorId = String.valueOf(rs.getLong("author_id"));
 					return List.of(authorId, messageContent);
 				}
@@ -176,7 +177,7 @@ public class DatabaseConnector {
 		String sqlStatement = "UPDATE " + tableName + " SET message_content = ? WHERE message_id = ?";
 
 		try(PreparedStatement psmt = connect.prepareStatement(sqlStatement)){
-			psmt.setString(1, messageContent);
+			psmt.setString(1, MessageEncryption.encrypt(messageContent));
 			psmt.setLong(2, Long.parseLong(messageId));
 			psmt.executeUpdate();
 		} 

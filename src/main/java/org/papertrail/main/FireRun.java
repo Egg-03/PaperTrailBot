@@ -2,8 +2,10 @@ package org.papertrail.main;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.Security;
 import java.sql.SQLException;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.papertrail.cleanup.BotKickListener;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.listeners.customlisteners.BotInfoListener;
@@ -16,6 +18,7 @@ import org.papertrail.listeners.memberlisteners.GuildMemberJoinAndLeaveListener;
 import org.papertrail.listeners.messagelisteners.MessageLogCommandListener;
 import org.papertrail.listeners.messagelisteners.MessageLogListener;
 import org.papertrail.listeners.voicelisteners.GuildVoiceListener;
+import org.tinylog.Logger;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -24,8 +27,20 @@ import com.sun.net.httpserver.HttpServer;
  * The main class of the bot
  */
 public class FireRun {
+	
+	// Register Bouncy Castle as a security provider
+	// Required for the PBEWITHSHA256AND256BITAES-CBC-BC encryption algorithm
+	private static void registerBouncyCastle() {	
+		
+		if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+			Security.addProvider(new BouncyCastleProvider());
+			Logger.info("Bouncy Castle Security Provider Registered.");
+		}
+	}
 
 	public static void main(String[] args) throws IOException, SQLException {
+		
+		registerBouncyCastle();
 		
 		DatabaseConnector dc = new DatabaseConnector();
 		
