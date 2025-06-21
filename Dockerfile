@@ -1,10 +1,9 @@
 # Importing JDK and copying required files
 FROM openjdk:21-jdk AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src src
 
 # Copy Maven wrapper
+COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
@@ -12,8 +11,12 @@ COPY .mvn .mvn
 RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
+# Copy the source files after dependencies are cached
+COPY src ./src
+
 # Stage 2: Create the final Docker image using OpenJDK 21
 FROM openjdk:21-jdk
+WORKDIR /app
 VOLUME /tmp
 
 # Copy the JAR from the build stage
