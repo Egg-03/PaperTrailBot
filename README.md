@@ -1,40 +1,66 @@
 # Self-Hosting Guide
 
 ## 1) Setting up the bot
-The first thing you will need is your discord application token from the [Discord Developer Portal](https://discord.com/developers/applications).
+### Step 1: Get Required Secrets
 
-Then you will need a database URL for the database you set up. It needs to be a `PostgreSQL` database.
-The token and the url together will be your environment variables which will be required during setting up the bot.
+You will need two environment variables to run the bot:
+
+- `TOKEN` – Your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
+- `DATABASEURL` – A PostgreSQL connection URL (format: `jdbc:postgresql://host:port/dbname`)
+  We will get to the DATABASEURL part later
+
+Create a `.env` file with the following:
 
 ```env
+# .env file
 TOKEN=your-discord-application-token
 DATABASEURL=jdbc:postgresql://your-database-url
 ```
 
-### Using a cloud platform
-If the cloud platform you're using supports deployment from GitHub, you can fork a copy of this repository and use it to deploy the bot. A dockerfile is included for platforms supporting Docker. Otherwise, if the cloud service supports `JDK21` and above, it may build the application from the provided `pom.xml` file.
+> ⚠️ Never commit your `.env` file to version control. Add it to `.gitignore`:
 
-If the cloud platform you are using requires manual configuration, here are the commands for building and running the bot
+```gitignore
+.env
+```
 
-For Building
-```
-./mvnw clean package
-```
-OR, if you have Maven installed
-```
-mvn clean package
-```
-This creates the application jar, which gets stored in the project's `target` folder.
 
-You can then configure it to run like this
+### Step 2: Deployment Options
+Fork a clone of this repository and deploy it to your chosen platform. 
+#### A. Cloud Platforms with GitHub + Docker Support
+
+- These can auto-deploy using the included `Dockerfile`
+
+#### B. Platforms with GitHub + Java Support (No Docker)
+
+- These can build the project using the `pom.xml` if JDK 21+ is available
+
+#### Build and Run (for local/manual deployment)
+
+If deploying manually or running locally:
+
+**Build the JAR:**
+
+```sh
+./mvnw clean package   # If using Maven Wrapper
 ```
-java -jar paper-trail-bot.jar
+ OR
+```sh
+mvn clean package       # If Maven is installed globally
 ```
-The above also works for local setups. In case of local setups, you will need to store the secrets as environment variables in a .env file in your project's directory.
-Make sure the secrets don't get leaked and never commit them to your git branch.
+This builds the jar in the `target` folder
+
+**Run the JAR:**
+
+```sh
+java -jar target/paper-trail-bot.jar
+```
+
+Ensure you have JDK 21 or later installed.
+
 
 ## 2) Setting up the database
-Database Tables you will need
+
+You’ll need a PostgreSQL database with the following tables:
 
 ![image](https://github.com/user-attachments/assets/5e56e80c-70e0-4bde-8bcf-0b48933a72af)
 
@@ -64,6 +90,8 @@ CREATE TABLE public.message_log_registration_table (
 	CONSTRAINT message_log_registration_table_unique UNIQUE (channel_id)
 );
 ```
+### Optional: Automatic Message Cleanup with `pg_cron`
+
 NOTE: The following requires the `pg_cron` extension to be available.
 
 Check with your database provider to see if it is supported
@@ -83,3 +111,10 @@ To check your cron-job runs
 ```SQL
 SELECT * FROM cron.job_run_details
 ```
+
+> If `pg_cron` is not supported, consider using a scheduled task in your app or CI/CD platform to run cleanup logic.
+
+---
+
+Feel free to contribute to this guide or raise issues on GitHub if you get stuck!
+
