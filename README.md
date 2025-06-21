@@ -2,7 +2,7 @@ Database Tables you will need
 
 ![image](https://github.com/user-attachments/assets/5e56e80c-70e0-4bde-8bcf-0b48933a72af)
 
-Assuming you have a default public schema, use the following SQL Queries to create the crequired tables:
+Assuming you have a default public schema, use the following SQL Queries to create the required tables:
 
 ```SQL
 CREATE TABLE public.audit_log_table (
@@ -28,7 +28,8 @@ CREATE TABLE public.message_log_registration_table (
 	CONSTRAINT message_log_registration_table_unique UNIQUE (channel_id)
 );
 ```
-NOTE: The following requires the `pg_cron` extension to be available
+NOTE: The following requires the `pg_cron` extension to be available.
+
 Check with your database provider to see if it is supported
 
 You can also set up a cron-job via the `pg_cron` extension to auto-delete messages older than 30 days or your preferred time interval
