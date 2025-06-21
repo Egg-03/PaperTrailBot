@@ -1,3 +1,19 @@
+# Overview
+PaperTrail is a free and open source, self-hostable Discord bot designed to deliver structured, reliable logging across all major audit and runtime events. It hooks into Discord's audit logs to cover for most of the audit log events and for events not covered by Audit Logs, it supplements them with real-time listeners to bridge gaps in native coverage (e.g. voice state, boosts, message edits and deletions, custom triggers).
+
+Key Features:
+
+- 🔍 Full audit log integration (supports over 50+ event types) and generic support for unknown types
+- 💬 Message logging  (edit, delete)
+- 👤 Member activity tracking (joins, leaves, kicks, bans, updates)
+- 🔊 Voice activity logging (join/leave, move)
+- 🚀 Server boost tracking
+- 🧱 Minimalist PostgreSQL schema with auto-cleanup support via `pg_cron`
+
+> 🔐 While PaperTrail is designed to be self-hosted for maximum data ownership, a public instance is also available if preferred.
+> 
+> 📎 Invite Link: [TODO]
+
 # Self-Hosting Guide
 
 ## 1) Setting up the bot
@@ -25,7 +41,7 @@ DATABASEURL=jdbc:postgresql://your-database-url
 
 
 ### Step 2: Deployment Options
-> Fork this repository to your GitHub account, connect it to your preferred cloud platform, and configure your environment variables either through the platform's dashboard or secrets manager. Some services may also support adding secrets directly from your `.env` file.
+> Fork this repository to your GitHub account, connect it to your preferred cloud platform, and configure your environment variables in the platform. Some paltform services may also support adding secrets directly from your `.env` file.
 #### A. Cloud Platforms with GitHub + Docker Support
 
 - These can auto-deploy using the included `Dockerfile`
