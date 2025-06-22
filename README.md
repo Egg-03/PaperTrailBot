@@ -163,5 +163,17 @@ If you discover a security vulnerability in PaperTrail, please report it **priva
 
 PaperTrail is provided under the Apache 2.0 License and is intended for responsible use. By using the public instance or self-hosting it, you agree to the basic terms outlined in our [Terms of Service](./TERMS.md).
 
+# License
+
+PaperTrail is licensed under the [Apache License 2.0](./LICENSE).
+
+You are free to:
+- Use, modify, and redistribute the code
+- Self-host or publicly host your own instance
+- Build on top of this bot for your own projects
+
+Just make sure to include proper attribution and comply with the [terms](https://www.apache.org/licenses/LICENSE-2.0).
+
+---
 Feel free to contribute to this guide or raise issues on GitHub if you get stuck!
 
