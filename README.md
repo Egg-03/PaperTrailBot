@@ -23,7 +23,10 @@ You will need two environment variables to run the bot:
 
 - `TOKEN` – Your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 - `DATABASEURL` – A PostgreSQL connection URL (format: `jdbc:postgresql://host:port/dbname`)
+- `MESSAGE_SECRET` - A randomly generated secret that will be used as a passphrase for encrypting and decrypting all the messages sent to and from the database respectively
 > 💡 You will receive the DATABASEURL from your database hosting provider once you've set up your database. This value is essential and should be kept secure.
+> 
+> 💡 You can use any passphrase generator to generate a MESSAGE_SECRET. Make sure to store it in a secure place.
 
 Create a `.env` file with the following:
 
@@ -31,6 +34,7 @@ Create a `.env` file with the following:
 # .env file
 TOKEN=your-discord-application-token
 DATABASEURL=jdbc:postgresql://your-database-url
+MESSAGE_SECRET=your-secret
 ```
 
 > ⚠️ Never commit your `.env` file to version control. Add it to `.gitignore`:
@@ -132,6 +136,32 @@ SELECT * FROM cron.job_run_details
 > If `pg_cron` is not supported, consider using a scheduled task in your app or CI/CD platform to run cleanup logic.
 
 ---
+
+# Privacy
+
+PaperTrail is built with privacy-first principles. By default, it **does not log any personal data** unless features are explicitly enabled by server admins.
+
+- Messages are logged for moderation purposes only, if enabled.
+- All stored messages are encrypted before being saved to the database.
+- Logs are automatically deleted after 30 days.
+- No personal data is used for analytics, profiling, or sold to third parties.
+- If requested, users can have their data deleted by ID.
+
+[Read the full Privacy Policy](./PRIVACY.md)
+
+# Security
+
+If you discover a security vulnerability in PaperTrail, please report it **privately**.
+
+- Do **not** open public GitHub issues for security bugs.
+- Instead, email me at 📧 **egg03@duck.com**
+- I will respond as soon as possible and work with you to resolve the issue.
+
+[View the full Security Policy](./SECURITY.md)
+
+# Terms of Use
+
+PaperTrail is provided under the Apache 2.0 License and is intended for responsible use. By using the public instance or self-hosting it, you agree to the basic terms outlined in our [Terms of Service](./TERMS.md).
 
 Feel free to contribute to this guide or raise issues on GitHub if you get stuck!
 
