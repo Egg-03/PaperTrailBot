@@ -3,7 +3,7 @@ package org.papertrail.listeners.customlisteners;
 import java.awt.Color;
 import java.time.Instant;
 
-import org.papertrail.version.VersionInfo;
+import org.papertrail.version.ProjectInfo;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -18,8 +18,8 @@ public class BotSetupListener extends ListenerAdapter {
 		if (event.getName().equals("setup")) {
 			
 			EmbedBuilder eb = new EmbedBuilder();
-			eb.setTitle("🛠️ Setup Guide for " + VersionInfo.APPNAME);
-			eb.setDescription("Welcome to **" + VersionInfo.APPNAME + "**!\nHere's how to get started using the bot in your server.");
+			eb.setTitle("🛠️ Setup Guide for " + ProjectInfo.APPNAME);
+			eb.setDescription("Welcome to **" + ProjectInfo.APPNAME + "**!\nHere's how to get started using the bot in your server.");
 			eb.setColor(Color.decode("#38e8bc"));
 
 			eb.addField("1️⃣ Register Audit Log Channel",
@@ -62,11 +62,11 @@ public class BotSetupListener extends ListenerAdapter {
 					- Make sure the bot has view and message send permissions for the logging channel.
 					- Commands only work in servers (guilds), not in DMs.
 					- The bot will lose its configuration if kicked from the server.
-					- By default, all messages are stored in the database for 30 days, after which the newer ones will replace the older ones.""";
+					- By default, all messages are encrypted and stored in the database for 30 days, after which the newer ones will replace the older ones.""";
 			
 			eb.addField("💡 Tips",tips,false);
-			eb.addField("📬 Need help?", "Create an issue on [GitHub](" + VersionInfo.PROJECT_ISSUE_LINK+")", false);
-			eb.setFooter(VersionInfo.APPNAME+" "+VersionInfo.VERSION);
+			eb.addField("📬 Need help?", "Create an issue on [GitHub](" + ProjectInfo.PROJECT_ISSUE_LINK+")", false);
+			eb.setFooter(ProjectInfo.APPNAME+" "+ProjectInfo.VERSION);
 			eb.setTimestamp(Instant.now());
 
 			MessageEmbed mb = eb.build();
