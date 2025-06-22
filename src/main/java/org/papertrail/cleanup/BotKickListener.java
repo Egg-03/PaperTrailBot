@@ -28,7 +28,7 @@ public class BotKickListener extends ListenerAdapter {
 			dc.unregisterGuildAndChannel(leftGuild.getId(), TableNames.AUDIT_LOG_TABLE);
 			dc.unregisterGuildAndChannel(leftGuild.getId(), TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		} catch (SQLException e) {
-			Logger.error("Could not auto-unregister guild upon guild leave", e);
+			Logger.error(e, "Could not auto-unregister guild upon guild leave");
 		}
 	}
 }

@@ -102,7 +102,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 			MessageEmbed mb = eb.build();
 			event.replyEmbeds(mb).setEphemeral(false).queue();
 
-			Logger.error("Audit Log Channel could not be registered", e);
+			Logger.error(e, "Audit Log Channel could not be registered");
 		}
 	}
 
@@ -199,7 +199,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 				MessageEmbed mb = eb.build();
 				event.replyEmbeds(mb).setEphemeral(false).queue();
 
-				Logger.error("Could not un-register audit log channel", e);
+				Logger.error(e, "Could not un-register audit log channel");
 			}
 		}
 	}

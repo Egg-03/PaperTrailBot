@@ -53,7 +53,7 @@ public class MessageLogListener extends ListenerAdapter {
 				String messageId = event.getMessageId();
 				dc.logMessage(messageId, event.getMessage().getContentRaw(), event.getAuthor().getId(), TableNames.MESSAGE_LOG_CONTENT_TABLE);
 			} catch (SQLException e) {
-				Logger.error("Could not log message", e);
+				Logger.error(e, "Could not log message");
 				e.printStackTrace();
 			}
 		}
@@ -115,7 +115,7 @@ public class MessageLogListener extends ListenerAdapter {
 				String channelIdToSendTo = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();							
 			} catch (SQLException e) {
-				Logger.error("Could not log updated message", e);
+				Logger.error(e, "Could not log updated message");
 				e.printStackTrace();		
 			}
 		}
@@ -167,7 +167,7 @@ public class MessageLogListener extends ListenerAdapter {
 				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();			
 				
 			} catch (SQLException e) {
-				Logger.error("Could not delete message", e);
+				Logger.error(e, "Could not delete message");
 				e.printStackTrace();
 				
 			}

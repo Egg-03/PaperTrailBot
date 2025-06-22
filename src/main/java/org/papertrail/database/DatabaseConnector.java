@@ -51,7 +51,7 @@ public class DatabaseConnector {
 			}
 			return channelId;
 		} catch (SQLException e) {
-			Logger.error("Could not retrieve registered guild channel id", e);
+			Logger.error(e, "Could not retrieve registered guild channel id");
 			return null;
 		}
 	}

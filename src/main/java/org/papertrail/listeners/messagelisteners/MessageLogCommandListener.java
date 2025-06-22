@@ -99,7 +99,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 			
 			eb.clearFields();
 			
-			Logger.error("Message Log Channel could not be registered", e);
+			Logger.error(e, "Message Log Channel could not be registered");
 		}
 		
 	}
@@ -188,7 +188,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
-				Logger.error("Could not un-register message log channel", e);
+				Logger.error(e, "Could not un-register message log channel");
 			}
 		}
 		
