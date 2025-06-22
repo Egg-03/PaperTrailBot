@@ -1,8 +1,8 @@
 package org.papertrail.version;
 
-public class VersionInfo {
+public class ProjectInfo {
 	
-	private VersionInfo() {
+	private ProjectInfo() {
 		throw new IllegalStateException("Utility Class");
 	}
 	
@@ -11,6 +11,6 @@ public class VersionInfo {
 	public static final String PROJECT_LINK = "https://github.com/Egg-03/PaperTrailBot";
 	public static final String PROJECT_ISSUE_LINK="https://github.com/Egg-03/PaperTrailBot/issues";
 	
-	public static final String SERVER_LOCATION = "Render: Frankfurt(Germany, Europe)";
-	public static final String DATABASE_LOCATION = "Aiven: England(UK, Europe)";
+	public static final String PRIVACY = "https://github.com/Egg-03/PaperTrailBot/blob/main/PRIVACY.md";
+	public static final String TERMS = "https://github.com/Egg-03/PaperTrailBot/blob/main/TERMS.md";
 }
