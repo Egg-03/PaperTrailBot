@@ -47,7 +47,7 @@ public class ServerBoostListener extends ListenerAdapter {
 	    if (newBoostTime != null) {
 	    	eb.setDescription("🎉 **" + guild.getName() + "** has been boosted!");
 			eb.setColor(Color.PINK);
-	        eb.addField("🔋 Booster Gained", "╰┈➤"+mentionableMember+" has started boosted your server", false);
+	        eb.addField("🔋 Booster Gained", "╰┈➤"+mentionableMember+" has started boosting your server", false);
 	        eb.addField("📈 Total Boosts In The Server", "╰┈➤"+guild.getBoostCount(), false);
 	        eb.addField("🎖️ Current Boost Tier", "╰┈➤"+guild.getBoostTier().toString(), false);
 	    } else {
