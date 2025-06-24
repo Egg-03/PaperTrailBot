@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
+import org.papertrail.utilities.EnvConfig;
 import org.papertrail.version.AuthorInfo;
 import org.papertrail.version.ProjectInfo;
 
@@ -27,7 +28,8 @@ public class AnnouncementListener extends ListenerAdapter {
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 		
-		if(!event.getUser().getId().equals("528159086106247170")) { // devID
+		if(!event.getUser().getId().equals(EnvConfig.get("DEVELOPER_OR_HOSTER_ID"))) { // devID
+			event.reply("❌ Only the developer/hoster can use this command.").setEphemeral(true).queue();
 			return;
 		}		
 			
