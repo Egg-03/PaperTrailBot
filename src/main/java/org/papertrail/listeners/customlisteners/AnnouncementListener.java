@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 public class AnnouncementListener extends ListenerAdapter {
 	
@@ -38,15 +39,15 @@ public class AnnouncementListener extends ListenerAdapter {
 			}
 			
 			EmbedBuilder eb = new EmbedBuilder(); 
-			eb.setTitle(ProjectInfo.APPNAME+" Announcement: "+event.getOption("type").getAsString());
-			eb.setDescription(event.getOption("description").getAsString());
+			eb.setTitle("📣 " +ProjectInfo.APPNAME+" Announcement: "+event.getOption("type").getAsString());
+			eb.setDescription("📝 " +event.getOption("description").getAsString());
 			eb.setThumbnail(AuthorInfo.AUTHOR_AVATAR_URL);
 			eb.setColor(Color.WHITE);
 						
 			eb.addField("🏷️ Detail", "╰┈➤"+event.getOption("detail").getAsString(), false);
-			String extra = event.getOption("extra").getAsString();
-			if(extra!=null && !extra.isBlank()) {
-				eb.addField("🏷️ Extras", "╰┈➤"+event.getOption("extra").getAsString(), false);
+			OptionMapping extra = event.getOption("extra");
+			if(extra!=null) {
+				eb.addField("🏷️ Extras", "╰┈➤"+extra.getAsString(), false);
 			}
 				
 			eb.setFooter(ProjectInfo.APPNAME+" "+ProjectInfo.VERSION);

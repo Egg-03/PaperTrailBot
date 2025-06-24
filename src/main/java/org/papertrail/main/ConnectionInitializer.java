@@ -48,8 +48,8 @@ public class ConnectionInitializer {
 		
 		manager = builder.build();
 		manager.addEventListener(new ActivityUpdateListener(manager));
-		 manager.addEventListener(new SlashCommandRegistrar()); 
-		// re-enable it only when adding/updating/deleting commands
+	    // manager.addEventListener(new SlashCommandRegistrar()); 
+	    // re-enable it only when adding/updating/deleting commands
 	}
 	
 	// returns the manager that manages multiple shards (instances) of the bot
