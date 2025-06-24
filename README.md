@@ -19,7 +19,7 @@ Key Features:
 ## 1) Setting up the bot
 ### Step 1: Get Required Secrets
 
-You will need two environment variables to run the bot:
+You will need four environment variables to run the bot:
 
 - `TOKEN` – Your Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 - `DATABASEURL` – A PostgreSQL connection URL (format: `jdbc:postgresql://host:port/dbname`)
