@@ -48,7 +48,7 @@ public class ConnectionInitializer {
 		
 		manager = builder.build();
 		manager.addEventListener(new ActivityUpdateListener(manager));
-		// manager.addEventListener(new SlashCommandRegistrar()); 
+		 manager.addEventListener(new SlashCommandRegistrar()); 
 		// re-enable it only when adding/updating/deleting commands
 	}
 	

@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,40 @@ public class DatabaseConnector {
 			psmt.executeUpdate();
 		} 
 
+	}
+	
+	public List<String> retrieveAllRegisteredGuilds(String tableName) {
+		
+		String sqlStatement = "SELECT guild_id FROM " + tableName;
+		List<String> guilds = new ArrayList<>();
+		
+		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement); ResultSet rs = psmt.executeQuery()) {
+				while (rs.next()) {
+					guilds.add(String.valueOf(rs.getLong(1)));
+				}
+			
+			return guilds;
+		} catch (SQLException e) {
+			Logger.error(e, "Could not retrieve registered guilds");
+			return Collections.emptyList();
+		}
+	}
+	
+	public List<String> retrieveAllRegisteredChannels(String tableName) {
+		
+		String sqlStatement = "SELECT channel_id FROM " + tableName;
+		List<String> channels = new ArrayList<>();
+		
+		try (PreparedStatement psmt = connect.prepareStatement(sqlStatement); ResultSet rs = psmt.executeQuery()) {
+				while (rs.next()) {
+					channels.add(String.valueOf(rs.getLong(1)));
+				}
+			
+			return channels;
+		} catch (SQLException e) {
+			Logger.error(e, "Could not retrieve registered channels");
+			return Collections.emptyList();
+		}
 	}
 
 	public String retrieveRegisteredChannelId(String guildId, String tableName) {

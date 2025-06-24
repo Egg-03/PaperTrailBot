@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
@@ -39,6 +40,13 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 		CommandData botInfo = Commands.slash("about",
 				"Provides Bot Info");
 		CommandData setup = Commands.slash("setup", "Provides a guide on setting up the bot");
+		
+		CommandData announcement = Commands.slash("announcement", "Developer Only")
+				.addOption(OptionType.STRING, "type", "Announcement Type", true)
+				.addOption(OptionType.STRING, "description", "Announcement Description", true)
+				.addOption(OptionType.STRING, "detail", "Detailed Information", true)
+				.addOption(OptionType.STRING, "extra", "Extra Notes", false);
+		
 		jda.updateCommands()
 				.addCommands(auditLogChannelRegistration,
 						auditLogChannelFetch,
@@ -48,7 +56,8 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 						messageLogChannelDeletion,
 						serverStats,
 						botInfo,
-						setup)			
+						setup,
+						announcement)			
 				.queue();
 	}
 }
