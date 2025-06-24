@@ -12,7 +12,7 @@ Key Features:
 
 > 🔐 While PaperTrail is designed to be self-hosted for maximum data ownership, a public instance is also available if preferred.
 > 
-> 📎 Invite Link: [OAuth](https://discord.com/oauth2/authorize?client_id=1381658412550590475)
+> 📎 Discovery Link: https://discord.com/discovery/applications/1381658412550590475
 
 # Self-Hosting Guide
 
