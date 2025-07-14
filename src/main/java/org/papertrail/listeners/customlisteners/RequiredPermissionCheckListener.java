@@ -54,10 +54,34 @@ public class RequiredPermissionCheckListener extends ListenerAdapter {
 				botRolePermissions.append(permission.getKey().getName()+System.lineSeparator());
 			});
 			
-			eb.addField("The following set of required permissions are granted to the bot's role: ", botRolePermissions.toString(), false);
+			eb.addField("The following set of required permissions are granted to the bot's role: "+botIntegrationRole.getAsMention(), botRolePermissions.toString(), false);
 			
 			// reset the permission status
 			requiredPermissions.entrySet().forEach(permission -> requiredPermissions.replace(permission.getKey(), false));
+						
+			guild.getGuildChannelById(event.getChannelIdLong()).getPermissionContainer().getRolePermissionOverrides().forEach(override -> {
+				if(override.getRole().equals(botIntegrationRole)) {
+					
+					override.getAllowed().forEach(allowedPermission -> {
+						if(requiredPermissions.get(allowedPermission)!=null) {
+							requiredPermissions.replace(allowedPermission, true);
+						}
+					});
+					
+					override.getDenied().forEach(deniedPermission -> {
+						if(requiredPermissions.get(deniedPermission)!=null) {
+							requiredPermissions.replace(deniedPermission, false);
+						}
+					});
+				}
+			});	
+			
+			StringBuilder channelPermissionsForBotRole = new StringBuilder();
+			requiredPermissions.entrySet().forEach(permission -> {
+				channelPermissionsForBotRole.append(Boolean.TRUE.equals(permission.getValue()) ? "✅" : "❌");
+				channelPermissionsForBotRole.append(permission.getKey().getName()+System.lineSeparator());
+			});
+			eb.addField("The following set of permission overrides are granted to the bot's role for this channel: ", channelPermissionsForBotRole.toString(), false);
 			
 			MessageEmbed mb = eb.build();
 			event.replyEmbeds(mb).queue();
