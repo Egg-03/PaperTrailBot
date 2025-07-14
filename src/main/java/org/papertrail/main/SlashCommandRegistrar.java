@@ -47,6 +47,8 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 				.addOption(OptionType.STRING, "detail", "Detailed Information", true)
 				.addOption(OptionType.STRING, "extra", "Extra Notes", false);
 		
+		CommandData permCheck = Commands.slash("permcheck", "Checks if the bot has the necessary permissions to operate");
+		
 		jda.updateCommands()
 				.addCommands(auditLogChannelRegistration,
 						auditLogChannelFetch,
@@ -57,7 +59,8 @@ public class SlashCommandRegistrar extends ListenerAdapter {
 						serverStats,
 						botInfo,
 						setup,
-						announcement)			
+						announcement,
+						permCheck)			
 				.queue();
 	}
 }
