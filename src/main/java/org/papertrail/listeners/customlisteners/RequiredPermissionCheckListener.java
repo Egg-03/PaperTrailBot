@@ -1,14 +1,13 @@
 package org.papertrail.listeners.customlisteners;
 
 import java.util.EnumMap;
-import java.util.List;
+import java.util.EnumSet;
 import java.util.Map;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -42,43 +41,38 @@ public class RequiredPermissionCheckListener extends ListenerAdapter {
 					Permission.VIEW_CHANNEL, false));
 			
 			
-			// iterate over the permissions granted to the bot's role and see if it intersects with the required permissions
-			// if intersection exists for a particular permission, change it's status to true
-			botIntegrationRole.getPermissions().forEach(permission -> {
-				if(requiredPermissions.get(permission)!=null) {
-					requiredPermissions.replace(permission, true);
-				}
-			});
-			
-			// iterate over the required permissions map and see what required permissions have been granted for the bot's integration role
-			StringBuilder botRolePermissions = new StringBuilder();
-			requiredPermissions.entrySet().forEach(permission -> {
-				botRolePermissions.append(Boolean.TRUE.equals(permission.getValue()) ? "✅" : "❌");
-				botRolePermissions.append(permission.getKey().getName()+System.lineSeparator());
-			});
-			
-			eb.addField("The following set of required permissions are granted to the bot's role: `"+botIntegrationRole.getName()+"`", botRolePermissions.toString(), false);
-			
 			GuildChannel currentChannel = guild.getGuildChannelById(event.getChannelIdLong());
 			
-			if(currentChannel!=null) {	
-				boolean botIntegrationRoleDetected = false;
-				
-				List<PermissionOverride> permissionOverrides = currentChannel.getPermissionContainer().getRolePermissionOverrides();
-				for (PermissionOverride override: permissionOverrides) {
-					if(override.getRole().equals(botIntegrationRole)) {
-						botIntegrationRoleDetected = true;
-						break;
-					}
+			if(currentChannel!=null) {
+				currentChannel
+				.getPermissionContainer()
+				.getRolePermissionOverrides()
+				.forEach(permission -> {
+					if(permission.getRole().equals(botIntegrationRole)) {
+						EnumSet<Permission> allowedPermList = permission.getAllowed();
+						EnumSet<Permission> deniedPermList = permission.getDenied();
 						
-				}
+						requiredPermissions.entrySet().forEach(p -> {
+							if(allowedPermList.contains(p.getKey())) {
+								p.setValue(true);
+							}
+							
+							if(deniedPermList.contains(p.getKey())) {
+								p.setValue(false);
+							}
+						});
+					}
+				});
 				
-				if(botIntegrationRoleDetected)
-					eb.addField("Channel "+currentChannel.getAsMention()+" has a custom override for the bot role: `"+botIntegrationRole.getName()+"`", "Check the role override to make sure the required permissions are granted", false);
-				else
-					eb.addField("⚠️ WARNING: Channel "+currentChannel.getAsMention()+" does not have any overrides for the bot role: `"+botIntegrationRole.getName()+"`", "This shouldn't be a problem if the channel is not a private channel. If it is a private channel, PaperTrail may not have access to this channel", false);
+				StringBuilder finalPermissions = new StringBuilder();
+				requiredPermissions.entrySet().forEach(permission -> {
+					finalPermissions.append(Boolean.TRUE.equals(permission.getValue()) ? "✅" : "❌");
+					finalPermissions.append(permission.getKey().getName()+System.lineSeparator());
+				});
+				
+				eb.addField("The following set of required permissions are granted to the bot in the channel: "+currentChannel.getAsMention(), finalPermissions.toString(), false);
 			}
-			
+							
 			MessageEmbed mb = eb.build();
 			event.replyEmbeds(mb).queue();
 		}
