@@ -1,5 +1,6 @@
 package org.papertrail.listeners.customlisteners;
 
+import java.awt.Color;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ public class RequiredPermissionCheckListener extends ListenerAdapter {
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("PaperTrail Permissions Checker");
 			eb.setDescription("Helps determine whether the required permissions are granted for PaperTrail to function properly");
+			eb.setColor(Color.MAGENTA);
 			
 			eb.addField("Bot Integration Role Specific Permission", (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌")+Permission.VIEW_AUDIT_LOGS.getName(), false);
 			
