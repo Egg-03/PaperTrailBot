@@ -56,6 +56,7 @@ public class ServerBoostListener extends ListenerAdapter {
 	        eb.addField("🪫 Booster Lost", "╰┈➤"+mentionableMember+" has removed their boost from your server", false);
 	        eb.addField("📉 Remaining Boosts In The Server", "╰┈➤"+guild.getBoostCount(), false);
 	        eb.addField("🎖️ Current Boost Tier", "╰┈➤"+guild.getBoostTier().toString(), false);
+	        eb.addField("Notice", "Boosts remain active for a period even after a member stops boosting, so the server's boost count doesn't update immediately.", false);
 	    }
 	    
 	    eb.setFooter("Server Boost Detection");
