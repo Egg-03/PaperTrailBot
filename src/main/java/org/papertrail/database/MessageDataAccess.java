@@ -3,9 +3,6 @@ package org.papertrail.database;
 import org.jooq.DSLContext;
 import org.papertrail.utilities.MessageEncryption;
 
-import java.util.Map;
-import java.util.Objects;
-
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectOne;
 import static org.jooq.impl.DSL.table;
@@ -31,13 +28,12 @@ public class MessageDataAccess {
                 .execute();
     }
 
-    public Map<String, String> retrieveAuthorAndMessage (String messageId) {
+    public AuthorAndMessageEntity retrieveAuthorAndMessage (String messageId) {
 
         return dsl.select(field(AUTHOR_ID_COLUMN), field(MESSAGE_CONTENT_COLUMN))
                 .from(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
                 .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
-                .fetchOne(r ->
-                        Map.of(String.valueOf(r.get(field(AUTHOR_ID_COLUMN))), Objects.requireNonNull(MessageEncryption.decrypt(String.valueOf(r.get(field(MESSAGE_CONTENT_COLUMN)))))));
+                .fetchOne(r -> new AuthorAndMessageEntity(String.valueOf(r.get(field(AUTHOR_ID_COLUMN))), MessageEncryption.decrypt(String.valueOf(r.get(field(MESSAGE_CONTENT_COLUMN))))));
     }
 
     public boolean messageExists (String messageId) {

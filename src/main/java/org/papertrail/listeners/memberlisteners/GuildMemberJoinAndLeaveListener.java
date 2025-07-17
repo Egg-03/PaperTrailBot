@@ -29,7 +29,7 @@ public class GuildMemberJoinAndLeaveListener extends ListenerAdapter {
 		// this will return a non-null text id if a channel was previously registered in
 		// the database
 		// guild member join and leave events are mapped to audit log table
-		String registeredChannelId = dc.retrieveRegisteredChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {
 			return;
@@ -62,7 +62,7 @@ public class GuildMemberJoinAndLeaveListener extends ListenerAdapter {
 		
 		// this will return a non-null text id if a channel was previously registered in
 		// the database
-		String registeredChannelId = dc.retrieveRegisteredChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {
 			return;

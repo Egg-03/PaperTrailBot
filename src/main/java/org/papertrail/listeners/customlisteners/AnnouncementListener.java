@@ -35,7 +35,8 @@ public class AnnouncementListener extends ListenerAdapter {
 			
 		if(event.getName().equals("announcement")) {
 			
-			List<String> registeredChannelList = dc.retrieveAllRegisteredChannels(TableNames.AUDIT_LOG_TABLE);
+			List<String> registeredChannelList = dc.getGuildDataAccess().retrieveAllRegisteredChannels(TableNames.AUDIT_LOG_TABLE);
+			
 			if(registeredChannelList.isEmpty()) {
 				return;
 			}

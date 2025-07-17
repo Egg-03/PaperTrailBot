@@ -1,7 +1,6 @@
 package org.papertrail.listeners.messagelisteners;
 
 import java.awt.Color;
-import java.sql.SQLException;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
@@ -61,7 +60,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		String guildId = guild.getId();
 			
-		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		
 		if(registeredChannelId!=null && !registeredChannelId.isBlank()) {
 			
@@ -79,7 +78,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 		String channelIdToRegister = event.getChannelId();
 		try {
 			// register the channel_id along with guild_id in the database
-			dc.registerGuildAndChannel(guildId, channelIdToRegister, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+			dc.getGuildDataAccess().registerGuildAndChannel(guildId, channelIdToRegister, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 			
 			eb.addField("✅ Channel Registration Success","╰┈➤"+"All edited and deleted messages will be logged here", false);
 			eb.setColor(Color.GREEN);
@@ -89,7 +88,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 			
 			eb.clearFields();
 			
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			
 			eb.addField("❌ Channel Registration Failure","╰┈➤"+"Channel could not be registered", false);
 			eb.setColor(Color.BLACK);
@@ -116,7 +115,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		String guildId = guild.getId();
 			
-		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		// if there is no channel_id for the given guild_id in the database, then inform
 		// the user of the same, else link the channel that has been registered
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {
@@ -157,7 +156,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 		Guild guild = event.getGuild();
 		String guildId = guild.getId();
 			
-		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {
 			eb.addField("ℹ️ Channel Removal", "╰┈➤"+"No channel has been registered for message logs", false);
@@ -171,7 +170,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 		} else {
 			try {
 				
-				dc.unregisterGuildAndChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+				dc.getGuildDataAccess().unregister(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 				
 				eb.addField("✅ Channel Removal", "╰┈➤"+"Channel successfully unset", false);
 				eb.setColor(Color.GREEN);
@@ -180,7 +179,7 @@ public class MessageLogCommandListener extends ListenerAdapter {
 				event.replyEmbeds(mb).setEphemeral(false).queue();
 				
 				eb.clearFields();
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				eb.addField("❌ Channel Removal Failure", "╰┈➤"+"Channel could not be unset", false);
 				eb.setColor(Color.BLACK);
 				MessageEmbed mb = eb.build();

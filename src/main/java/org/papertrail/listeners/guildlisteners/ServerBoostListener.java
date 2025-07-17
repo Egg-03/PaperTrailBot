@@ -27,7 +27,7 @@ public class ServerBoostListener extends ListenerAdapter {
 		
 		// this will return a non-null text id if a channel was previously registered in the database
 		// server boost logs are mapped to audit log table
-		String registeredChannelId=dc.retrieveRegisteredChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId=dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
 		if(registeredChannelId==null ||registeredChannelId.isBlank()) {
 			return;
