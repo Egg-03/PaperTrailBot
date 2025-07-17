@@ -73,7 +73,7 @@ public class MessageLogListener extends ListenerAdapter {
 						
 			// fetch the old message content and its author from the database
 			AuthorAndMessageEntity ame = dc.getMessageDataAccess().retrieveAuthorAndMessage(messageId);
-			if(ame.getAuthorId()==null || ame.getAuthorId().isBlank()) { // would be true only if the unedited message was not logged in the first place
+			if(ame==null || ame.getAuthorId()==null || ame.getAuthorId().isBlank()) { // would be true only if the unedited message was not logged in the first place
 				return;
 			}
 			// fetch the updated message and its author from the event			
@@ -108,7 +108,7 @@ public class MessageLogListener extends ListenerAdapter {
 			event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();							
 		} catch (Exception e) {
 			Logger.error(e, "Could not log updated message");
-			e.printStackTrace();		
+
 		}
 	}
 	
@@ -154,11 +154,10 @@ public class MessageLogListener extends ListenerAdapter {
 			
 			// send the fetched deleted message to the logging channel
 			MessageEmbed mb = eb.build();
-			event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();			
+			event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
 			
 		} catch (Exception e) {
 			Logger.error(e, "Could not delete message");
-			e.printStackTrace();
 			
 		}
 	}
