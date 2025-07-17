@@ -150,7 +150,7 @@ public class MessageLogListener extends ListenerAdapter {
 			// delete the message from the database 
 			dc.getMessageDataAccess().deleteMessage(messageId);
 			// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
-			// the bot, the error responses wouldn't block the deletion in the database.
+			// the bot, (such as no send message permissions) the exceptions wouldn't block the deletion in the database.
 			
 			// send the fetched deleted message to the logging channel
 			MessageEmbed mb = eb.build();
