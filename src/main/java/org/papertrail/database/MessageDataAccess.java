@@ -55,7 +55,7 @@ public class MessageDataAccess {
     public void deleteMessage (String messageId) {
 
         dsl.deleteFrom(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
-                .where(field(MESSAGE_ID_COLUMN).eq(messageId))
+                .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
                 .execute();
     }
 }
