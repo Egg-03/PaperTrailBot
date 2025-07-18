@@ -2,7 +2,6 @@ package org.papertrail.database;
 
 import org.jooq.DSLContext;
 import org.papertrail.utilities.MessageEncryption;
-import org.tinylog.Logger;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectOne;
@@ -26,11 +25,7 @@ public class MessageDataAccess {
                 .columns(field(MESSAGE_ID_COLUMN), field(MESSAGE_CONTENT_COLUMN), field(AUTHOR_ID_COLUMN))
                 .values(Long.parseLong(messageId), MessageEncryption.encrypt(messageContent), Long.parseLong(authorId))
                 .onConflictDoNothing()
-                .executeAsync()
-                .exceptionally(e -> {
-                    Logger.error(e, "Error logging message to the database. MessageID: {} AuthorID: {}",messageId, authorId);
-                    return null;
-                });
+                .execute();
     }
 
     public AuthorAndMessageEntity retrieveAuthorAndMessage (String messageId) {
@@ -54,21 +49,13 @@ public class MessageDataAccess {
         dsl.update(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
                 .set(field(MESSAGE_CONTENT_COLUMN), MessageEncryption.encrypt(messageContent))
                 .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
-                .executeAsync()
-                .exceptionally(e -> {
-                    Logger.error(e, "Error updating message in the database. MessageID: "+messageId);
-                    return null;
-                });
+                .execute();
     }
 
     public void deleteMessage (String messageId) {
 
         dsl.deleteFrom(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
                 .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
-                .executeAsync()
-                .exceptionally(e -> {
-                    Logger.error(e, "Error deleting message from database. MessageID: "+messageId);
-                    return null;
-                });
+                .execute();
     }
 }
