@@ -1,5 +1,5 @@
 # Importing JDK and copying required files
-FROM openjdk:24-jdk AS build
+FROM openjdk:21-jdk AS build
 WORKDIR /app
 
 # Copy Maven wrapper
@@ -16,8 +16,8 @@ COPY src ./src
 
 RUN ./mvnw clean package -DskipTests
 
-# Stage 2: Create the final Docker image using OpenJDK 24
-FROM openjdk:24-jdk
+# Stage 2: Create the final Docker image using OpenJDK 21
+FROM openjdk:21-jdk
 WORKDIR /app
 VOLUME /tmp
 
