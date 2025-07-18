@@ -67,7 +67,12 @@
     	<groupId>org.bouncycastle</groupId>
     	<artifactId>bcprov-jdk18on</artifactId>
     	<version>1.81</version>
-	</dependency>    
+	</dependency>
+	 <dependency>
+		 <groupId>com.google.guava</groupId>
+		 <artifactId>guava</artifactId>
+		 <version>33.4.8-jre</version>
+	 </dependency>
   </dependencies>
   
 <build>

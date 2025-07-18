@@ -4,7 +4,10 @@ import java.awt.Color;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 
+import com.google.common.util.concurrent.Striped;
 import org.papertrail.database.AuthorAndMessageEntity;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
@@ -16,15 +19,30 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.tinylog.Logger;
 
 public class MessageLogListener extends ListenerAdapter {
 
 	private final DatabaseConnector dc;
 	private final Executor vThreadPool;
+	private final Striped<Lock> messageLocks = Striped.lock(8192);
+	private final AtomicLong activeLockCount = new AtomicLong(0);
 
 	public MessageLogListener(DatabaseConnector dc, Executor vThreadPool) {
 		this.dc = dc;
 		this.vThreadPool = vThreadPool;
+	}
+
+	private void withMessageLock (String messageId, Runnable task) {
+		Lock lock = messageLocks.get(messageId);
+		lock.lock();
+		Logger.info("Lock acquired for message id: {} . Active lock count: {}", messageId, activeLockCount.incrementAndGet());
+		try{
+			task.run();
+		} finally {
+			lock.unlock();
+			Logger.info("Lock released for message id: {} . Active lock count: {}", messageId, activeLockCount.decrementAndGet());
+		}
 	}
 	
 	@Override
@@ -49,9 +67,10 @@ public class MessageLogListener extends ListenerAdapter {
 		}
 
 		// else if the registered guild id matches with the event fetched guild id, log the message with its ID and author
-		vThreadPool.execute(()->
-			dc.getMessageDataAccess().logMessage(event.getMessageId(), event.getMessage().getContentRaw(), event.getAuthor().getId())
-		);
+		vThreadPool.execute(()-> {
+			String messageId = event.getMessageId();
+			withMessageLock(messageId, ()-> dc.getMessageDataAccess().logMessage(messageId, event.getMessage().getContentRaw(), event.getAuthor().getId()));
+		});
 
 
 	}
@@ -97,7 +116,7 @@ public class MessageLogListener extends ListenerAdapter {
 			eb.setFooter(event.getGuild().getName());
 			eb.setTimestamp(Instant.now());
 			// update the database with the new message
-			dc.getMessageDataAccess().updateMessage(messageId, updatedMessage);
+			withMessageLock(messageId, ()->dc.getMessageDataAccess().updateMessage(messageId, updatedMessage));
 			// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
 			// the bot, the error responses wouldn't block the update of the message in the database.
 
@@ -146,7 +165,7 @@ public class MessageLogListener extends ListenerAdapter {
 			eb.setTimestamp(Instant.now());
 
 			// delete the message from the database
-			dc.getMessageDataAccess().deleteMessage(messageId);
+			withMessageLock(messageId, ()->dc.getMessageDataAccess().deleteMessage(messageId));
 			// the reason this is above the send queue is because in case where the user did not give sufficient permissions to
 			// the bot, (such as no send message permissions) the exceptions wouldn't block the deletion in the database.
 
