@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Executor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
 import org.papertrail.utilities.ColorFormatter;
@@ -35,24 +37,28 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class AuditLogListener extends ListenerAdapter{
 
-	private DatabaseConnector dc;
+	private final Executor vThreadPool;
+	private final DatabaseConnector dc;
 
-	public AuditLogListener(DatabaseConnector dc) {
+	public AuditLogListener(DatabaseConnector dc, Executor vThreadPool) {
 		this.dc=dc;
+		this.vThreadPool = vThreadPool;
 	}
 
 	@Override
-	public void onGuildAuditLogEntryCreate(GuildAuditLogEntryCreateEvent event) {
+	public void onGuildAuditLogEntryCreate(@NotNull GuildAuditLogEntryCreateEvent event) {
 
-		// this will return a non-null text id if a channel was previously registered in the database
-		String registeredChannelId=dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		vThreadPool.execute(()->{
+			// this will return a non-null text id if a channel was previously registered in the database
+			String registeredChannelId=dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
-		if(registeredChannelId==null ||registeredChannelId.isBlank()) {
-			return;
-		}
+			if(registeredChannelId==null ||registeredChannelId.isBlank()) {
+				return;
+			}
 
-		AuditLogEntry ale = event.getEntry();
-		auditLogParser(event, ale, registeredChannelId);
+			AuditLogEntry ale = event.getEntry();
+			auditLogParser(event, ale, registeredChannelId);
+		});
 	}
 
 	private void auditLogParser(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {

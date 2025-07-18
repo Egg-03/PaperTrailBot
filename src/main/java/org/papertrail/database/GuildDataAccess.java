@@ -8,8 +8,9 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectOne;
 import static org.jooq.impl.DSL.table;
 
+// TODO Add logging
 public class GuildDataAccess {
-	
+
 	private final DSLContext dsl;
 	
 	private static final String GUILD_ID_COLUMN = "guild_id";

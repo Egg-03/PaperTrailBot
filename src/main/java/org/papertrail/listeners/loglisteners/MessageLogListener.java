@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import org.papertrail.database.AuthorAndMessageEntity;
 import org.papertrail.database.DatabaseConnector;
@@ -20,12 +19,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class MessageLogListener extends ListenerAdapter {
 
-	private final Executor vThreadPool = Executors.newVirtualThreadPerTaskExecutor();
-
 	private final DatabaseConnector dc;
-	public MessageLogListener(DatabaseConnector dc) {
+	private final Executor vThreadPool;
+
+	public MessageLogListener(DatabaseConnector dc, Executor vThreadPool) {
 		this.dc = dc;
-		
+		this.vThreadPool = vThreadPool;
 	}
 	
 	@Override

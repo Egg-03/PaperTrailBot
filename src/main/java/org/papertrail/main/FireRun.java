@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.Security;
 import java.sql.SQLException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -30,7 +32,10 @@ import com.sun.net.httpserver.HttpServer;
  * The main class of the bot
  */
 public class FireRun {
-	
+
+	// All I/O blocking operations run inside the vThreadPool
+	private static final Executor vThreadPool = Executors.newVirtualThreadPerTaskExecutor();
+
 	// Register Bouncy Castle as a security provider
 	// Required for the PBEWITHSHA256AND256BITAES-CBC-BC encryption algorithm
 	private static void registerBouncyCastle() {	
@@ -51,15 +56,15 @@ public class FireRun {
 		ShardManager manager = ci.getManager();
 
 		manager.addEventListener(new AuditLogSetupCommandListener(dc));
-		manager.addEventListener(new AuditLogListener(dc));
+		manager.addEventListener(new AuditLogListener(dc, vThreadPool));
 
 		manager.addEventListener(new MessageLogSetupCommandListener(dc));
-		manager.addEventListener(new MessageLogListener(dc));
+		manager.addEventListener(new MessageLogListener(dc, vThreadPool));
 
-		manager.addEventListener(new GuildVoiceListener(dc));
-		manager.addEventListener(new GuildMemberJoinAndLeaveListener(dc));
-		manager.addEventListener(new ServerBoostListener(dc));
-		manager.addEventListener(new BotKickListener(dc));
+		manager.addEventListener(new GuildVoiceListener(dc, vThreadPool));
+		manager.addEventListener(new GuildMemberJoinAndLeaveListener(dc, vThreadPool));
+		manager.addEventListener(new ServerBoostListener(dc, vThreadPool));
+		manager.addEventListener(new BotKickListener(dc, vThreadPool));
 
 		manager.addEventListener(new ServerStatCommandListener());
 		manager.addEventListener(new BotInfoCommandListener());
