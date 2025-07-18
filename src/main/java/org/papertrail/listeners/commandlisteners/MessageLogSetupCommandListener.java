@@ -1,4 +1,4 @@
-package org.papertrail.listeners.messagelisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
 
@@ -15,12 +15,12 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class MessageLogCommandListener extends ListenerAdapter {
+public class MessageLogSetupCommandListener extends ListenerAdapter {
 	
 	private DatabaseConnector dc;
 	private final EmbedBuilder eb = new EmbedBuilder();
 
-	public MessageLogCommandListener(DatabaseConnector dc) {
+	public MessageLogSetupCommandListener(DatabaseConnector dc) {
 		this.dc = dc;
 		eb.setTitle("📝 Message Log Configuration");
 		eb.setColor(Color.CYAN);

@@ -1,4 +1,4 @@
-package org.papertrail.listeners.customlisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
 import java.util.EnumMap;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class RequiredPermissionCheckListener extends ListenerAdapter {
+public class RequiredPermissionCheckCommandListener extends ListenerAdapter {
 	
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {

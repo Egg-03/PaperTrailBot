@@ -5,20 +5,21 @@ import java.net.InetSocketAddress;
 import java.security.Security;
 import java.sql.SQLException;
 
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.papertrail.cleanup.BotKickListener;
 import org.papertrail.database.DatabaseConnector;
-import org.papertrail.listeners.customlisteners.AnnouncementListener;
-import org.papertrail.listeners.customlisteners.BotInfoListener;
-import org.papertrail.listeners.customlisteners.ServerStatListener;
-import org.papertrail.listeners.customlisteners.BotSetupListener;
-import org.papertrail.listeners.customlisteners.RequiredPermissionCheckListener;
+import org.papertrail.listeners.commandlisteners.AnnouncementCommandListener;
+import org.papertrail.listeners.commandlisteners.BotInfoCommandListener;
+import org.papertrail.listeners.commandlisteners.ServerStatCommandListener;
+import org.papertrail.listeners.commandlisteners.BotSetupCommandListener;
+import org.papertrail.listeners.commandlisteners.RequiredPermissionCheckCommandListener;
 import org.papertrail.listeners.guildlisteners.ServerBoostListener;
 import org.papertrail.listeners.loglisteners.AuditLogListener;
-import org.papertrail.listeners.loglisteners.AuditLogCommandListener;
+import org.papertrail.listeners.commandlisteners.AuditLogSetupCommandListener;
 import org.papertrail.listeners.memberlisteners.GuildMemberJoinAndLeaveListener;
-import org.papertrail.listeners.messagelisteners.MessageLogCommandListener;
-import org.papertrail.listeners.messagelisteners.MessageLogListener;
+import org.papertrail.listeners.commandlisteners.MessageLogSetupCommandListener;
+import org.papertrail.listeners.loglisteners.MessageLogListener;
 import org.papertrail.listeners.voicelisteners.GuildVoiceListener;
 import org.tinylog.Logger;
 
@@ -47,20 +48,24 @@ public class FireRun {
 		DatabaseConnector dc = new DatabaseConnector();
 		
 		ConnectionInitializer ci = new ConnectionInitializer();
-		ci.getManager().addEventListener(new AuditLogCommandListener(dc));
-		ci.getManager().addEventListener(new AuditLogListener(dc));
-		ci.getManager().addEventListener(new GuildVoiceListener(dc));
-		ci.getManager().addEventListener(new GuildMemberJoinAndLeaveListener(dc));
-		ci.getManager().addEventListener(new ServerBoostListener(dc));
-		ci.getManager().addEventListener(new BotKickListener(dc));
-		ci.getManager().addEventListener(new MessageLogCommandListener(dc));
-		ci.getManager().addEventListener(new MessageLogListener(dc));
-		
-		ci.getManager().addEventListener(new ServerStatListener());
-		ci.getManager().addEventListener(new BotInfoListener());
-		ci.getManager().addEventListener(new BotSetupListener());
-		ci.getManager().addEventListener(new AnnouncementListener(dc));
-		ci.getManager().addEventListener(new RequiredPermissionCheckListener());
+		ShardManager manager = ci.getManager();
+
+		manager.addEventListener(new AuditLogSetupCommandListener(dc));
+		manager.addEventListener(new AuditLogListener(dc));
+
+		manager.addEventListener(new MessageLogSetupCommandListener(dc));
+		manager.addEventListener(new MessageLogListener(dc));
+
+		manager.addEventListener(new GuildVoiceListener(dc));
+		manager.addEventListener(new GuildMemberJoinAndLeaveListener(dc));
+		manager.addEventListener(new ServerBoostListener(dc));
+		manager.addEventListener(new BotKickListener(dc));
+
+		manager.addEventListener(new ServerStatCommandListener());
+		manager.addEventListener(new BotInfoCommandListener());
+		manager.addEventListener(new BotSetupCommandListener());
+		manager.addEventListener(new AnnouncementCommandListener(dc));
+		manager.addEventListener(new RequiredPermissionCheckCommandListener());
 		
 		/*
 		 * This is required only to set up a cron-job to periodically ping this end-point so that

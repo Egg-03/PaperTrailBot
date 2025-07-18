@@ -1,4 +1,4 @@
-package org.papertrail.listeners.customlisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -17,11 +17,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-public class AnnouncementListener extends ListenerAdapter {
+public class AnnouncementCommandListener extends ListenerAdapter {
 	
 	private final DatabaseConnector dc;
 	
-	public AnnouncementListener(DatabaseConnector dc) {
+	public AnnouncementCommandListener(DatabaseConnector dc) {
 		this.dc = dc;
 	}
 

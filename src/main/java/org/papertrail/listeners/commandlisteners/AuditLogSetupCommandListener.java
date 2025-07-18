@@ -1,4 +1,4 @@
-package org.papertrail.listeners.loglisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
 
@@ -14,12 +14,12 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class AuditLogCommandListener extends ListenerAdapter {
+public class AuditLogSetupCommandListener extends ListenerAdapter {
 
 	private DatabaseConnector dc;
 	
 
-	public AuditLogCommandListener(DatabaseConnector dc) {
+	public AuditLogSetupCommandListener(DatabaseConnector dc) {
 		this.dc = dc;	
 	}
 
