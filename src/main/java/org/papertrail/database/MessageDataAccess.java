@@ -6,7 +6,7 @@ import org.papertrail.utilities.MessageEncryption;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectOne;
 import static org.jooq.impl.DSL.table;
-// TODO Add Logging
+
 public class MessageDataAccess {
 
     private final DSLContext dsl;
