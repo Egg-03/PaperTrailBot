@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
  */
 public class ActivityUpdateListener extends ListenerAdapter {
 
-	private ShardManager manager;
+	private final ShardManager manager;
 
 	public ActivityUpdateListener(ShardManager manager) {
 		this.manager = manager;

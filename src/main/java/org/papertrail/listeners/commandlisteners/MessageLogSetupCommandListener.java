@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class MessageLogSetupCommandListener extends ListenerAdapter {
 	
-	private DatabaseConnector dc;
+	private final DatabaseConnector dc;
 	private final EmbedBuilder eb = new EmbedBuilder();
 
 	public MessageLogSetupCommandListener(DatabaseConnector dc) {

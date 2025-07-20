@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class AuditLogSetupCommandListener extends ListenerAdapter {
 
-	private DatabaseConnector dc;
+	private final DatabaseConnector dc;
 	
 
 	public AuditLogSetupCommandListener(DatabaseConnector dc) {
