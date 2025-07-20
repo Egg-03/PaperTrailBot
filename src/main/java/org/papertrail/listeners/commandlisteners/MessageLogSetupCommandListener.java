@@ -1,6 +1,7 @@
 package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
+import java.util.Objects;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
@@ -58,7 +59,7 @@ public class MessageLogSetupCommandListener extends ListenerAdapter {
 		}
 		
 		Guild guild = event.getGuild();
-		String guildId = guild.getId();
+		String guildId = Objects.requireNonNull(guild).getId();
 			
 		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		
@@ -113,7 +114,7 @@ public class MessageLogSetupCommandListener extends ListenerAdapter {
 		}
 		
 		Guild guild = event.getGuild();
-		String guildId = guild.getId();
+		String guildId = Objects.requireNonNull(guild).getId();
 			
 		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		// if there is no channel_id for the given guild_id in the database, then inform
@@ -154,7 +155,7 @@ public class MessageLogSetupCommandListener extends ListenerAdapter {
 		}
 		
 		Guild guild = event.getGuild();
-		String guildId = guild.getId();
+		String guildId = Objects.requireNonNull(guild).getId();
 			
 		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
 		

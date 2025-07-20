@@ -3,6 +3,7 @@ package org.papertrail.listeners.commandlisteners;
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.papertrail.utilities.DurationFormatter;
 
@@ -22,11 +23,12 @@ public class ServerStatCommandListener extends ListenerAdapter{
 		if(event.getName().equals("stats")) {
 			
 			Guild guild = event.getGuild();
-			
-			List<Member> members = guild.getMemberCache().asList();
-			Integer botCount = 0;
-			Integer userCount = 0;
-			Integer onlineUserCount = 0;
+
+            assert guild != null;
+            List<Member> members = Objects.requireNonNull(guild).getMemberCache().asList();
+			int botCount = 0;
+			int userCount = 0;
+			int onlineUserCount = 0;
 			for(Member member: members) {
 				if(member.getUser().isBot()) {
 					botCount++;
@@ -48,7 +50,7 @@ public class ServerStatCommandListener extends ListenerAdapter{
 			eb.setColor(Color.PINK);
 			
 			eb.addField("🏠 Guild Name", "╰┈➤"+guild.getName(), false);
-			eb.addField("👑 Guild Owner", "╰┈➤"+guild.getMemberById(guild.getOwnerId()).getAsMention(), false);
+			eb.addField("👑 Guild Owner", "╰┈➤"+ Objects.requireNonNull(guild.getMemberById(guild.getOwnerId())).getAsMention(), false);
 			eb.addField("📅 Guild Created On", "╰┈➤"+DurationFormatter.isoToLocalTimeCounter(guild.getTimeCreated()), false);
 			eb.addField("🔗 Guild Vanity URL", "╰┈➤"+(guild.getVanityUrl() !=null ? guild.getVanityUrl() : "Not Set"), false);
 			
@@ -64,7 +66,7 @@ public class ServerStatCommandListener extends ListenerAdapter{
 			eb.addField("🚀 Guild Boosters ", "╰┈➤"+mentionableBoosters, false);
 			eb.addField("💖 Guild Boost Count", "╰┈➤"+guild.getBoostCount(), false);
 			eb.addField("📎 Booster Role", "╰┈➤"+(guild.getBoostRole() !=null ? guild.getBoostRole().getAsMention() : "No Boost Role Found"), false);
-			eb.addField("🗼 Boost Tier", "╰┈➤"+guild.getBoostTier().toString(), false);
+			eb.addField("🗼 Boost Tier", "╰┈➤"+ guild.getBoostTier(), false);
 			
 			eb.addField("🌐 Locale", "╰┈➤"+guild.getLocale().getNativeName(), true);
 			eb.addField("🔒 Verification", "╰┈➤"+guild.getVerificationLevel().name(), true);
@@ -73,7 +75,7 @@ public class ServerStatCommandListener extends ListenerAdapter{
 			eb.addField("💬 Text Channels", "╰┈➤"+guild.getTextChannels().size(), true);
 			eb.addField("🔊 Voice Channels", "╰┈➤"+guild.getVoiceChannels().size(), true);
 
-			eb.addField("📋 Data Requested By", "╰┈➤"+event.getMember().getAsMention(), false);
+			eb.addField("📋 Data Requested By", "╰┈➤"+ Objects.requireNonNull(event.getMember()).getAsMention(), false);
 			eb.setFooter("📋 Stats By: PaperTrail 📋");
 			eb.setTimestamp(Instant.now());
 			

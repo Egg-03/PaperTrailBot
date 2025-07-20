@@ -1,6 +1,7 @@
 package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
+import java.util.Objects;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
@@ -55,7 +56,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 			return;
 		}
 			
-		String guildId = event.getGuild().getId();
+		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 		// retrieve the previously registered channel_id associated with the given
 		// guild_id
 		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
@@ -114,7 +115,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 			return;
 		}
 		
-		String guildId = event.getGuild().getId();
+		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 
 		// retrieve the channel_id registered in the database
 		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
@@ -164,7 +165,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 			return;
 		}
 		
-		String guildId = event.getGuild().getId();
+		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
 
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {

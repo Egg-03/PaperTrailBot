@@ -2,6 +2,7 @@ package org.papertrail.listeners.voicelisteners;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +72,7 @@ public class GuildVoiceListener extends ListenerAdapter {
 
 			MessageEmbed mb = eb.build();
 
-			event.getGuild().getTextChannelById(registeredChannelId).sendMessageEmbeds(mb).queue();
+			Objects.requireNonNull(event.getGuild().getTextChannelById(registeredChannelId)).sendMessageEmbeds(mb).queue();
 		});
 	}
 }

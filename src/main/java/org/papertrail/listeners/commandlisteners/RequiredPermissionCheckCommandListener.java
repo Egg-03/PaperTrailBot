@@ -25,15 +25,17 @@ public class RequiredPermissionCheckCommandListener extends ListenerAdapter {
 			Guild guild = event.getGuild();
 					
 			SelfUser botAsUser = event.getJDA().getSelfUser();
-			Role botIntegrationRole = guild.getRoleByBot(botAsUser);
+            assert guild != null;
+            Role botIntegrationRole = guild.getRoleByBot(botAsUser);
 			Member botMember = guild.getMember(botAsUser);
 			
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("PaperTrail Permissions Checker");
 			eb.setDescription("Helps determine whether the required permissions are granted for PaperTrail to function properly");
 			eb.setColor(Color.MAGENTA);
-			
-			eb.addField("Bot Integration Role Specific Permission", (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌")+Permission.VIEW_AUDIT_LOGS.getName(), false);
+
+            assert botIntegrationRole != null;
+            eb.addField("Bot Integration Role Specific Permission", (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌")+Permission.VIEW_AUDIT_LOGS.getName(), false);
 			
 			// create a map of required permissions and set all their statuses to false
 			Map<Permission, Boolean> requiredPermissions = new EnumMap<>(Permission.class);
@@ -57,10 +59,10 @@ public class RequiredPermissionCheckCommandListener extends ListenerAdapter {
 				});
 				
 				StringBuilder finalPermissions = new StringBuilder();
-				requiredPermissions.entrySet().forEach(permission -> {
-					finalPermissions.append(Boolean.TRUE.equals(permission.getValue()) ? "✅" : "❌");
-					finalPermissions.append(permission.getKey().getName()+System.lineSeparator());
-				});
+				requiredPermissions.forEach((key, value) -> {
+                    finalPermissions.append(Boolean.TRUE.equals(value) ? "✅" : "❌");
+                    finalPermissions.append(key.getName()).append(System.lineSeparator());
+                });
 				
 				
 				eb.addField("Channel Specific Permissions: "+currentChannel.getAsMention(), finalPermissions.toString(), false);

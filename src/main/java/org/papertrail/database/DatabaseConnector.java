@@ -1,7 +1,5 @@
 package org.papertrail.database;
 
-import java.sql.SQLException;
-
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -16,7 +14,7 @@ public class DatabaseConnector {
 	private static HikariDataSource dataSource;
 	private final DSLContext dsl;
 
-	public DatabaseConnector() throws SQLException {
+	public DatabaseConnector() {
 		initializeDataSource();
 		this.dsl = DSL.using(dataSource, SQLDialect.POSTGRES);
 	}

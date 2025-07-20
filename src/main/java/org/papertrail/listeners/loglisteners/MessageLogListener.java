@@ -93,7 +93,7 @@ public class MessageLogListener extends ListenerAdapter {
 
 			// fetch the old message content and its author from the database
 			AuthorAndMessageEntity ame = dc.getMessageDataAccess().retrieveAuthorAndMessage(messageId);
-			if(ame==null || ame.getAuthorId()==null || ame.getAuthorId().isBlank()) { // would be true only if the unedited message was not logged in the first place
+			if(ame==null || ame.authorId()==null || ame.authorId().isBlank()) { // would be true only if the unedited message was not logged in the first place
 				return;
 			}
 			// fetch the updated message and its author from the event
@@ -101,7 +101,7 @@ public class MessageLogListener extends ListenerAdapter {
 
 			// Ignore events where the message content wasn't edited (e.g., pin, embed resolve, thread creates and updates)
 			// This is required since MessageUpdateEvent is triggered in case of pins and embed resolves with no change to content
-			if(updatedMessage.equals(ame.getMessageContent())) {
+			if(updatedMessage.equals(ame.messageContent())) {
 				return;
 			}
 
@@ -110,7 +110,7 @@ public class MessageLogListener extends ListenerAdapter {
 			eb.setDescription("A message sent by "+event.getAuthor().getAsMention()+" has been edited in: "+event.getJumpUrl());
 			eb.setColor(Color.YELLOW);
 
-			eb.addField("Old Message", ame.getMessageContent(), false); // get only the message and not the author
+			eb.addField("Old Message", ame.messageContent(), false); // get only the message and not the author
 			eb.addField("New Message", updatedMessage, false);
 
 			eb.setFooter(event.getGuild().getName());
@@ -152,14 +152,14 @@ public class MessageLogListener extends ListenerAdapter {
 			// retrieve the stored message in the database which was deleted
 			AuthorAndMessageEntity ame = dc.getMessageDataAccess().retrieveAuthorAndMessage(messageId);
 
-			User author = event.getJDA().getUserById(ame.getAuthorId());
-			String mentionableAuthor = (author !=null ? author.getAsMention() : ame.getAuthorId());
+			User author = event.getJDA().getUserById(ame.authorId());
+			String mentionableAuthor = (author !=null ? author.getAsMention() : ame.authorId());
 
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("🗑️ Message Delete Event");
 			eb.setDescription("A message sent by "+mentionableAuthor+" has been deleted");
 			eb.setColor(Color.RED);
-			eb.addField("Deleted Message", ame.getMessageContent(), false);
+			eb.addField("Deleted Message", ame.messageContent(), false);
 
 			eb.setFooter(event.getGuild().getName());
 			eb.setTimestamp(Instant.now());

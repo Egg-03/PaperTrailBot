@@ -3,7 +3,6 @@ package org.papertrail.main;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.Security;
-import java.sql.SQLException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -46,7 +45,7 @@ public class FireRun {
 		}
 	}
 
-	public static void main(String[] args) throws IOException, SQLException {
+	public static void main(String[] args) throws IOException {
 		
 		registerBouncyCastle();
 		

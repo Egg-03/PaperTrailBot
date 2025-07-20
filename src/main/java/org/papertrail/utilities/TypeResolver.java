@@ -157,7 +157,7 @@ public class TypeResolver {
 		}
 
 		try {
-			Integer t = Integer.parseInt(type.toString());
+			int t = Integer.parseInt(type.toString());
 			return switch (t) {
 			case 0 -> "NONE";
 			case 1 -> "LOW (Verified Email)";
@@ -178,7 +178,7 @@ public class TypeResolver {
 		}
 
 		try {
-			Integer t = Integer.parseInt(type.toString());
+			int t = Integer.parseInt(type.toString());
 			return switch (t) {
 			case 0 -> "No Filter";
 			case 1 -> "Filter Messages From Server Members Without Roles";
@@ -197,7 +197,7 @@ public class TypeResolver {
 		}
 
 		try {
-			Integer t = Integer.parseInt(type.toString());
+			int t = Integer.parseInt(type.toString());
 			return switch (t) {
 			case 1 -> "Stage Event";
 			case 2 -> "Voice Event";
@@ -216,7 +216,7 @@ public class TypeResolver {
 		}
 
 		try {
-			Integer t = Integer.parseInt(type.toString());
+			int t = Integer.parseInt(type.toString());
 			return switch (t) {
 			case 1 -> "Scheduled";
 			case 2 -> "Active";

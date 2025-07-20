@@ -3,6 +3,7 @@ package org.papertrail.listeners.commandlisteners;
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
@@ -42,12 +43,12 @@ public class AnnouncementCommandListener extends ListenerAdapter {
 			}
 			
 			EmbedBuilder eb = new EmbedBuilder(); 
-			eb.setTitle("📣 " +ProjectInfo.APPNAME+" Announcement: "+event.getOption("type").getAsString());
-			eb.setDescription("📝 " +event.getOption("description").getAsString());
+			eb.setTitle("📣 " +ProjectInfo.APPNAME+" Announcement: "+ Objects.requireNonNull(event.getOption("type")).getAsString());
+			eb.setDescription("📝 " + Objects.requireNonNull(event.getOption("description")).getAsString());
 			eb.setThumbnail(AuthorInfo.AUTHOR_AVATAR_URL);
 			eb.setColor(Color.WHITE);
 						
-			eb.addField("🏷️ Detail", "╰┈➤"+event.getOption("detail").getAsString(), false);
+			eb.addField("🏷️ Detail", "╰┈➤"+ Objects.requireNonNull(event.getOption("detail")).getAsString(), false);
 			OptionMapping extra = event.getOption("extra");
 			if(extra!=null) {
 				eb.addField("🏷️ Extras", "╰┈➤"+extra.getAsString(), false);
@@ -62,7 +63,7 @@ public class AnnouncementCommandListener extends ListenerAdapter {
 			for(String registeredChannel: registeredChannelList) {
 				TextChannel channelToSendTo = event.getJDA().getTextChannelById(registeredChannel);
 				if(channelToSendTo!=null) {
-					event.getJDA().getTextChannelById(registeredChannel).sendMessageEmbeds(mb).queue(); // TODO implement rate-limitation beyond JDA's system
+					Objects.requireNonNull(event.getJDA().getTextChannelById(registeredChannel)).sendMessageEmbeds(mb).queue(); // TODO implement rate-limitation beyond JDA's system
 				}	
 			}
 		}		
