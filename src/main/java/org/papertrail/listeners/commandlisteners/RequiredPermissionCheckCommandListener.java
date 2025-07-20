@@ -35,7 +35,13 @@ public class RequiredPermissionCheckCommandListener extends ListenerAdapter {
 			eb.setColor(Color.MAGENTA);
 
             assert botIntegrationRole != null;
-            eb.addField("Bot Integration Role Specific Permission", (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌")+Permission.VIEW_AUDIT_LOGS.getName(), false);
+            String botRoleRequiredPermissions = (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌") +
+                    Permission.VIEW_AUDIT_LOGS.getName() +
+                    System.lineSeparator() +
+                    (botIntegrationRole.hasPermission(Permission.MANAGE_SERVER) ? "✅" : "❌") +
+                    Permission.MANAGE_SERVER.getName();
+
+            eb.addField("Bot Integration Role Specific Permission", botRoleRequiredPermissions, false);
 			
 			// create a map of required permissions and set all their statuses to false
 			Map<Permission, Boolean> requiredPermissions = new EnumMap<>(Permission.class);
