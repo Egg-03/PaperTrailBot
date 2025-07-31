@@ -1,6 +1,10 @@
 package org.papertrail.database;
 
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
+
+import static org.jooq.impl.DSL.constraint;
 
 public class Schema {
 	
@@ -23,51 +27,41 @@ public class Schema {
 
 	public static void initializeSchema(DSLContext dsl) {
 
-		String createSchema = String.format("""
-				CREATE SCHEMA IF NOT EXISTS %s;
-				""", SCHEMA_NAME);
+		dsl.createSchemaIfNotExists(SCHEMA_NAME).execute();
 
-		dsl.execute(createSchema);
+		// create audit log table
+		dsl.createTableIfNotExists(AUDIT_LOG_TABLE)
+				.column(GUILD_ID_COLUMN, SQLDataType.BIGINT.notNull())
+				.column(CHANNEL_ID_COLUMN, SQLDataType.BIGINT.notNull())
+				.constraints(
+						constraint(AUDIT_LOG_TABLE+"_pk").primaryKey(GUILD_ID_COLUMN),
+						constraint(AUDIT_LOG_TABLE+"_unique").unique(CHANNEL_ID_COLUMN)
+				)
+				.execute();
 
-		String createAuditLogTable = String.format("""
-				CREATE TABLE IF NOT EXISTS %s.%s (
-					%s int8 NOT NULL,
-					%s int8 NOT NULL,
-					CONSTRAINT %s_pk PRIMARY KEY (%s),
-					CONSTRAINT %s_unique UNIQUE (%s)
-				);
-				""", SCHEMA_NAME, AUDIT_LOG_TABLE, GUILD_ID_COLUMN, CHANNEL_ID_COLUMN,
-					 AUDIT_LOG_TABLE, GUILD_ID_COLUMN,
-					 AUDIT_LOG_TABLE, CHANNEL_ID_COLUMN);
+		// create message log registration table
+		dsl.createTableIfNotExists(MESSAGE_LOG_REGISTRATION_TABLE)
+				.column(GUILD_ID_COLUMN, SQLDataType.BIGINT.notNull())
+				.column(CHANNEL_ID_COLUMN, SQLDataType.BIGINT.notNull())
+				.constraints(
+						constraint(MESSAGE_LOG_REGISTRATION_TABLE+"_pk").primaryKey(GUILD_ID_COLUMN),
+						constraint(MESSAGE_LOG_REGISTRATION_TABLE+"_unique").unique(CHANNEL_ID_COLUMN)
+				).execute();
 
-		dsl.execute(createAuditLogTable);
+		// create message log content table
+		dsl.createTableIfNotExists(MESSAGE_LOG_CONTENT_TABLE)
+				.column(MESSAGE_ID_COLUMN, SQLDataType.BIGINT.notNull())
+				.column(MESSAGE_CONTENT_COLUMN, SQLDataType.CLOB.nullable(true))
+				.column(AUTHOR_ID_COLUMN, SQLDataType.BIGINT.notNull())
+				.column("created_at", SQLDataType.TIMESTAMP.default_(DSL.currentTimestamp()).notNull())
+				.constraints(
+						constraint(MESSAGE_LOG_CONTENT_TABLE+"pk").primaryKey(MESSAGE_ID_COLUMN)
+				)
+				.execute();
+		// create index on created_at column
+		dsl.createIndexIfNotExists(MESSAGE_LOG_CONTENT_TABLE+"_created_at_idx")
+				.on(MESSAGE_LOG_CONTENT_TABLE, "created_at")
+				.execute();
 
-		String createMessageLogRegistrationTable = String.format("""
-				CREATE TABLE IF NOT EXISTS %s.%s (
-					%s int8 NOT NULL,
-					%s int8 NOT NULL,
-					CONSTRAINT %s_pk PRIMARY KEY (%s),
-					CONSTRAINT %s_unique UNIQUE (%s)
-				);
-				""", SCHEMA_NAME, MESSAGE_LOG_REGISTRATION_TABLE, GUILD_ID_COLUMN, CHANNEL_ID_COLUMN,
-					 MESSAGE_LOG_REGISTRATION_TABLE, GUILD_ID_COLUMN,
-					 MESSAGE_LOG_REGISTRATION_TABLE, CHANNEL_ID_COLUMN);
-
-		dsl.execute(createMessageLogRegistrationTable);
-
-		String createMessageLogContentTable = String.format("""
-				CREATE TABLE IF NOT EXISTS %s.%s (
-					%s int8 NOT NULL,
-					%s text NULL,
-					%s int8 NOT NULL,
-					created_at timestamp DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text) NOT NULL,
-					CONSTRAINT %s_pk PRIMARY KEY (%s)
-				);
-				CREATE INDEX IF NOT EXISTS %s_created_at_idx ON %s.%s USING btree (created_at);
-				""", SCHEMA_NAME, MESSAGE_LOG_CONTENT_TABLE, MESSAGE_ID_COLUMN, MESSAGE_CONTENT_COLUMN, AUTHOR_ID_COLUMN,
-					 MESSAGE_LOG_CONTENT_TABLE, MESSAGE_ID_COLUMN,
-					 MESSAGE_LOG_CONTENT_TABLE, SCHEMA_NAME, MESSAGE_LOG_CONTENT_TABLE);
-
-		dsl.execute(createMessageLogContentTable);
 	}
 }

@@ -41,7 +41,8 @@ public class DatabaseConnector {
 			dataSource.setConnectionTimeout(30000); // 30 seconds
 			dataSource.setIdleTimeout(600000); // 10 minutes
 			dataSource.setMaxLifetime(1800000); // 30 minutes	
-			dataSource.setPoolName("PaperTrailPool");	
+			dataSource.setPoolName("PaperTrailPool");
+			dataSource.setConnectionInitSql("SET TIME ZONE 'UTC'");
 		}
 		// Ensure the data source is closed on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
