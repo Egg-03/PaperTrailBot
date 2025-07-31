@@ -69,7 +69,7 @@ public class Schema {
 	private static void setupCronDeletion(DSLContext dsl) {
 		dsl.query("CREATE EXTENSION IF NOT EXISTS pg_cron;").execute();
 
-		String deleteQuery = String.format("""
+		String cronScheduleQuery = String.format("""
 				SELECT cron.schedule(
 				  'daily_log_cleanup',
 				  '0 2 * * *',  -- 2:00 AM UTC daily
@@ -77,7 +77,7 @@ public class Schema {
 				);
 				""", MESSAGE_LOG_CONTENT_TABLE);
 
-		dsl.query(deleteQuery).execute();
+		dsl.query(cronScheduleQuery).execute();
 
 	}
 }
