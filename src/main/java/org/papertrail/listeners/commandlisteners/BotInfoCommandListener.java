@@ -1,4 +1,4 @@
-package org.papertrail.listeners.customlisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class BotInfoListener extends ListenerAdapter {
+public class BotInfoCommandListener extends ListenerAdapter {
 	
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {

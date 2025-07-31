@@ -1,12 +1,13 @@
 package org.papertrail.listeners.loglisteners;
 
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
 import org.papertrail.utilities.ColorFormatter;
@@ -35,24 +36,28 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class AuditLogListener extends ListenerAdapter{
 
-	private DatabaseConnector dc;
+	private final Executor vThreadPool;
+	private final DatabaseConnector dc;
 
-	public AuditLogListener(DatabaseConnector dc) {
+	public AuditLogListener(DatabaseConnector dc, Executor vThreadPool) {
 		this.dc=dc;
+		this.vThreadPool = vThreadPool;
 	}
 
 	@Override
-	public void onGuildAuditLogEntryCreate(GuildAuditLogEntryCreateEvent event) {
+	public void onGuildAuditLogEntryCreate(@NotNull GuildAuditLogEntryCreateEvent event) {
 
-		// this will return a non-null text id if a channel was previously registered in the database
-		String registeredChannelId=dc.retrieveRegisteredChannelId(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+		vThreadPool.execute(()->{
+			// this will return a non-null text id if a channel was previously registered in the database
+			String registeredChannelId=dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
 
-		if(registeredChannelId==null ||registeredChannelId.isBlank()) {
-			return;
-		}
+			if(registeredChannelId==null ||registeredChannelId.isBlank()) {
+				return;
+			}
 
-		AuditLogEntry ale = event.getEntry();
-		auditLogParser(event, ale, registeredChannelId);
+			AuditLogEntry ale = event.getEntry();
+			auditLogParser(event, ale, registeredChannelId);
+		});
 	}
 
 	private void auditLogParser(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -165,7 +170,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 
 	private void formatInviteCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale , String channelIdToSendTo) {
@@ -226,7 +231,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 
 	}
 
@@ -283,7 +288,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 
 	private void formatKick(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -311,10 +316,10 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.addField("📝 With Reason", "╰┈➤"+(reason!=null ? reason : "No Reason Provided"), false);
 
 				eb.setFooter("Audit Log Entry ID: "+ale.getId());
-				eb.setTimestamp(ale.getTimeCreated()); 
+				eb.setTimestamp(ale.getTimeCreated());
 				MessageEmbed mb = eb.build();
-				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
-			});	
+				Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
+			});
 		});
 	}
 
@@ -344,7 +349,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.setFooter("Audit Log Entry ID: "+ale.getId());
 				eb.setTimestamp(ale.getTimeCreated()); 
 				MessageEmbed mb = eb.build();
-				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+				Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 			});	
 		});
 	}
@@ -373,7 +378,7 @@ public class AuditLogListener extends ListenerAdapter{
 				eb.setFooter("Audit Log Entry ID: "+ale.getId());
 				eb.setTimestamp(ale.getTimeCreated()); 
 				MessageEmbed mb = eb.build();
-				event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+				Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 			});	
 		});
 	}
@@ -390,7 +395,7 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableTarget = (target !=null ? target.getAsMention() : ale.getTargetId());
 		
 		eb.setDescription("👤 **By**: "+mentionableExecutor+"\nℹ️ The following member was updated");
-		eb.setThumbnail(event.getGuild().getMemberById(ale.getTargetId()).getEffectiveAvatarUrl());
+		eb.setThumbnail(Objects.requireNonNull(event.getGuild().getMemberById(ale.getTargetId())).getEffectiveAvatarUrl());
 		eb.setColor(Color.CYAN);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 	
@@ -419,9 +424,9 @@ public class AuditLogListener extends ListenerAdapter{
 			case "nick":							
 				if(oldValue!=null && newValue==null) { // resetting to default nickname
 					eb.addField("🏷️ Nickname Update", "╰┈➤"+"Reset "+mentionableTarget+"'s name", false);
-				} else if(oldValue!=null && newValue!=null) { // changing from one nickname to another
+				} else if(oldValue != null) { // changing from one nickname to another
 					eb.addField("🏷️ Nickname Update", "╰┈➤"+"Updated "+mentionableTarget+"'s name from "+oldValue+ " to "+ newValue, false);
-				} else if(oldValue==null && newValue!=null) { // changing from default nickname to a new nickname
+				} else if(newValue != null) { // changing from default nickname to a new nickname
 					eb.addField("🏷️ Nickname Update", "╰┈➤"+"Set "+mentionableTarget+"'s name as "+ newValue, false);
 				}
 				break;
@@ -448,7 +453,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatBotAdd(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -474,7 +479,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatIntegrationCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -516,7 +521,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatIntegrationDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -558,7 +563,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatChannelCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -625,7 +630,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatChannelUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -719,7 +724,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatChannelDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -769,7 +774,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatChannelOverrideCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -842,7 +847,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatChannelOverrideUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -869,13 +874,13 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableOverrideTarget = overriddenId;
 		if ("0".equals(overriddenType)) {
 		    // It’s a role
-		    Role role = event.getGuild().getRoleById(overriddenId);
+		    Role role = event.getGuild().getRoleById(Objects.requireNonNull(overriddenId));
 		    if (role != null) {
 		        mentionableOverrideTarget = role.getAsMention();
 		    }
 		} else if ("1".equals(overriddenType)) {
 		    // It’s a member
-		    Member member = event.getGuild().getMemberById(overriddenId);
+		    Member member = event.getGuild().getMemberById(Objects.requireNonNull(overriddenId));
 		    if (member != null) {
 		        mentionableOverrideTarget = member.getAsMention();
 		    }
@@ -917,7 +922,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatChannelOverrideDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -957,7 +962,7 @@ public class AuditLogListener extends ListenerAdapter{
 				break;
 				
 			case "allow":
-				/// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
+				// the newValue will return null if an over-ride is deleted but we're not concerned with newValue
 				// the oldValue returns the permissions the channel was previously allowed
 				eb.addField("Previously Allowed Permissions", PermissionResolver.getParsedPermissions(oldValue, "✅"), false);
 				break;
@@ -989,7 +994,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatAutoModRuleCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1017,13 +1022,13 @@ public class AuditLogListener extends ListenerAdapter{
 			case "exempt_roles":
 				String roleIds = String.valueOf(newValue);
 				String cleanedRoleIds = StringUtils.strip(roleIds, "[]");			
-				List<String> roleIdList = Arrays.asList(StringUtils.split(cleanedRoleIds, ","));
+				String[] roleIdList = StringUtils.split(cleanedRoleIds, ",");
 				StringBuilder mentionableRoles = new StringBuilder();
 				for(String roleId : roleIdList) {
 					Role r = ale.getGuild().getRoleById(roleId.strip());
 					mentionableRoles.append(r!=null ? r.getAsMention() : roleId.strip()).append(", ");
 				}
-				eb.addField("✔️ Exempt Roles: ", "╰┈➤"+mentionableRoles.toString(), false);
+				eb.addField("✔️ Exempt Roles: ", "╰┈➤"+ mentionableRoles, false);
 				break;
 				
 			case "enabled":
@@ -1041,13 +1046,13 @@ public class AuditLogListener extends ListenerAdapter{
 			case "exempt_channels":
 				String channelIds = String.valueOf(newValue);
 				String cleanedChannelIds = StringUtils.strip(channelIds, "[]");			
-				List<String> channelIdList = Arrays.asList(StringUtils.split(cleanedChannelIds, ","));
+				String[] channelIdList = StringUtils.split(cleanedChannelIds, ",");
 				StringBuilder mentionableChannels = new StringBuilder();
 				for(String channelId : channelIdList) {
 					GuildChannel r = ale.getGuild().getGuildChannelById(channelId.strip());
 					mentionableChannels.append(r!=null ? r.getAsMention() : channelId.strip()).append(", ");
 				}
-				eb.addField("✔️ Exempt Channels: ", "╰┈➤"+mentionableChannels.toString(), false);
+				eb.addField("✔️ Exempt Channels: ", "╰┈➤"+ mentionableChannels, false);
 				break;
 				
 			case "event_type":
@@ -1072,7 +1077,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatAutoModRuleDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1114,7 +1119,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatAutoModRuleUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1142,13 +1147,13 @@ public class AuditLogListener extends ListenerAdapter{
 			case "exempt_roles":
 				String roleIds = String.valueOf(newValue);
 				String cleanedRoleIds = StringUtils.strip(roleIds, "[]");			
-				List<String> roleIdList = Arrays.asList(StringUtils.split(cleanedRoleIds, ","));
+				String[] roleIdList = StringUtils.split(cleanedRoleIds, ",");
 				StringBuilder mentionableRoles = new StringBuilder();
 				for(String roleId : roleIdList) {
 					Role r = ale.getGuild().getRoleById(roleId.strip());
 					mentionableRoles.append(r!=null ? r.getAsMention() : roleId.strip()).append(", ");
 				}
-				eb.addField("✔️ New Exempt Roles: ", "╰┈➤"+mentionableRoles.toString(), false);
+				eb.addField("✔️ New Exempt Roles: ", "╰┈➤"+ mentionableRoles, false);
 				break;
 				
 						
@@ -1159,13 +1164,13 @@ public class AuditLogListener extends ListenerAdapter{
 			case "exempt_channels":
 				String channelIds = String.valueOf(newValue);
 				String cleanedChannelIds = StringUtils.strip(channelIds, "[]");			
-				List<String> channelIdList = Arrays.asList(StringUtils.split(cleanedChannelIds, ","));
+				String[] channelIdList = StringUtils.split(cleanedChannelIds, ",");
 				StringBuilder mentionableChannels = new StringBuilder();
 				for(String channelId : channelIdList) {
 					GuildChannel r = ale.getGuild().getGuildChannelById(channelId.strip());
 					mentionableChannels.append(r!=null ? r.getAsMention() : channelId.strip()).append(", ");
 				}
-				eb.addField("✔️ New Exempt Channels: ", "╰┈➤"+mentionableChannels.toString(), false);
+				eb.addField("✔️ New Exempt Channels: ", "╰┈➤"+ mentionableChannels, false);
 				break;
 				
 				
@@ -1187,7 +1192,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatEmojiCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1227,7 +1232,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatEmojiUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1266,7 +1271,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatEmojiDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1305,7 +1310,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatStickerCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1360,7 +1365,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatStickerDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1413,7 +1418,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatStickerUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1431,7 +1436,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
 		
-		eb.addField("🏷️ Target Sticker Name", targetSticker.getName(), false);
+		eb.addField("🏷️ Target Sticker Name", Objects.requireNonNull(targetSticker).getName(), false);
 		eb.addField("🔗 Target Sticker Url", targetSticker.getIconUrl(), false);
 		
 		for(Entry<String, AuditLogChange> changes: ale.getChanges().entrySet()) {
@@ -1467,7 +1472,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatGuildUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1574,7 +1579,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatMemberRoleUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1588,7 +1593,7 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableTarget = (target !=null ? target.getAsMention() : ale.getTargetId());
 		
 		eb.setDescription("👤 **By**: "+mentionableExecutor+"\nℹ️ The following member role was updated");
-		eb.setThumbnail(event.getGuild().getMemberById(ale.getTargetIdLong()).getEffectiveAvatarUrl());
+		eb.setThumbnail(Objects.requireNonNull(event.getGuild().getMemberById(ale.getTargetIdLong())).getEffectiveAvatarUrl());
 		eb.setColor(Color.CYAN);
 		
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
@@ -1628,7 +1633,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatRoleCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1678,7 +1683,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatRoleUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1752,7 +1757,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatRoleDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1813,7 +1818,7 @@ public class AuditLogListener extends ListenerAdapter{
 
 		MessageEmbed mb = eb.build();
 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	// the audit log does not expose much information regarding member vc move and kick events
@@ -1835,7 +1840,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatMemberVoiceMove(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1855,7 +1860,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatVoiceChannelStatusUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1878,7 +1883,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatVoiceChannelStatusDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1901,7 +1906,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatAutoModFlagToChannel(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1921,7 +1926,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatAutoModMemberTimeout (GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1941,7 +1946,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatAutoModRuleBlockMessage (GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1961,7 +1966,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatMessagePin(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -1981,7 +1986,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	// these audit log events don't expose anything other than the executor of the event
 	private void formatMessageUnpin(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2001,7 +2006,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatStageInstanceCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2042,7 +2047,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatStageInstanceUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2085,7 +2090,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatStageInstanceDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2126,7 +2131,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatScheduledEventCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2186,7 +2191,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatScheduledEventUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2198,7 +2203,7 @@ public class AuditLogListener extends ListenerAdapter{
 		String mentionableExecutor = (executor != null ? executor.getAsMention() : ale.getUserId());
 		
 		ScheduledEvent targetEvent = event.getGuild().getScheduledEventById(ale.getTargetId());
-		eb.setDescription("👤 **By**: "+mentionableExecutor+"\nℹ️ The following scheduled event was updated: "+targetEvent.getName());
+		eb.setDescription("👤 **By**: "+mentionableExecutor+"\nℹ️ The following scheduled event was updated: "+ Objects.requireNonNull(targetEvent).getName());
 		eb.setColor(Color.YELLOW);
 		eb.addField("Action Type", String.valueOf(ale.getType()), true);
 		eb.addField("Target Type", String.valueOf(ale.getTargetType()), true); 
@@ -2254,7 +2259,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatScheduledEventDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2314,7 +2319,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatThreadCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2377,7 +2382,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatThreadUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2455,7 +2460,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatThreadDelete(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2514,7 +2519,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatWebhookCreate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2565,7 +2570,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatWebhookUpdate(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2616,7 +2621,7 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 	
 	private void formatWebhookRemove(GuildAuditLogEntryCreateEvent event, AuditLogEntry ale, String channelIdToSendTo) {
@@ -2667,6 +2672,6 @@ public class AuditLogListener extends ListenerAdapter{
 		eb.setTimestamp(ale.getTimeCreated());
 
 		MessageEmbed mb = eb.build();	 
-		event.getGuild().getTextChannelById(channelIdToSendTo).sendMessageEmbeds(mb).queue();	
+		Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 	}
 }

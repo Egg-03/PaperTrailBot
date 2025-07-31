@@ -5,7 +5,7 @@ import java.util.Map;
 public class GuildSystemChannelFlagResolver {
 	
 	private static final Map<Long, String> SYSTEM_CHANNEL_FLAG_MAP = Map.ofEntries(
-			Map.entry(1L << 0, "Suppress member join notifications"),
+			Map.entry(1L, "Suppress member join notifications"),
 	        Map.entry(1L << 1, "Suppress server boost notifications"),
 	        Map.entry(1L << 2, "Suppress server setup tips"),
 	        Map.entry(1L << 3, "Hide member join sticker reply buttons"),

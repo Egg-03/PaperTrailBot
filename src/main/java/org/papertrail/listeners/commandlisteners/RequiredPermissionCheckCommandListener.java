@@ -1,4 +1,4 @@
-package org.papertrail.listeners.customlisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
 import java.util.EnumMap;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class RequiredPermissionCheckListener extends ListenerAdapter {
+public class RequiredPermissionCheckCommandListener extends ListenerAdapter {
 	
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -25,15 +25,23 @@ public class RequiredPermissionCheckListener extends ListenerAdapter {
 			Guild guild = event.getGuild();
 					
 			SelfUser botAsUser = event.getJDA().getSelfUser();
-			Role botIntegrationRole = guild.getRoleByBot(botAsUser);
+            assert guild != null;
+            Role botIntegrationRole = guild.getRoleByBot(botAsUser);
 			Member botMember = guild.getMember(botAsUser);
 			
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("PaperTrail Permissions Checker");
 			eb.setDescription("Helps determine whether the required permissions are granted for PaperTrail to function properly");
 			eb.setColor(Color.MAGENTA);
-			
-			eb.addField("Bot Integration Role Specific Permission", (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌")+Permission.VIEW_AUDIT_LOGS.getName(), false);
+
+            assert botIntegrationRole != null;
+            String botRoleRequiredPermissions = (botIntegrationRole.hasPermission(Permission.VIEW_AUDIT_LOGS) ? "✅" : "❌") +
+                    Permission.VIEW_AUDIT_LOGS.getName() +
+                    System.lineSeparator() +
+                    (botIntegrationRole.hasPermission(Permission.MANAGE_SERVER) ? "✅" : "❌") +
+                    Permission.MANAGE_SERVER.getName();
+
+            eb.addField("Bot Integration Role Specific Permission", botRoleRequiredPermissions, false);
 			
 			// create a map of required permissions and set all their statuses to false
 			Map<Permission, Boolean> requiredPermissions = new EnumMap<>(Permission.class);
@@ -57,10 +65,10 @@ public class RequiredPermissionCheckListener extends ListenerAdapter {
 				});
 				
 				StringBuilder finalPermissions = new StringBuilder();
-				requiredPermissions.entrySet().forEach(permission -> {
-					finalPermissions.append(Boolean.TRUE.equals(permission.getValue()) ? "✅" : "❌");
-					finalPermissions.append(permission.getKey().getName()+System.lineSeparator());
-				});
+				requiredPermissions.forEach((key, value) -> {
+                    finalPermissions.append(Boolean.TRUE.equals(value) ? "✅" : "❌");
+                    finalPermissions.append(key.getName()).append(System.lineSeparator());
+                });
 				
 				
 				eb.addField("Channel Specific Permissions: "+currentChannel.getAsMention(), finalPermissions.toString(), false);

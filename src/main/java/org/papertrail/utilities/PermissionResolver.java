@@ -5,7 +5,7 @@ import java.util.Map;
 public class PermissionResolver {
 	
 	private static final Map<Long, String> PERMISSION_MAP = Map.ofEntries(
-			Map.entry(1L << 0, "CREATE_INSTANT_INVITE"),
+			Map.entry(1L, "CREATE_INSTANT_INVITE"),
 	        Map.entry(1L << 1, "KICK_MEMBERS"),
 	        Map.entry(1L << 2, "BAN_MEMBERS"),
 	        Map.entry(1L << 3, "ADMINISTRATOR"),

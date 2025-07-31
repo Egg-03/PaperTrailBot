@@ -1,7 +1,7 @@
-package org.papertrail.listeners.loglisteners;
+package org.papertrail.listeners.commandlisteners;
 
 import java.awt.Color;
-import java.sql.SQLException;
+import java.util.Objects;
 
 import org.papertrail.database.DatabaseConnector;
 import org.papertrail.database.TableNames;
@@ -15,12 +15,12 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-public class AuditLogCommandListener extends ListenerAdapter {
+public class AuditLogSetupCommandListener extends ListenerAdapter {
 
-	private DatabaseConnector dc;
+	private final DatabaseConnector dc;
 	
 
-	public AuditLogCommandListener(DatabaseConnector dc) {
+	public AuditLogSetupCommandListener(DatabaseConnector dc) {
 		this.dc = dc;	
 	}
 
@@ -56,10 +56,10 @@ public class AuditLogCommandListener extends ListenerAdapter {
 			return;
 		}
 			
-		String guildId = event.getGuild().getId();
+		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 		// retrieve the previously registered channel_id associated with the given
 		// guild_id
-		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
 
 		// if there is a registered channel_id in the database, send a warning message
 		// in the channel where the command was called from, stating that a channel has
@@ -83,7 +83,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 		String channelIdToRegister = event.getChannel().asTextChannel().getId();
 		try {
 			// register the channel_id along with guild_id in the database
-			dc.registerGuildAndChannel(guildId, channelIdToRegister, TableNames.AUDIT_LOG_TABLE);
+			dc.getGuildDataAccess().registerGuildAndChannel(guildId, channelIdToRegister, TableNames.AUDIT_LOG_TABLE);
 			
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("📝 Audit Log Configuration");
@@ -93,7 +93,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 
 			event.replyEmbeds(mb).setEphemeral(false).queue();
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("📝 Audit Log Configuration");
@@ -115,10 +115,10 @@ public class AuditLogCommandListener extends ListenerAdapter {
 			return;
 		}
 		
-		String guildId = event.getGuild().getId();
+		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 
 		// retrieve the channel_id registered in the database
-		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
 
 		// if there is no channel_id for the given guild_id in the database, then inform
 		// the user of the same, else link the channel that has been registered
@@ -165,8 +165,8 @@ public class AuditLogCommandListener extends ListenerAdapter {
 			return;
 		}
 		
-		String guildId = event.getGuild().getId();
-		String registeredChannelId = dc.retrieveRegisteredChannelId(guildId, TableNames.AUDIT_LOG_TABLE);
+		String guildId = Objects.requireNonNull(event.getGuild()).getId();
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
 
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {
 			
@@ -180,7 +180,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 		} else {
 			try {
 
-				dc.unregisterGuildAndChannel(guildId, TableNames.AUDIT_LOG_TABLE);
+				dc.getGuildDataAccess().unregister(guildId, TableNames.AUDIT_LOG_TABLE);
 				
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setTitle("📝 Audit Log Configuration");
@@ -190,7 +190,7 @@ public class AuditLogCommandListener extends ListenerAdapter {
 
 				event.replyEmbeds(mb).setEphemeral(false).queue();
 
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setTitle("📝 Audit Log Configuration");
