@@ -8,6 +8,9 @@ import org.tinylog.Logger;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import static org.papertrail.database.Schema.initializeSchema;
+
+
 public class DatabaseConnector {
 
 	private static final String DB_URL = EnvConfig.get("DATABASEURL");
@@ -17,6 +20,7 @@ public class DatabaseConnector {
 	public DatabaseConnector() {
 		initializeDataSource();
 		this.dsl = DSL.using(dataSource, SQLDialect.POSTGRES);
+		initializeSchema(dsl);
 	}
 	
 	public GuildDataAccess getGuildDataAccess() {

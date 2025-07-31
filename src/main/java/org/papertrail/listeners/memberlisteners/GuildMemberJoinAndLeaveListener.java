@@ -7,7 +7,7 @@ import java.util.concurrent.Executor;
 
 import org.jetbrains.annotations.NotNull;
 import org.papertrail.database.DatabaseConnector;
-import org.papertrail.database.TableNames;
+import org.papertrail.database.Schema;
 import org.papertrail.utilities.DurationFormatter;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,7 +35,7 @@ public class GuildMemberJoinAndLeaveListener extends ListenerAdapter {
 			// this will return a non-null text id if a channel was previously registered in
 			// the database
 			// guild member join and leave events are mapped to audit log table
-			String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+			String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), Schema.AUDIT_LOG_TABLE);
 
 			if (registeredChannelId == null || registeredChannelId.isBlank()) {
 				return;
@@ -70,7 +70,7 @@ public class GuildMemberJoinAndLeaveListener extends ListenerAdapter {
 		vThreadPool.execute(() -> {
 			// this will return a non-null text id if a channel was previously registered in
 			// the database
-			String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+			String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), Schema.AUDIT_LOG_TABLE);
 
 			if (registeredChannelId == null || registeredChannelId.isBlank()) {
 				return;

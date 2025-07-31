@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.papertrail.database.DatabaseConnector;
-import org.papertrail.database.TableNames;
+import org.papertrail.database.Schema;
 import org.papertrail.utilities.EnvConfig;
 import org.papertrail.version.AuthorInfo;
 import org.papertrail.version.ProjectInfo;
@@ -36,7 +36,7 @@ public class AnnouncementCommandListener extends ListenerAdapter {
 			
 		if(event.getName().equals("announcement")) {
 			
-			List<String> registeredChannelList = dc.getGuildDataAccess().retrieveAllRegisteredChannels(TableNames.AUDIT_LOG_TABLE);
+			List<String> registeredChannelList = dc.getGuildDataAccess().retrieveAllRegisteredChannels(Schema.AUDIT_LOG_TABLE);
 			
 			if(registeredChannelList.isEmpty()) {
 				return;

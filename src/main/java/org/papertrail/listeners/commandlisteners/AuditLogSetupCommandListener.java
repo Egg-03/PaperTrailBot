@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.Objects;
 
 import org.papertrail.database.DatabaseConnector;
-import org.papertrail.database.TableNames;
+import org.papertrail.database.Schema;
 import org.tinylog.Logger;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -59,7 +59,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 		// retrieve the previously registered channel_id associated with the given
 		// guild_id
-		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, Schema.AUDIT_LOG_TABLE);
 
 		// if there is a registered channel_id in the database, send a warning message
 		// in the channel where the command was called from, stating that a channel has
@@ -83,7 +83,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 		String channelIdToRegister = event.getChannel().asTextChannel().getId();
 		try {
 			// register the channel_id along with guild_id in the database
-			dc.getGuildDataAccess().registerGuildAndChannel(guildId, channelIdToRegister, TableNames.AUDIT_LOG_TABLE);
+			dc.getGuildDataAccess().registerGuildAndChannel(guildId, channelIdToRegister, Schema.AUDIT_LOG_TABLE);
 			
 			EmbedBuilder eb = new EmbedBuilder();
 			eb.setTitle("📝 Audit Log Configuration");
@@ -118,7 +118,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 		String guildId = Objects.requireNonNull(event.getGuild()).getId();
 
 		// retrieve the channel_id registered in the database
-		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, Schema.AUDIT_LOG_TABLE);
 
 		// if there is no channel_id for the given guild_id in the database, then inform
 		// the user of the same, else link the channel that has been registered
@@ -166,7 +166,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 		}
 		
 		String guildId = Objects.requireNonNull(event.getGuild()).getId();
-		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.AUDIT_LOG_TABLE);
+		String registeredChannelId = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, Schema.AUDIT_LOG_TABLE);
 
 		if (registeredChannelId == null || registeredChannelId.isBlank()) {
 			
@@ -180,7 +180,7 @@ public class AuditLogSetupCommandListener extends ListenerAdapter {
 		} else {
 			try {
 
-				dc.getGuildDataAccess().unregister(guildId, TableNames.AUDIT_LOG_TABLE);
+				dc.getGuildDataAccess().unregister(guildId, Schema.AUDIT_LOG_TABLE);
 				
 				EmbedBuilder eb = new EmbedBuilder();
 				eb.setTitle("📝 Audit Log Configuration");

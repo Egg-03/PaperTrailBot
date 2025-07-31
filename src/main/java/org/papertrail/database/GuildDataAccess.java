@@ -7,14 +7,13 @@ import java.util.List;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectOne;
 import static org.jooq.impl.DSL.table;
+import static org.papertrail.database.Schema.CHANNEL_ID_COLUMN;
+import static org.papertrail.database.Schema.GUILD_ID_COLUMN;
 
 public class GuildDataAccess {
 
 	private final DSLContext dsl;
-	
-	private static final String GUILD_ID_COLUMN = "guild_id";
-	private static final String CHANNEL_ID_COLUMN = "channel_id";
-	
+
 	public GuildDataAccess(DSLContext dsl) {
 		this.dsl = dsl;
 	}
