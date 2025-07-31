@@ -63,5 +63,21 @@ public class Schema {
 				.on(MESSAGE_LOG_CONTENT_TABLE, "created_at")
 				.execute();
 
+		setupCronDeletion(dsl);
+	}
+
+	private static void setupCronDeletion(DSLContext dsl) {
+		dsl.query("CREATE EXTENSION IF NOT EXISTS pg_cron;").execute();
+
+		String deleteQuery = String.format("""
+				SELECT cron.schedule(
+				  'daily_log_cleanup',
+				  '0 2 * * *',  -- 2:00 AM UTC daily
+				  $$DELETE FROM %s WHERE created_at < CURRENT_TIMESTAMP - INTERVAL '30 days';$$
+				);
+				""", MESSAGE_LOG_CONTENT_TABLE);
+
+		dsl.query(deleteQuery).execute();
+
 	}
 }
