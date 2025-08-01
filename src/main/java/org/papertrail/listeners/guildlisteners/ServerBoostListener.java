@@ -8,7 +8,7 @@ import java.util.concurrent.Executor;
 
 import org.jetbrains.annotations.NotNull;
 import org.papertrail.database.DatabaseConnector;
-import org.papertrail.database.TableNames;
+import org.papertrail.database.Schema;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -33,7 +33,7 @@ public class ServerBoostListener extends ListenerAdapter {
 		vThreadPool.execute(()->{
 			// this will return a non-null text id if a channel was previously registered in the database
 			// server boost logs are mapped to audit log table
-			String registeredChannelId=dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), TableNames.AUDIT_LOG_TABLE);
+			String registeredChannelId=dc.getGuildDataAccess().retrieveRegisteredChannel(event.getGuild().getId(), Schema.AUDIT_LOG_TABLE);
 
 			if(registeredChannelId==null ||registeredChannelId.isBlank()) {
 				return;

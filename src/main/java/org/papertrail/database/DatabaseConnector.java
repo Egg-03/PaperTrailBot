@@ -8,6 +8,9 @@ import org.tinylog.Logger;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import static org.papertrail.database.Schema.initializeSchema;
+
+
 public class DatabaseConnector {
 
 	private static final String DB_URL = EnvConfig.get("DATABASEURL");
@@ -17,6 +20,7 @@ public class DatabaseConnector {
 	public DatabaseConnector() {
 		initializeDataSource();
 		this.dsl = DSL.using(dataSource, SQLDialect.POSTGRES);
+		initializeSchema(dsl);
 	}
 	
 	public GuildDataAccess getGuildDataAccess() {
@@ -37,7 +41,8 @@ public class DatabaseConnector {
 			dataSource.setConnectionTimeout(30000); // 30 seconds
 			dataSource.setIdleTimeout(600000); // 10 minutes
 			dataSource.setMaxLifetime(1800000); // 30 minutes	
-			dataSource.setPoolName("PaperTrailPool");	
+			dataSource.setPoolName("PaperTrailPool");
+			dataSource.setConnectionInitSql("SET TIME ZONE 'UTC'");
 		}
 		// Ensure the data source is closed on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {

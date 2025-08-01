@@ -6,14 +6,13 @@ import org.papertrail.utilities.MessageEncryption;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectOne;
 import static org.jooq.impl.DSL.table;
+import static org.papertrail.database.Schema.AUTHOR_ID_COLUMN;
+import static org.papertrail.database.Schema.MESSAGE_CONTENT_COLUMN;
+import static org.papertrail.database.Schema.MESSAGE_ID_COLUMN;
 
 public class MessageDataAccess {
 
     private final DSLContext dsl;
-
-    private static final String MESSAGE_ID_COLUMN = "message_id";
-    private static final String MESSAGE_CONTENT_COLUMN = "message_content";
-    private static final String AUTHOR_ID_COLUMN = "author_id";
 
     public MessageDataAccess (DSLContext dsl) {
         this.dsl = dsl;
@@ -21,7 +20,7 @@ public class MessageDataAccess {
 
     public void logMessage(String messageId, String messageContent, String authorId) {
 
-        dsl.insertInto(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
+        dsl.insertInto(table(Schema.MESSAGE_LOG_CONTENT_TABLE))
                 .columns(field(MESSAGE_ID_COLUMN), field(MESSAGE_CONTENT_COLUMN), field(AUTHOR_ID_COLUMN))
                 .values(Long.parseLong(messageId), MessageEncryption.encrypt(messageContent), Long.parseLong(authorId))
                 .onConflictDoNothing()
@@ -31,7 +30,7 @@ public class MessageDataAccess {
     public AuthorAndMessageEntity retrieveAuthorAndMessage (String messageId) {
 
         return dsl.select(field(AUTHOR_ID_COLUMN), field(MESSAGE_CONTENT_COLUMN))
-                .from(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
+                .from(table(Schema.MESSAGE_LOG_CONTENT_TABLE))
                 .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
                 .fetchOne(r -> new AuthorAndMessageEntity(String.valueOf(r.get(field(AUTHOR_ID_COLUMN))), MessageEncryption.decrypt(String.valueOf(r.get(field(MESSAGE_CONTENT_COLUMN))))));
     }
@@ -39,14 +38,14 @@ public class MessageDataAccess {
     public boolean messageExists (String messageId) {
 
         return dsl.fetchExists(
-                selectOne().from(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
+                selectOne().from(table(Schema.MESSAGE_LOG_CONTENT_TABLE))
                         .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
         );
     }
 
     public void updateMessage (String messageId, String messageContent) {
 
-        dsl.update(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
+        dsl.update(table(Schema.MESSAGE_LOG_CONTENT_TABLE))
                 .set(field(MESSAGE_CONTENT_COLUMN), MessageEncryption.encrypt(messageContent))
                 .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
                 .execute();
@@ -54,7 +53,7 @@ public class MessageDataAccess {
 
     public void deleteMessage (String messageId) {
 
-        dsl.deleteFrom(table(TableNames.MESSAGE_LOG_CONTENT_TABLE))
+        dsl.deleteFrom(table(Schema.MESSAGE_LOG_CONTENT_TABLE))
                 .where(field(MESSAGE_ID_COLUMN).eq(Long.parseLong(messageId)))
                 .execute();
     }

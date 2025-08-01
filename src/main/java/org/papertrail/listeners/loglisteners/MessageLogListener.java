@@ -10,7 +10,7 @@ import java.util.concurrent.locks.Lock;
 import com.google.common.util.concurrent.Striped;
 import org.papertrail.database.AuthorAndMessageEntity;
 import org.papertrail.database.DatabaseConnector;
-import org.papertrail.database.TableNames;
+import org.papertrail.database.Schema;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -62,7 +62,7 @@ public class MessageLogListener extends ListenerAdapter {
 		// see if the guild id is registered in the database for logging
 
 		// if not registered, exit
-		if(!dc.getGuildDataAccess().isGuildRegistered(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE)) {
+		if(!dc.getGuildDataAccess().isGuildRegistered(guildId, Schema.MESSAGE_LOG_REGISTRATION_TABLE)) {
 			return;
 		}
 
@@ -83,7 +83,7 @@ public class MessageLogListener extends ListenerAdapter {
 		}
 		
 		String guildId = event.getGuild().getId();
-		if(!dc.getGuildDataAccess().isGuildRegistered(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE)) {
+		if(!dc.getGuildDataAccess().isGuildRegistered(guildId, Schema.MESSAGE_LOG_REGISTRATION_TABLE)) {
 			return;
 		}
 
@@ -124,7 +124,7 @@ public class MessageLogListener extends ListenerAdapter {
 			// this channel is where the logs will be sent to
 			// wrap the embed and send
 			MessageEmbed mb = eb.build();
-			String channelIdToSendTo = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+			String channelIdToSendTo = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, Schema.MESSAGE_LOG_REGISTRATION_TABLE);
 			Objects.requireNonNull(event.getGuild().getTextChannelById(channelIdToSendTo)).sendMessageEmbeds(mb).queue();
 		});
 	}
@@ -134,7 +134,7 @@ public class MessageLogListener extends ListenerAdapter {
 			
 		String guildId = event.getGuild().getId();
 
-		if(!dc.getGuildDataAccess().isGuildRegistered(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE)) {
+		if(!dc.getGuildDataAccess().isGuildRegistered(guildId, Schema.MESSAGE_LOG_REGISTRATION_TABLE)) {
 			return;
 		}
 
@@ -148,7 +148,7 @@ public class MessageLogListener extends ListenerAdapter {
 			}
 
 			// retrieve the channel id where the logs must be sent
-			String channelIdToSendTo = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, TableNames.MESSAGE_LOG_REGISTRATION_TABLE);
+			String channelIdToSendTo = dc.getGuildDataAccess().retrieveRegisteredChannel(guildId, Schema.MESSAGE_LOG_REGISTRATION_TABLE);
 			// retrieve the stored message in the database which was deleted
 			AuthorAndMessageEntity ame = dc.getMessageDataAccess().retrieveAuthorAndMessage(messageId);
 
