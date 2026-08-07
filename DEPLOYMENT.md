@@ -1,4 +1,4 @@
-_Last Updated : July 15, 2026_
+_Last Updated : August 07, 2026_
 
 # Table of Contents
 
@@ -12,46 +12,35 @@ _Last Updated : July 15, 2026_
 
 # Overview
 
-This section will show you how to deploy PaperTrail bot, and its related services. Note that this deployment guide
-is meant for the `ORIGINAL` edition and not the `LITE` edition.
+This section will show you how to deploy the `ORIGINAL` version of the bot.
 
-By `ORIGINAL` edition, I mean the current repository,
-while `LITE` edition is [this](https://github.com/eggy03/PaperTrailBot-Lite) repository.
+To deploy the `LITE` edition check out [this](https://github.com/eggy03/PaperTrailBot-Lite) repository.
 
 # Difference between `ORIGINAL` and `LITE` editions
 
-The ORIGINAL edition was originally designed to support self-hosting, horizontal scaling, customizable sharding,
-and a simple post-deployment configuration experience.
-This required you to set up a `custom API service`, a configurable instance of `Redis` and a `PostgreSQL` instance,
-alongside an instance (or multiple instances) of the bot.
-As a result, the self-hosting process is considerably more involved,
-while the post-deployment experience offers fewer server-level customization options in exchange for greater
-scalability.
+The `ORIGINAL` edition is designed to support self-hosting, horizontal scaling, customizable sharding. This requires you
+to deploy/lease one or many instances of the PaperTrail API, a Redis/Valkey service and a database service. Very soon I
+realized that this creates a bit of maintenance overhead for users.
 
-The `LITE` edition is designed with greater personalization and easier setup in mind.
-It is designed to be invited to and used on a single server and does not require any form of sharding or scaling.
-Hence, you do not need to set up anything other than the bot and a redis/valkey instance.
-It is also designed to allow for more customization such as routing of individual events to custom channels which the
-user can set.
+This is where `LITE` edition was proposed. It is a fork of the `ORIGINAL` edition but is designed with greater
+personalization and easier setup in mind. It does not require a separate API or database service, just a Redis/Valkey
+instance, and allows for greater customization during setup, most of which comes with sane defaults as well. This makes
+it easy to set it up and get it working. However, the `LITE` edition can log only for a single server and does not
+support scaling or sharding.
 
 Other than the aforementioned differences, everything else is identical between the two editions.
 
-If you are self-hosting it, you will probably host it for your own server, and hence in most cases, `LITE` edition
-is the only edition you need as it's way less complicated to set up than the `ORIGINAL` edition.
-Guide to the lite edition is available in this repository's [readme](/README.md).
+If you are self-hosting it, you will probably host it for your own server, and hence in most cases, `LITE` edition is
+the recommended one.
 
 You should use the `ORIGINAL` edition only if you need capabilities that are not available in the `LITE` edition,
 such as manual sharding or horizontal scaling.
 
 # Deployment
 
-> [!NOTE]
-> Gives you full control of the services you want to deploy.
+> [!IMPORTANT]
 >
-> You set up each service manually but have full control over the process, including customizable sharding and
-> horizontal scaling.
->
-> This guide assumes you already have a working PostgreSQL and Redis/Valkey instance.
+> This guide assumes you already have a working PostgreSQL and Redis/Valkey instance or know how to set up one.
 
 ## Step 1: Setting up the API Service
 
@@ -62,8 +51,7 @@ Follow this [guide](https://github.com/eggy03/PaperTrail-API-Quarkus?tab=readme-
 Log on to the [Discord Developer Portal](https://discord.com/developers/applications) and create an application.
 
 The application can have any name, avatar, banner and description but the following scopes, permissions and intents are
-needed
-for it to work properly:
+needed for it to work properly:
 
 **Installation Contexts**
 
@@ -95,10 +83,10 @@ Note down the `BOT TOKEN` since it will be shown only once and will be required 
 
 ### 3.1: Get Required Secrets
 
-| Variable  | Description                                                        | Default Value    | Optional |
-|-----------|--------------------------------------------------------------------|------------------|----------|
-| `TOKEN`   | Discord application bot token (from the Developer Portal)          | No Default Value | No       |
-| `API_URL` | Internal URL of the PaperTrail API (e.g., `http://localhost:8080`) | No Default Value | No       |
+| Variable  | Description                                               | Default Value    | Optional |
+|-----------|-----------------------------------------------------------|------------------|----------|
+| `TOKEN`   | Discord application bot token (from the Developer Portal) | No Default Value | No       |
+| `API_URL` | Internal URL of the PaperTrail API                        | No Default Value | No       |
 
 Example `.env` file:
 
@@ -109,16 +97,9 @@ API_URL="http://localhost:8080"
 
 ### 3.2: Deployment Options
 
-> [!IMPORTANT]
-> Since v4.1.3, the bot comes in two build forms: `JVM` and `Native`.
-> While this guide covers both the forms, it is recommended to use the JVM form since Native builds are currently
-> unstable.
->
-> For more info on native builds, see [the native image section](#native-builds)
-
 #### Option A : Deploy Using Pre-Built Docker Images
 
-The GitHub Container Registry
+The GitHub Container Registry for this repository
 has pre-built docker images for both JVM and Native versions the bot which you can use.
 
 [Container Registry for JVM Edition](https://github.com/eggy03/PaperTrailBot/pkgs/container/papertrail-bot)
@@ -127,8 +108,7 @@ has pre-built docker images for both JVM and Native versions the bot which you c
 
 You may choose either one.
 
-Make sure you have the `.env` file containing the required secrets in the root of the folder
-you're executing the following commands from:
+To know more about native builds, visit the [bottom](#native-builds) of this guide.
 
 ```bash
 # JVM
@@ -158,11 +138,6 @@ docker run -d --name papertrail-bot --env-file .env papertrail-bot
 docker build -f Dockerfile.native -t papertrail-bot-native .
 docker run -d --name papertrail-bot-native --env-file .env papertrail-bot-native
 ```
-
-> [!NOTE]
->
-> While the above sub-options use `--env-file .env` for examples, you can also pass environment variables directly
-> via `docker -e KEY:"VALUE"`
 
 #### Option C : Building From Source Without Docker
 
@@ -381,7 +356,7 @@ run the application on a different port, you can manually set the `PORT` environ
 > [!CAUTION]
 > Native builds are experimental
 
-Since `v4.1.3` it is possible to create native builds of the bot. Native builds are recommended
+Since `v4.1.3` it is possible to create and use native builds of the bot. Native builds are recommended
 when you are hosting the bot in a very resource constrained environment,
 and you need the bot to have faster startup times and low memory consumption.
 
