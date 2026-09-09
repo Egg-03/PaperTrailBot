@@ -22,7 +22,7 @@
         <skipITs>true</skipITs>
 
         <!-- Dependency Versions -->
-        <jda.version>6.5.0</jda.version>
+        <jda.version>6.6.0</jda.version>
         <papertrail.sdk.version>3.0.2</papertrail.sdk.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <guava.version>33.7.1-jre</guava.version>
