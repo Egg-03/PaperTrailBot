@@ -236,4 +236,39 @@ public final class AutoModActionTypeHandler extends AbstractGuildAuditLogEntryCr
 
         embedCheckingService.checkAndSend(event, eb, channelIdToSendTo);
     }
+
+    @Override
+    public void onAutoModerationQuarantineUser(@NonNull GuildAuditLogEntryCreateEvent event) {
+
+        String channelIdToSendTo = getRegisteredChannelId(event.getGuild().getId());
+        if (channelIdToSendTo.isBlank()) return;
+
+        AuditLogEntry ale = event.getEntry();
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Audit Log Entry | AutoMod Quarantine User");
+
+        User targetMember = ale.getJDA().getUserById(ale.getTargetIdLong());
+        String mentionableTarget = (targetMember != null ? targetMember.getAsMention() : ale.getTargetId());
+
+        eb.setDescription(MarkdownUtil.quoteBlock("Quarantined User: " + mentionableTarget));
+        eb.setColor(Color.ORANGE);
+
+        eb.addField("INFO", "PaperTrail is still learning about this event", false);
+
+        // todo show changes in embed after enough data has been gathered
+        ale.getChanges().forEach((changeKey, changeValue) -> {
+
+            Object oldValue = changeValue.getOldValue();
+            Object newValue = changeValue.getNewValue();
+
+            log.info("Automod Quarantine User | Change Key : {} | Old Change Value : {} | New Change Value : {}", changeKey, oldValue, newValue);
+
+        });
+
+        eb.setFooter("Audit Log Entry ID: " + ale.getId());
+        eb.setTimestamp(ale.getTimeCreated());
+
+        embedCheckingService.checkAndSend(event, eb, channelIdToSendTo);
+    }
 }

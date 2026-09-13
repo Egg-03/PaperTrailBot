@@ -131,6 +131,9 @@ public final class GuildUpdateActionTypeHandler extends AbstractGuildAuditLogEnt
                 case "banner_hash" ->
                         eb.addField(MarkdownUtil.underline("Server Banner"), "╰┈➤ Server Banner image has been updated", false);
 
+                case "vanity_url_code" ->
+                        eb.addField(MarkdownUtil.underline("Vanity URL Code"), "╰┈➤ Vanity URL code has been updated", false);
+
                 default -> {
                     eb.addField("Unimplemented Change Key", changeKey, false);
                     log.info("Unimplemented Change Key for Guild Update: {}\nOLD_VALUE: {}\nNEW_VALUE: {}", changeKey, oldValue, newValue);
